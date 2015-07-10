@@ -1,0 +1,43 @@
+$medium-grey: white !default;
+
+.disjointed-world-layout {
+  .graticule {
+    fill: none;
+    stroke: #777;
+    stroke-width: .5px;
+    stroke-opacity: .5;
+  }
+
+  .land {
+    stroke: $medium-grey;
+    stroke-width: 0;
+    fill: $medium-grey;
+  }
+
+  .error {
+    stroke: darkred;
+    fill: red;
+  }
+
+  .boundary {
+    fill: none;
+    stroke: #fff;
+    stroke-width: .5px;
+  }
+
+  .county {
+    fill: #000;
+    opacity: 0.7;
+  }
+
+  .county:hover {
+    opacity: 1;
+  }
+
+  .link {
+    fill: none;
+    stroke: #444;
+    pointer-events: none;
+  }
+
+}

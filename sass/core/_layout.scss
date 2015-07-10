@@ -1,0 +1,35 @@
+html {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+*, *:before, *:after {
+  -webkit-box-sizing: inherit;
+  -moz-box-sizing: inherit;
+  box-sizing: inherit;
+}
+
+body,
+html,
+#app-box {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-width: 940px;
+  background: $dark-grey;
+  color: #fff;
+}
+
+header, section {
+  position: relative;
+}
+
+// helpers
+.full-height {
+  height: 100%;
+}

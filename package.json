@@ -53,6 +53,8 @@
     "leaflet": "^0.7.3",
     "topojson": "^1.6.19",
     "d3": "^3.5.5",
+    "topojson": "^1.6.19",
+    "d3-geo-projection": "",
     "intro.js": "git@github.com:stamen/intro.js.git",
     "react-modal": "^0.2.0",
     "deepcopy": "^0.5.0",
