@@ -9,15 +9,21 @@ require("d3-geo-projection")(d3);
 var countyLookup = {};
 var countryLookup = {};
 var projections = {};
+var padding = 3;
 
-var color2 = d3.scale.sqrt()
-  .range(["#eee", "#000"])
-  .domain([0,100000]);
-var color = d3.scale.ordinal()
-  .range(["#4d9221", "#c51b7d"]);
+var color = d3.scale.quantile()
+  .range(["#f6eff7","#d0d1e6","#a6bddb","#67a9cf","#3690c0","#02818a","#016450"])
+  .domain([0,10,100,1000,10000,50000,100000]);
+
+var opacity = d3.scale.sqrt()
+  .range([0.1, 0.3, 0.9, 1])
+  .domain([0.01, 1, 100, 7000])
+  .clamp(true);
+
 var radius = d3.scale.sqrt()
   .range([0.5,5])
   .domain([200,1500000]);
+
 var force = d3.layout.force()
     .charge(0)
     .gravity(0)
@@ -29,8 +35,56 @@ var width = 960,
 
 var mapContainer, svg, background, counties_nested, countries_nested, sorted;
 
+var projectionParams = {
+  asia: {
+    centerCoords: [110,20],
+    translate: [130, 110],
+    scale: 100
+  },
+  oceania: {
+    centerCoords: [150,-30],
+    translate: [100, 300],
+    scale: 100
+  },
+  southamerica: {
+    centerCoords: [-70,-30],
+    translate: [400, 300],
+    scale: 100
+  },
+  centralamerica: {
+    centerCoords: [-100,20],
+    translate: [250, 300],
+    scale: 100
+  },
+  usa: {
+    centerCoords: [-100,35],
+    translate: [320, 110],
+    scale: 300
+  },
+  canada: {
+    centerCoords: [-100,50],
+    translate: [500, 75],
+    scale: 100
+  },
+  africa: {
+    centerCoords: [20,0],
+    translate: [600, 300],
+    scale: 100
+  },
+  europe: {
+    centerCoords: [20,50],
+    translate: [600, 100],
+    scale: 100
+  },
+  nullisland: {
+    centerCoords: [0,0],
+    translate: [700, 100],
+    scale: 100
+  }
+};
 
-function createProjections(projectionParams) {
+
+function createProjections() {
   // Create a bunch of projections for different continents
   d3.keys(projectionParams).forEach(function(key) {
     var params = projectionParams[key];
@@ -49,11 +103,11 @@ function createProjections(projectionParams) {
 function processData(geographyData) {
   var country_points = geographyData.country_points;
   var counties = geographyData.us_counties;
-  var data = geographyData.country_data;
+  //var data = geographyData.country_data;
 
   country_points.forEach(function(d) {
-      countryLookup[d.category_id] = d;
-    });
+    countryLookup[d.category_id] = d;
+  });
 
   d3.nest()
     .key(function(d) { return d.properties["nhgis_join"]; })
@@ -66,8 +120,9 @@ function processData(geographyData) {
       });
     });
 
-    sorted = data.slice(0).sort(function(a,b) { return a.year - b.year; });
+    //sorted = data.slice(0).sort(function(a,b) { return a.year - b.year; });
 
+    /*
     counties_nested = d3.nest()
       .key(function(d) { return d.year; })
       .key(function(d) { return d.nhgis_join; })
@@ -79,10 +134,12 @@ function processData(geographyData) {
       .key(function(d) { return d.category; })
       .rollup(function(leaves) { return d3.sum(leaves, function(d) { return d.count; }); })
       .entries(sorted);
+    */
+
+   console.log(countyLookup)
 }
 
 function drawWorld(world) {
-
   background.selectAll(".country")
     .data(topojson.feature(world, world.objects.countries).features)
   .enter().insert("path", ".graticule")
@@ -100,152 +157,93 @@ function drawWorld(world) {
     });
 }
 
-function update(index) {
+function drawCounties(counties) {
+  svg.selectAll(".county").remove();
 
-  var year = counties_nested[index].key;
-      d3.select("#year-output").text(year);
-      var yeardate = new Date("Aug 15 " + year);
-      svg.selectAll(".county").remove();
-      var county_nodes = counties_nested[index].values
-        .filter(function(d) {
-           if (d.values < 1) return false;
-           if (d.county) return true;
-           if (!(d.key in countyLookup)) {
-            return false;
-          }
-          var county = countyLookup[d.key].filter(function(p) {
-            return (p.properties.start_date < yeardate) && (p.properties.end_date >= yeardate);
-          });
-          if (county.length == 0) {
-            return false;
-          }
-          d.type = "county";
-          d.county = county[0];
-          return true;
-        })
-        .map(function(d) {
-          var point = projections['usa'](d.county.geometry.coordinates);
-          return {
-            type: "county",
-            county: d.county,
-            key: d.key,
-            x: point[0],
-            x0: point[0],
-            y: point[1],
-            y0: point[1],
-            r: radius(d.values),
-            value: d.values
-          }
-        });
-      var country_nodes = countries_nested[index].values
-        .filter(function(d) {
-           if (d.values < 1) return false;
-           if (d.country) return true;
-           if (!(d.key in countryLookup)) {
-            return false;
-           }
-           d.country = countryLookup[d.key];
-           if (!(d.country.lat)) {
-            return false;
-           }
-           return true;
-        })
-        .map(function(d) {
-          //console.log(d);
-          var point;
-          if (d.country.continent == 'Europe') point = projections['europe']([d.country.long,d.country.lat]);
-          else if (d.country.continent == 'Africa') point = projections['africa']([d.country.long,d.country.lat]);
-          else if (d.country.continent == 'Asia') point = projections['asia']([d.country.long,d.country.lat]);
-          else if (d.country.continent == 'Oceania') point = projections['oceania']([d.country.long,d.country.lat]);
-          else if (d.country.continent == 'South America') point = projections['southamerica']([d.country.long,d.country.lat]);
-          else if (d.country.continent == 'North America') {
-            if (d.country.name == 'Canada' || d.country.name == 'French Canada')
-              point = projections['canada']([d.country.long,d.country.lat]);
-            else
-              point = projections['centralamerica']([d.country.long,d.country.lat]);
-          } else point = projections['nullisland']([d.country.long,d.country.lat]);
-          return {
-            type: "country",
-            country: d.country,
-            key: d.key,
-            x: point[0]+0.0001*Math.random(),
-            x0: point[0],
-            y: point[1]+0.0001*Math.random(),
-            y0: point[1],
-            r: radius(d.values),
-            value: d.values
-          }
-        });
-      var nodes = county_nodes
-        .filter(function (d) {
-          return d.value > 200;
-        })
-        .concat(country_nodes);
+  svg.selectAll(".county")
+    .data(counties.features)
+    .enter().append('path')
+    .attr('class', 'county')
+    .attr('d', function(d){
+      return d3.geo.path().projection(projections['usa'])(d.geometry);
+    })
+    .style('fill', function(d) {
+      return color(d.properties.density);
+    })
+    .style('stroke', function(d) {
+      return color(d.properties.density);
+    })
+    .style("opacity", function(d) {
+      return opacity(d.properties.density);
+    })
+}
+
+function drawCountries(countries) {
+
+
+  var nodes = countries.map(function(d) {
+      //console.log(d);
+      var point,
+        lnglat = [d.lng, d.lat];
+
+      if (d.continent == 'Europe') point = projections['europe'](lnglat);
+      else if (d.continent == 'Africa') point = projections['africa'](lnglat);
+      else if (d.continent == 'Asia') point = projections['asia'](lnglat);
+      else if (d.continent == 'Oceania') point = projections['oceania'](lnglat);
+      else if (d.continent == 'South America') point = projections['southamerica'](lnglat);
+      else if (d.continent == 'North America') {
+        if (d.country== 'Canada' || d.country == 'French Canada') {
+          point = projections['canada'](lnglat);
+        } else {
+          point = projections['centralamerica'](lnglat);
+        }
+      } else {
+        point = projections['nullisland'](lnglat);
+      }
+
+      if (!point) return;
+      return {
+        country: d.country,
+        key: d.country,
+        x: point[0]+0.0001*Math.random(),
+        x0: point[0],
+        y: point[1]+0.0001*Math.random(),
+        y0: point[1],
+        r: radius(d.count),
+        value: d.count
+      }
+    });
+
+
       force
         .nodes(nodes)
         .on("tick", tick)
         .start();
-      var node = svg.selectAll(".county")
-        .data(nodes, function(d) { return d.key; })
+
+
+      svg.selectAll(".country").remove();
+
+      var node = svg.selectAll(".country")
+        .data(nodes)
         .enter().append("circle")
-        .attr("class", "county")
-        .style("fill", function(d) { return color(d.type); })
-        .attr("r", function(d) { return d.r; })
-        .on("mouseenter", function(d) {
-          var subset = sorted.filter(function(p) {
-              return d.key == p["nhgis_join"];
-            }).filter(function(p) {
-              var county = countyLookup[p["nhgis_join"]];
-              var country = countryLookup[p.category];
-              // checking for missing geometries
-              if (!("x" in county)) return false;
-              if (!("x" in country)) return false;
-              return true;
-            });
-          svg.selectAll(".link")
-            .data(subset)
-            .enter().append("path")
-            .attr("class", "link")
-            .style("opacity", function(p) {
-              return d3.min([Math.sqrt(p.count/1000000),1]);
-            })
-            .attr("d", function(p) {
-              var county = countyLookup[p["nhgis_join"]];
-              var country = countryLookup[p.category];
-              return path({
-                type: "LineString",
-                coordinates: [
-                  projections['usa'].invert([country.x, country.y]),
-                  projections['usa'].invert([county.x, county.y])
-                ]
-              });
-            });
-        })
-        .on("mouseout", function(d) {
-          svg.selectAll(".link").remove();
-        });
+        .attr("class", "country")
+        .style("fill", function(d) { return "green"; })
+        .attr("r", function(d) { return d.r; });
+
       function tick(e) {
-        node.each(gravity(e.alpha * .35))
-            .each(collide(.02))
+        node.each(gravity(e.alpha * .1))
+            .each(collide(.5))
             .attr("cx", function(d) { return d.x; })
-            .attr("cy", function(d) { return d.y; })
-            .each(function(d) {
-              if (d.type == "county") {
-                countyLookup[d.key].x = d.x;
-                countyLookup[d.key].y = d.y;
-              }
-              if (d.type == "country") {
-                countryLookup[d.key].x = d.x;
-                countryLookup[d.key].y = d.y;
-              }
-            });
-      };
+            .attr("cy", function(d) { return d.y; });
+      }
+
       function gravity(k) {
         return function(d) {
           d.x += (d.x0 - d.x) * k;
           d.y += (d.y0 - d.y) * k;
         };
       }
+
       function collide(k) {
         var q = d3.geom.quadtree(nodes);
         return function(node) {
@@ -283,8 +281,13 @@ var DisjointedWorldLayout = React.createClass({
     return {};
   },
 
+  componentWillMount: function() {
+
+  },
 
   componentDidMount: function() {
+    createProjections();
+
     mapContainer = d3.select(React.findDOMNode(this.refs.mapContainer))
       .style("width", width + "px")
       .style("height", height + "px");
@@ -300,16 +303,38 @@ var DisjointedWorldLayout = React.createClass({
   },
 
   componentDidUpdate: function() {
+    var props = this.props;
+    if (props.world && props.world.arcs) {
+      drawWorld(props.world);
+    }
+
+    if (props.countries && props.countries.length) {
+      drawCountries(props.countries);
+    }
+
+    if (props.counties && props.counties.features && props.counties.features.length) {
+
+      // calc density of county
+      props.counties.features.forEach(function(d){
+        var p = d.properties;
+        p.density = Math.round(p.count/p.area_sqmi);
+      });
+
+      drawCounties(props.counties);
+    }
+
+    /*
     if (Object.keys(this.props.geography).length && !hasData) {
       console.log(this.props.geography)
       hasData = true;
 
-      createProjections(this.props.geography['projection_params']);
       drawWorld(this.props.geography['world_shapes']);
       processData(this.props.geography);
+      drawCounties(this.props.geography['us_counties']);
 
-      update(2);
+      //update(2);
     }
+    */
   },
 
   render: function() {

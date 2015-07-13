@@ -1,0 +1,80 @@
+.bar-chart-container {
+  margin-bottom: 20px;
+
+  h3 {
+    margin: 0 0 1px 0;
+    padding: 0;
+    background: #44474A;
+    text-align: center;
+    line-height: 36px;
+    font-weight: 100;
+  }
+  button {
+    display: block;
+    width: 100%;
+    background: #44474A;
+    text-decoration: none;
+    border: 0;
+    margin: 0;
+    padding: 0;
+    line-height: 1;
+    outline: 0;
+  }
+}
+.bar-chart-rows-wrapper {
+  width: 90%;
+  margin:5px 0 5px 5%;
+  height: 300px;
+  overflow: scroll;
+}
+.bar-chart-rows {
+  display: table;
+  table-layout: fixed;
+}
+.chartRow {
+  display: table-row;
+  cursor: pointer;
+
+  .label {
+    display: table-cell;
+    text-align: right;
+    vertical-align: top;
+
+    span {
+      padding-right: 10px;
+      font-size: 12px;
+      font-family: sans-serif;
+      color: white;
+      white-space: nowrap;
+    }
+  }
+
+  .bar {
+    display: table-cell;
+    position: relative;
+    width: 100%;
+
+    span {
+      display: inline-block;
+      height: 16px;
+      background: white;
+      background: rgba(255, 255, 255, 0.8);
+    }
+
+    .value {
+      position: absolute;
+      color: #2D8DB6;
+      left: 10px;
+      top: 0;
+      line-height: 16px;
+      background: transparent;
+      font-size: 12px;
+    }
+  }
+
+  &:hover {
+    .label span {
+      color: #aaa;
+    }
+  }
+}

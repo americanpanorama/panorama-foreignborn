@@ -6,28 +6,27 @@ $medium-grey: white !default;
     stroke: #777;
     stroke-width: .5px;
     stroke-opacity: .5;
+    display: none;
   }
 
   .land {
-    stroke: $medium-grey;
+    stroke: none;
     stroke-width: 0;
+    stroke-opacity: 0;
     fill: $medium-grey;
   }
 
   .error {
     stroke: darkred;
     fill: red;
-  }
-
-  .boundary {
-    fill: none;
-    stroke: #fff;
-    stroke-width: .5px;
+    display: none;
   }
 
   .county {
-    fill: #000;
-    opacity: 0.7;
+    stroke: $medium-grey;
+    stroke-width: 0.1;
+    stroke-opacity: 1;
+    fill: $medium-grey;
   }
 
   .county:hover {
@@ -38,6 +37,7 @@ $medium-grey: white !default;
     fill: none;
     stroke: #444;
     pointer-events: none;
+    display: none;
   }
 
 }

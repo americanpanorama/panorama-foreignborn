@@ -3,6 +3,14 @@ Visualizing the number of people born outside the US and their country or region
 
 Latest build can be viewed at http://studio.stamen.com/richmond/show/foreignborn
 
+
+##Data Sets
+A list of all base datasets for this project in CartoDB.  Each one these should have a public `materialized` view as well.
+Dataset Name | Description
+------------ | -----------
+site_foreignborn_counties_prod | US County shapes with counts
+site_foreignborn_rolled_country_counts | Country points with counts rolled up
+
 ##Dependencies
 * [NPM](https://www.npmjs.com/)
 * [CartoDB](https://cartodb.com/) account

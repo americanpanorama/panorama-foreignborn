@@ -11,11 +11,13 @@ var GeographyStore = require('./stores/geography.js');
 
 // Components
 var DisjointedWorldLayout = require('./components/DisjointedWorldLayout.jsx');
+var BarChart = require('./components/BarChart.jsx');
 
 var App = React.createClass({
   getInitialState: function () {
     return {
-      geographyData: {},
+      geographyData: GeographyStore.getData(),
+      decade: 1910
     };
   },
 
@@ -24,7 +26,7 @@ var App = React.createClass({
   },
 
   componentDidMount: function() {
-    Actions.getInitialData({});
+    Actions.getInitialData({decade: this.state.decade});
     GeographyStore.addChangeListener(this.onChange);
   },
 
@@ -64,6 +66,15 @@ var App = React.createClass({
     this.centralStateSetter(e);
   },
 
+  decadeUpdate: function() {
+    var val = this.refs.inp.getDOMNode().value;
+    if (val && this.state.decade !== val) {
+      this.centralStateSetter({'decade': val});
+    }
+    //<input ref="inp" type="range" min="1850" max="2010" step="10" onChange={this.decadeUpdate}/>
+    //console.log(this.refs.inp.getDOMNode().value)
+  },
+
   render: function() {
     return (
       <div className='container full-height'>
@@ -72,10 +83,10 @@ var App = React.createClass({
         </header>
         <section className="row">
           <div className="columns eight">
-            <DisjointedWorldLayout geography={this.state.geographyData}/>
+            <DisjointedWorldLayout decade={this.state.decade} countries={this.state.geographyData.countryByYear[this.state.decade] || []} counties={this.state.geographyData.countyByYear[this.state.decade] || []} world={this.state.geographyData.world}/>
           </div>
           <div className="columns four stacked">
-            <div id="bar-chart" className="component">Bar chart</div>
+            <BarChart width={300} height={400} title={this.state.decade + " Foreign Born"} rows={this.state.geographyData.countryByYear[this.state.decade] || []}/>
             <div id="population-readout" className="component">Totals</div>
             <div id="search-bar" className="component">Search</div>
             <div id="loupe" className="component">Loupe</div>
