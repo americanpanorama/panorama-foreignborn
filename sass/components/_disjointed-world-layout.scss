@@ -1,6 +1,10 @@
 $medium-grey: white !default;
 
 .disjointed-world-layout {
+  svg {
+    border: 1px solid #aaa;
+  }
+
   .graticule {
     fill: none;
     stroke: #777;
@@ -33,11 +37,23 @@ $medium-grey: white !default;
     opacity: 1;
   }
 
+  .country {
+    fill: green;
+    opacity: 0.7;
+    stroke: none;
+  }
+
   .link {
     fill: none;
     stroke: #444;
     pointer-events: none;
     display: none;
+  }
+
+  .wl-bk {
+    position: absolute;
+    background: transparent;
+    border: 1px solid yellow;
   }
 
 }
