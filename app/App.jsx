@@ -1,5 +1,7 @@
 /** @jsx React.DOM */
 
+require('es6-promise').polyfill();
+
 // NPM Modules
 var React = require('react');
 
