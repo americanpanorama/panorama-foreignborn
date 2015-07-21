@@ -1,0 +1,26 @@
+.timeline {
+  height: 100px;
+
+  .x.axis text,
+  .y.axis text {
+    fill: #666;
+    font-size: 11px;
+  }
+
+  .x.axis path,
+  .y.axis path {
+    fill: none;
+  }
+
+  .x.axis line,
+  .y.axis line {
+    fill: none;
+    stroke: #666;
+  }
+
+  .handle rect,
+  .slider .extent {
+    fill: red;
+    opacity: 0.8;
+  }
+}

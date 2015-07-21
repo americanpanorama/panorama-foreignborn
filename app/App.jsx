@@ -14,6 +14,7 @@ var GeographyStore = require('./stores/geography.js');
 // Components
 var DisjointedWorldLayout = require('./components/DisjointedWorldLayout.jsx');
 var BarChart = require('./components/BarChart.jsx');
+var Timeline = require('./components/Timeline.jsx');
 
 var App = React.createClass({
   getInitialState: function () {
@@ -96,9 +97,9 @@ var App = React.createClass({
         </section>
         <section className="row">
           <div className="columns eight">
-            <div id="population-scale" className="component">Scale</div>
-            <div id="color-key" className="component">Key</div>
-            <div id="time-slider" className="component">Slider</div>
+            <div id="population-scale" className="component columns two">Scale</div>
+            <div id="color-key" className="component columns two">Key</div>
+            <Timeline startDate={new Date('1/1/1850')} endDate={new Date('12/31/2010')} />
           </div>
           <div className="columns four">
             <div id="about-time-period">About time period</div>

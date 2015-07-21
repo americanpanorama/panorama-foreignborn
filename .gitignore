@@ -38,3 +38,8 @@ bower_components
 npm-debug.log
 
 build
+
+# geometry prep static files
+geo/geojson
+geo/topojson
+geo/data
