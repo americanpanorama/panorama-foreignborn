@@ -232,20 +232,21 @@ function drawWorld(world) {
 }
 
 function drawCounties(counties) {
+  console.log(counties[1]);
   svg.selectAll(".county").remove();
 
   svg.selectAll(".county")
-    .data(counties.features)
+    .data(counties)
     .enter().append('path')
     .attr('class', 'county')
     .attr('d', function(d){
       return d3.geo.path().projection(projections['usa'])(d.geometry);
     })
     .style('fill', function(d) {
-      return color(d.properties.density);
+      return color(d.properties.count);
     })
     .style('stroke', function(d) {
-      return color(d.properties.density);
+      return color(d.properties.count);
     })
     .style("opacity", function(d) {
       return opacity(d.properties.density);
@@ -394,16 +395,16 @@ var DisjointedWorldLayout = React.createClass({
     if (props.countries && props.countries.length) {
       drawCountries(props.countries);
     }
-
-    if (props.counties && props.counties.features && props.counties.features.length) {
-
+    if (props.counties && props.counties.length) {
+      /*
       // calc density of county
       props.counties.features.forEach(function(d){
         var p = d.properties;
         p.density = Math.round(p.count/p.area_sqmi);
       });
-
+       */
       drawCounties(props.counties);
+
     }
   },
 

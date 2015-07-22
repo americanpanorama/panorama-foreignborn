@@ -7,7 +7,8 @@ QUOTE := "
 
 GEOJSONDIR := geojson
 TOPOJSONDIR := topojson
-DATADIR := data/fb_counties_all
+SHPNAME := untitled_table_6
+DATADIR := data/untitled_table_6
 SOURCES := $(patsubst $(GEOJSONDIR)/%.geojson,%,$(wildcard $(GEOJSONDIR)/*.geojson)) \
 
 all: clean \
@@ -32,14 +33,17 @@ geojson: geojsondir \
 	while [ $${num} -le $(ENDDATE) ] ; do \
 		start=$$num; \
 		end=$$num; \
-		(( start = start * 10000 + 0101)) ; \
+		(( start = start * 10000 + 101)) ; \
 		(( end = end + 10)) ; \
-		(( end = end * 10000 + 0101)) ; \
-		query="SELECT * FROM fb_counties_all WHERE start_n >= $$start AND end_n < $$end"; \
-		if [ $$num = $(ENDDATE) ] ; then \
-			query="SELECT * FROM fb_counties_all WHERE start_n >= $$start"; \
+		(( end = end * 10000 + 101)) ; \
+		query="SELECT * FROM $(SHPNAME) WHERE start_n >= $$start AND start_n < $$end"; \
+		if [ $$num = $(STARTDATE) ] ; then \
+		query="SELECT * FROM $(SHPNAME) WHERE start_n < $$end AND end_n > $$start"; \
+		elif [ $$num = $(ENDDATE) ] ; then \
+			query="SELECT * FROM $(SHPNAME) WHERE start_n >= $$start AND start_n < $$end"; \
 		fi; \
-		$(OGR2OGR) -f GeoJSON -t_srs EPSG:102003  -sql "$$query" $(GEOJSONDIR)/$$num.geojson $(DATADIR)/fb_counties_all.shp; \
+		echo "$$query"; \
+		$(OGR2OGR) -f GeoJSON  -sql "$$query" $(GEOJSONDIR)/$$num.geojson $(DATADIR)/$(SHPNAME).shp; \
 		(( num = num + 10)) ; \
 	done
 

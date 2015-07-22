@@ -19,8 +19,8 @@ var Timeline = require('./components/Timeline.jsx');
 var App = React.createClass({
   getInitialState: function () {
     return {
-      geographyData: GeographyStore.getData(),
-      decade: 1910
+      decade: 1850,
+      geographyData: GeographyStore.getDataByDecade(1850),
     };
   },
 
@@ -49,7 +49,7 @@ var App = React.createClass({
       // Faster to assign data to state, than putting function into component properties
       switch(obj.caller) {
         case "GeographyStore":
-          this.setState({'geographyData': GeographyStore.getData()});
+          this.setState({'geographyData': GeographyStore.getDataByDecade(this.state.decade)});
         break;
       }
     } else {
@@ -86,10 +86,15 @@ var App = React.createClass({
         </header>
         <section className="row">
           <div className="columns eight">
-            <DisjointedWorldLayout decade={this.state.decade} countries={this.state.geographyData.countryByYear[this.state.decade] || []} counties={this.state.geographyData.countyByYear[this.state.decade] || []} world={this.state.geographyData.world}/>
+            <DisjointedWorldLayout
+              decade={this.state.decade}
+              countries={this.state.geographyData.country || []}
+              counties={this.state.geographyData.countyGeo || []}
+              world={this.state.geographyData.world}
+            />
           </div>
           <div className="columns four stacked">
-            <BarChart width={300} height={400} title={this.state.decade + " Foreign Born"} rows={this.state.geographyData.countryByYear[this.state.decade] || []}/>
+            <BarChart width={300} height={400} title={this.state.decade + " Foreign Born"} rows={this.state.geographyData.country || []}/>
             <div id="population-readout" className="component">Totals</div>
             <div id="search-bar" className="component">Search</div>
             <div id="loupe" className="component">Loupe</div>

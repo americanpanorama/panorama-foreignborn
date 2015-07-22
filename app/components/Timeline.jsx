@@ -80,7 +80,6 @@ var Timeline = React.createClass({
       });
   },
 
-
   setXYAxis: function () {
     this.xAxis = d3.svg.axis()
       .scale(this.xscale)
