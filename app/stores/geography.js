@@ -13,7 +13,7 @@ var data = {
   countryByYear: {},
   countyByYear: {},
   countyGeometries: [],
-  world: null
+  world: null,
 };
 
 var countyDataLookup = window.countyDataLookup =  {};
@@ -107,7 +107,7 @@ function filterCountyGeometriesByDecade(decade) {
 
   var now = decade * 10000 + 101;
 
-  console.log("%s: %s (%s)", decade ,  data['countyGeometries'].length, now);
+  //console.log("%s: %s (%s)", decade ,  data['countyGeometries'].length, now);
 
   var filtered = data['countyGeometries'].filter(function(d){
     return d.properties['start_n'] <= now && d.properties['end_n'] >= now;
@@ -136,8 +136,70 @@ function filterCountyGeometriesByDecade(decade) {
   return filtered;
 }
 
+function getCountryScaleData() {
+  if (!state.decade) return [];
+  var countries = data['countryByYear'][state.decade] || [];
+  if (!countries.length) return [];
+
+  var domain = countries.map(function(d){
+        return d.count;
+      });
+
+  var min = d3.min(domain),
+      max = d3.max(domain);
+
+  var scale = d3.scale.sqrt()
+      .range([5,45])
+      .domain([min, max]);
+
+
+  var format = d3.format('s');
+  var values = [];
+
+  var length = (max-min) * 0.70,
+      subLength = round(length / 4);
+
+  function round(n) {
+    if (n < 100) {
+      n = Math.round(n/10)*10;
+    } else if (n < 1000) {
+      n = Math.round(n/100)*100;
+    } else if (n < 10000) {
+      n = Math.round(n/1000)*1000;
+    } else if (n < 100000) {
+      n = Math.round(n/10000)*10000;
+    } else if (n < 1000000) {
+      n = Math.round(n/100000)*100000;
+    } else if (n < 10000000) {
+      n = Math.round(n/1000000)*1000000;
+    } else if (n < 100000000) {
+      n = Math.round(n/10000000)*10000000;
+    }
+
+    return n;
+  }
+
+  var parts = [];
+  for (var i = 0; i < 4; i++) {
+    var n = subLength + subLength*i;
+    parts.push(n);
+  }
+
+  scale.domain([parts[0], parts[3]]);
+
+  parts.forEach(function(d){
+    values.push({
+      r: scale(d),
+      label: format(d)
+    })
+  })
+
+  return values;
+}
+
 
 var GeographyStore = assign({}, EventEmitter.prototype, {
+  getCountryScaleData: getCountryScaleData,
 
   getData: function() {
     return data;

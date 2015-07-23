@@ -59,6 +59,7 @@
     "react-modal": "^0.2.0",
     "deepcopy": "^0.5.0",
     "proj4": "",
-    "es6-promise": ""
+    "es6-promise": "",
+    "react-typeahead": ""
   }
 }

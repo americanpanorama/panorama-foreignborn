@@ -29,6 +29,142 @@ header, section {
   position: relative;
 }
 
+.disjointed-world-layout {
+  padding-right: 20px;
+}
+#timeline-container {
+  padding: 0 20px;
+}
+
+#population-totals {
+  font-size: 14px;
+  text-align: center;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+
+  h3, p {
+    background: $medium-dark-grey-lighter;
+    margin: 0;
+    padding: 10px 0;
+    font-weight: 200;
+    font-size: 14px;
+  }
+
+
+  p {
+    background: $medium-dark-grey;
+  }
+
+  .decade {
+    margin-right: 5px;
+  }
+
+  .total {
+    color: $green;
+  }
+}
+
+#population-scale {
+  circle {
+    fill: $green;
+    fill-opacity: 0.25;
+  }
+}
+
+.legend.grid {
+  position: relative;
+
+  .grid-item {
+    position: absolute;
+    background: rgba(255,255,255,0.6);
+  }
+}
+
+#search-bar {
+  position: relative;
+  margin-bottom: 20px;
+  z-index: 2;
+}
+
+.typeahead, .typeahead input {
+  display: block;
+  width: 100%;
+  font-size: 13px;
+}
+
+.typeahead input {
+  border: 0;
+  padding: 10px;
+  background: $medium-dark-grey-lighter;
+  font-size: 14px;
+}
+
+.typeahead-selector {
+  position: absolute;
+  margin: 2px 0 0;
+  padding: 4px 0px 4px 0px;
+  width: 100%;
+  border: none;
+  background-color: $medium-dark-grey;
+  list-style: none;
+}
+
+.typeahead-option {
+  display: block;
+  padding: 4px;
+  margin-bottom: 2px;
+  color: white;
+  text-decoration: none;
+}
+.typeahead-option:last-child {
+  margin-bottom: 0;
+}
+.typeahead-option:hover {
+  background: $medium-dark-grey-lighter;
+}
+
+::-webkit-input-placeholder {
+   text-align: center;
+   text-transform: uppercase;
+}
+
+:-moz-placeholder { /* Firefox 18- */
+   text-align: center;
+   text-transform: uppercase;
+}
+
+::-moz-placeholder {  /* Firefox 19+ */
+   text-align: center;
+   text-transform: uppercase;
+}
+
+:-ms-input-placeholder {
+   text-align: center;
+   text-transform: uppercase;
+}
+
+
+#about-time-period {
+  height: 100px;
+
+  h3, p {
+    height: 100%;
+    margin: 0;
+  }
+
+  h3 {
+    padding: 10px;
+    font-weight: 200;
+    background: $medium-dark-grey-lighter;
+  }
+  p {
+    font-size: 12px;
+    padding: 10px 20px;
+    background: $medium-dark-grey;
+  }
+}
+
+
 // helpers
 .full-height {
   height: 100%;

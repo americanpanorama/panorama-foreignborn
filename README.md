@@ -1,7 +1,7 @@
 # richmondatlas-foreignborn
 Visualizing the number of people born outside the US and their country or region of origin.
 
-Latest build can be viewed at http://studio.stamen.com/richmond/show/foreignborn
+Latest build can be viewed at [http://studio.stamen.com/richmond/show/foreignborn](http://studio.stamen.com/richmond/show/foreignborn)
 
 
 ##Data Sets

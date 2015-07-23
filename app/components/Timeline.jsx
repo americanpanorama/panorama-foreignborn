@@ -347,7 +347,7 @@ var Timeline = React.createClass({
 
   render: function() {
     return (
-        <div className="component timeline columns eight">
+        <div className="component timeline">
         </div>
     );
 

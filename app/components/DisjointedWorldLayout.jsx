@@ -252,13 +252,13 @@ function drawCounties(data) {
 
   counties.exit().remove();
 
-  var elasped = +new Date() - t;
-  console.log("Elasped SVG: ", (elasped/1000));
+  var elapsed = +new Date() - t;
+  console.log("Elapsed SVG: ", (elapsed/1000));
 }
 
 function drawCountiesCanvas(data) {
   var t = +new Date();
-
+  console.log(data[1])
   context.clearRect(0, 0, width, height);
 
   canvasPath = d3.geo.path()
@@ -276,8 +276,9 @@ function drawCountiesCanvas(data) {
     context.closePath();
 
   });
-  var elasped = +new Date() - t;
-  console.log("Elasped Canvas: ", (elasped/1000));
+
+  var elapsed = +new Date() - t;
+  console.log("Elapsed Canvas: ", (elapsed/1000));
 
 }
 

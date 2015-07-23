@@ -4,7 +4,9 @@ require('es6-promise').polyfill();
 
 // NPM Modules
 var React = require('react');
+var Typeahead = require('react-typeahead').Typeahead;
 
+// Constants
 var Constants = require('./constants/Constants.js');
 
 // Actions
@@ -18,10 +20,13 @@ var GeographyStore = require('./stores/geography.js');
 var DisjointedWorldLayout = require('./components/DisjointedWorldLayout.jsx');
 var BarChart = require('./components/BarChart.jsx');
 var Timeline = require('./components/Timeline.jsx');
+var LegendNestedCircles = require('./components/legends/nested-circles.jsx');
+var LegendGrid = require('./components/legends/grid.jsx');
 
 
 var decadeBounds = [1850,2010];
 var initialDecade = 1850;
+var numberFormatter = d3.format('0,');
 
 
 var App = React.createClass({
@@ -103,13 +108,20 @@ var App = React.createClass({
   },
 
   render: function() {
+    var count = d3.sum(this.state.geographyData.country, function(d){ return d.count; });
+    var legendValues = GeographyStore.getCountryScaleData();
+
+    var countiesNames = this.state.geographyData.countyGeo.map(function(d){
+      return d.properties.name + ", " + d.properties.state;
+    })
+
     return (
       <div className='container full-height'>
         <header className="header">
           <h1>Foreign-Born Population</h1>
         </header>
         <section className="row">
-          <div className="columns eight">
+          <div className="columns nine">
             <DisjointedWorldLayout
               decade={this.state.decade}
               countries={this.state.geographyData.country || []}
@@ -117,21 +129,43 @@ var App = React.createClass({
               world={this.state.geographyData.world}
             />
           </div>
-          <div className="columns four stacked">
+          <div className="columns three stacked">
             <BarChart width={300} height={400} title={this.state.decade + " Foreign Born"} rows={this.state.geographyData.country || []}/>
-            <div id="population-readout" className="component">Totals</div>
-            <div id="search-bar" className="component">Search</div>
+            <div id="population-totals">
+              <h3>Total Foreign-Born</h3>
+              <p><span className="decade">{this.state.decade}</span><span className="total">{numberFormatter(count)}</span></p>
+            </div>
+            <div id="search-bar" className="component">
+              <Typeahead
+                options={countiesNames}
+                maxVisible={5}
+                placeholder="Search by county name"
+              />
+            </div>
             <div id="loupe" className="component">Loupe</div>
           </div>
         </section>
         <section className="row">
           <div className="columns eight">
-            <div id="population-scale" className="component columns two">Scale</div>
-            <div id="color-key" className="component columns two">Key</div>
-            <Timeline decade={this.state.decade} startDate={new Date('1/1/1850')} endDate={new Date('12/31/2010')} onSliderChange={this.decadeUpdate} />
+            <div className="row">
+              <div id="population-scale" className="columns two">
+                <LegendNestedCircles values={legendValues}/>
+              </div>
+              <div id="color-key" className="columns two">
+                <LegendGrid/>
+              </div>
+              <div id="timeline-container" className="columns eight">
+                <Timeline decade={this.state.decade} startDate={new Date('1/1/1850')} endDate={new Date('12/31/2010')} onSliderChange={this.decadeUpdate} />
+              </div>
+            </div>
           </div>
           <div className="columns four">
-            <div id="about-time-period">About time period</div>
+            <div id="about-time-period" className="row">
+                <h3 className="columns three "><span>About the {this.state.decade}'s</span></h3>
+                <p className="columns nine">
+                  A county is a political and geographic subdivision of a state, usually assigned some governmental authority. The term "county" is used in 48 of the 50 U.S. states. The exceptions are Louisiana and Alaska.
+                </p>
+            </div>
           </div>
         </section>
       </div>
