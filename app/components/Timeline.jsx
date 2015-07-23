@@ -125,11 +125,14 @@ var Timeline = React.createClass({
       value = this.nearstDecade(value);
       this.brush.extent([value,value]);
     } else {
-      //...
+      // skipping brush events not created by mouse
     }
 
     this.handle.attr("transform", "translate(" + this.xscale(value) + ",0)");
+    var callChange = (value.getFullYear() !== this.currentYear) ? true : false;
+    this.currentYear = value.getFullYear();
     this.currentDate = value;
+    if (!callChange) return;
     if (this.props.onSliderChange) this.props.onSliderChange(value);
 
 
@@ -164,6 +167,8 @@ var Timeline = React.createClass({
     this.setWidth(container.offsetWidth);
     this.setHeight(container.offsetHeight);
 
+    this.currentDate = new Date('1/1/'+ this.props.decade);
+
     /*
     this.setXYScales();
     this.setXYAxis();
@@ -193,7 +198,7 @@ var Timeline = React.createClass({
 
     this.setXYScales();
     this.setXYAxis();
-    this.setBrush();
+    this.setBrush(this.currentDate);
 
     this.visualize();
 
@@ -270,7 +275,6 @@ var Timeline = React.createClass({
         .call(that.brush);
 
 
-
       this.slider.selectAll(".extent,.resize")
         .remove();
 
@@ -287,7 +291,7 @@ var Timeline = React.createClass({
         .attr("x", 0)
         .attr("y", 0)
         .attr("width", 2)
-        .attr("height", this.height)
+        .attr("height", this.height + 5)
         .attr("transform", "translate(-" + 1 + ",0)");
 
 

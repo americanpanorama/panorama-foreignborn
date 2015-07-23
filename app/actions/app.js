@@ -1,12 +1,15 @@
 var AppDispatcher = require('../dispatchers/app');
+var Constants = require('../constants/Constants.js');
+var API = require('../apis/app.js');
 
 var AppActions = {
-  getInitialData: function(state) {
-    AppDispatcher.dispatch({
-      actionType: "getInitialData",
-      state: state
-    });
-  }
+  getInitialData: function(decade, backfill) {
+    API.getInitialData(decade, backfill);
+  },
+
+  getDataForDecade: function(decade, backfill) {
+    API.getDataForDecade(decade, backfill);
+  },
 }
 
 AppDispatcher.register(function(payload) {

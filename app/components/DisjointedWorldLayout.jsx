@@ -2,14 +2,22 @@
 var React   = require('react');
 var d3      = require('d3');
 var topojson   = require('topojson');
+
 require("d3-geo-projection")(d3);
 
+var width = 960,
+    height = 450,
+    padding = 0;
 
-
+var mapContainer, svg, background, counties_nested, countries_nested, sorted;
+var canvas, context, canvasPath;
 var countyLookup = {};
 var countryLookup = {};
 var projections = {};
-var padding = 3;
+var worldDirty = true;
+var decade;
+var countryNodes = {};
+var hasData = false;
 
 var color = d3.scale.quantile()
   .range(["#f6eff7","#d0d1e6","#a6bddb","#67a9cf","#3690c0","#02818a","#016450"])
@@ -23,17 +31,6 @@ var opacity = d3.scale.sqrt()
 var radius = d3.scale.sqrt()
   .range([1,20])
   .domain([200,1500000]);
-
-var force = d3.layout.force()
-    .charge(0)
-    .gravity(0)
-    .size([width, height]);
-
-var width = 960,
-    height = 450,
-    padding = 0;
-
-var mapContainer, svg, background, counties_nested, countries_nested, sorted;
 
 var projectionParams = {
   asia: {
@@ -82,7 +79,6 @@ var projectionParams = {
     scale: 100
   }
 };
-
 
 
 function createProjections() {
@@ -231,13 +227,15 @@ function drawWorld(world) {
     });
 }
 
-function drawCounties(counties) {
-  console.log(counties[1]);
-  svg.selectAll(".county").remove();
+function drawCounties(data) {
+  //console.log(data[1])
+  //svg.selectAll(".county").remove();
 
-  svg.selectAll(".county")
-    .data(counties)
-    .enter().append('path')
+  var t = +new Date();
+  var counties = svg.selectAll(".county")
+    .data(data, function(d){ return d.properties.id; });
+
+  counties.enter().append('path')
     .attr('class', 'county')
     .attr('d', function(d){
       return d3.geo.path().projection(projections['usa'])(d.geometry);
@@ -251,18 +249,56 @@ function drawCounties(counties) {
     .style("opacity", function(d) {
       return opacity(d.properties.density);
     });
+
+  counties.exit().remove();
+
+  var elasped = +new Date() - t;
+  console.log("Elasped SVG: ", (elasped/1000));
 }
 
-function drawCountries(countries) {
+function drawCountiesCanvas(data) {
+  var t = +new Date();
+
+  context.clearRect(0, 0, width, height);
+
+  canvasPath = d3.geo.path()
+    .projection(projections['usa'])
+    .context(context);
+
+  data.forEach(function(d){
+    context.beginPath();
+    var c = color(d.properties.count),
+        a = opacity(d.properties.density);
+    context.globalAlpha = a;
+    context.fillStyle = c;
+    canvasPath(d.geometry);
+    context.fill();
+    context.closePath();
+
+  });
+  var elasped = +new Date() - t;
+  console.log("Elasped Canvas: ", (elasped/1000));
+
+}
+
+function generateCountryNodes(countries) {
   var min = Infinity,
       max = -Infinity;
 
+  countries.forEach(function(d){
+    min = Math.min(d.count, min);
+    max = Math.max(d.count, max);
+  });
+
+  if (min === Infinity || max === -Infinity) {
+    console.warn('Funky min/max going on! (%s, %s)', min, max);
+  }
+
+  radius.domain([min, max]);
+
   var nodes = countries.map(function(d) {
     var point,
-      lnglat = [d.lng, d.lat];
-
-    min = Math.min(d.value, min);
-    max = Math.max(d.value, max);
+        lnglat = [d.lng, d.lat];
 
     if (d.continent == 'Europe') point = projections['europe'](lnglat);
     else if (d.continent == 'Africa') point = projections['africa'](lnglat);
@@ -295,45 +331,50 @@ function drawCountries(countries) {
     }
   });
 
-  // update radius scale
-  radius.domain([min, max]);
+  runForce(nodes);
 
-  // kick off force-layout
-  force
-    .nodes(nodes)
-    .on("tick", tick)
-    .start();
-
-  svg.selectAll(".country").remove();
-
-  var node = svg.selectAll(".country")
-    .data(nodes)
-    .enter().append("circle")
-    .attr("class", "country")
-    .attr("r", function(d) { return d.r; });
-
-  function tick(e) {
-    node.each(gravity(e.alpha * .1))
-        .each(collide(.5))
-        .attr("cx", function(d) { return d.x; })
-        .attr("cy", function(d) { return d.y; });
+  return {
+    min: min,
+    max: max,
+    nodes: nodes
   }
 
-  function gravity(k) {
-    return function(d) {
-      d.x += (d.x0 - d.x) * k;
-      d.y += (d.y0 - d.y) * k;
-    };
-  }
+}
 
-  function collide(k) {
-    var q = d3.geom.quadtree(nodes);
-    return function(node) {
+function runForce(nodes) {
+  var iterations = 10;
+  var alpha = 0.099;
+  var multipler = 0.99;
+
+  var force = d3.layout.force()
+      .charge(0)
+      .gravity(0)
+      .size([width, height])
+      .nodes(nodes);
+
+  force.start();
+
+  var g,k;
+  while(iterations >= 0){
+    g = alpha * .1;
+    k = 0.5;
+
+    // gravity
+    nodes.forEach(function(node){
+      node.x += (node.x0 - node.x) * g;
+      node.y += (node.y0 - node.y) * g;
+    });
+
+    // collision
+    nodes.forEach(function(node){
+      var q = d3.geom.quadtree(nodes);
+
       var nr = node.r + padding,
           nx1 = node.x - nr,
           nx2 = node.x + nr,
           ny1 = node.y - nr,
           ny2 = node.y + nr;
+
       q.visit(function(quad, x1, y1, x2, y2) {
         if (quad.point && (quad.point !== node)) {
           var x = node.x - quad.point.x,
@@ -348,13 +389,45 @@ function drawCountries(countries) {
             quad.point.y += y;
           }
         }
+
         return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
       });
-    };
+    });
+
+    iterations--;
+    alpha *= multipler
   }
+
+  force.stop();
 }
 
-var hasData = false;
+function drawCountries(countries) {
+  if (!countryNodes[decade]) {
+    countryNodes[decade] = generateCountryNodes(countries);
+  }
+
+  var nodes = countryNodes[decade].nodes,
+      min = countryNodes[decade].min,
+      max = countryNodes[decade].max;
+
+  // update radius scale
+  runForce(nodes);
+
+  svg.selectAll(".country").remove();
+
+  var node = svg.selectAll(".country")
+    .data(nodes);
+
+  node.enter().append("circle")
+    .attr("class", "country")
+    .attr("r", function(d) { return d.r; })
+    .attr("cx", function(d) { return d.x; })
+    .attr("cy", function(d) { return d.y; });
+
+  node.exit().remove();
+
+}
+
 var DisjointedWorldLayout = React.createClass({
 
   getInitialState: function () {
@@ -368,44 +441,53 @@ var DisjointedWorldLayout = React.createClass({
   componentDidMount: function() {
     createProjections();
 
-    width = React.findDOMNode(this.refs.mapContainer).offsetWidth;
+    mapContainer = d3.select(React.findDOMNode(this.refs.map));
+
+    width = mapContainer.node().offsetWidth;
     height = window.innerHeight - 200;
 
-    mapContainer = d3.select(React.findDOMNode(this.refs.mapContainer))
+    mapContainer
       .style("width", width + "px")
       .style("height", height + "px");
 
-    svg = d3.select(React.findDOMNode(this.refs.map)).append("svg")
+
+    svg = mapContainer.append("svg")
         .attr("width", width)
         .attr("height", height);
+
+    canvas = mapContainer.append("canvas")
+      .attr("width", width)
+      .attr("height", height)
+      .style("position", "absolute")
+      .style("top", "0")
+      .style("left", "0");
+
+    context = canvas.node().getContext("2d");
 
     background = svg.append("g");
   },
 
   componentWillUnmount: function() {
-
   },
 
   componentDidUpdate: function() {
     var props = this.props;
-    if (props.world && props.world.arcs) {
+    if (props.world && props.world.arcs && worldDirty) {
+      worldDirty = false;
       drawWorld(props.world);
     }
 
-    if (props.countries && props.countries.length) {
-      drawCountries(props.countries);
-    }
-    if (props.counties && props.counties.length) {
-      /*
-      // calc density of county
-      props.counties.features.forEach(function(d){
-        var p = d.properties;
-        p.density = Math.round(p.count/p.area_sqmi);
-      });
-       */
-      drawCounties(props.counties);
+    if (decade !== this.props.decade) {
+      if (props.countries && props.countries.length && props.counties && props.counties.length) {
+        decade = this.props.decade;
 
+        drawCountries(props.countries);
+        //drawCounties(props.counties);
+        drawCountiesCanvas(props.counties);
+      }
     }
+
+
   },
 
   render: function() {

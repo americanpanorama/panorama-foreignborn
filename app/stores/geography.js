@@ -2,19 +2,12 @@ var AppDispatcher = require("../dispatchers/app");
 var EventEmitter  = require("events").EventEmitter;
 var dslClient     = require("../lib/dslClient");
 var assign        = require("object-assign");
+var Constants     = require('../constants/Constants.js');
 
 var d3            = require('d3');
 var topojson      = require('topojson');
 
 var CHANGE_EVENT  = "change";
-
-//var COUNTY_QUERY = 'SELECT start_n,end_n,area_sqmi,count,year,nhgis_join, round(cast (count/area_sqmi as numeric), 2) as density FROM site_foreignborn_counties_prod_materialized WHERE start_n < {startN} and end_n >= {startN}';
-var COUNTRY_QUERY = 'SELECT ST_X(the_geom) as lng,ST_Y(the_geom) as lat,category_id,count,country,continent,year FROM site_foreignborn_rolled_country_counts_materialized';
-var COUNTY_QUERY = 'SELECT SUM(count) as count, AVG(area_sqmi) as area_sqmi, nhgis_join FROM site_foreignborn_counties_prod_materialized WHERE start_n < {startN} and end_n >= {startN} group by nhgis_join';
-var WORLD = {
-  key: 'world',
-  url: 'static/world-50m-subunits.json'
-};
 
 var data = {
   countryByYear: {},
@@ -24,21 +17,19 @@ var data = {
 };
 
 var countyDataLookup = window.countyDataLookup =  {};
+var countyGeometriesLoaded = {};
 
 var state = {
-  loaded: false
+  loaded: false,
+  decade: null,
+  decadeBounds: null
 };
 
-var decade = null;
-
-var decadeBounds = [1850,2010];
-
 var countiesLoaded = {};
+var decadeData = {};
 
 
-
-function setData(newData) {
-  if(state.loaded) return;
+function setData(newData, decade) {
   state.loaded = true;
 
   newData.forEach(function(d){
@@ -47,15 +38,7 @@ function setData(newData) {
       data['countryByYear'] = rollupCountryData(d.response.rows);
 
     } else if(d.key === 'us_counties') {
-      data['countyByYear'][decade] = d.response;
-      data['countyByYear'][decade].rows.forEach(function(d){
-        var k = d['nhgis_join'];
-        if (k in countyDataLookup) {
-          console.warn('`nhgis_join` is not unique!');
-        }
-
-        countyDataLookup[k] = d;
-      });
+      processCountyData(d, decade);
 
     } else if(d.response && d.response.features) {
       data[d.key] = d.response;
@@ -65,10 +48,7 @@ function setData(newData) {
 
     } else if (d.response && d.response.type && d.response.type == 'Topology') {
       if (d.key === 'county_geo') {
-        var features = topojson.feature(d.response, d.response.objects[decade]).features;
-        features.forEach(function(f){
-          data['countyGeometries'].push(f);
-        });
+        processCountyGeometries(d);
       } else {
         data[d.key] = d.response;
       }
@@ -76,73 +56,35 @@ function setData(newData) {
 
   });
 
-  if (decade === decadeBounds[0]) {
-    GeographyStore.emitChange('GeographyStore');
-  } else {
-    backfill();
+}
+
+function processCountyData (d, decade) {
+  data['countyByYear'][decade] = d.response;
+  countyDataLookup[decade] = countyDataLookup[decade] || {};
+  data['countyByYear'][decade].rows.forEach(function(d){
+    var k = d['nhgis_join'];
+    if (k in countyDataLookup[decade]) {
+      console.warn('`nhgis_join` is not unique!');
+    }
+
+    countyDataLookup[decade][k] = d;
+  });
+}
+
+function processCountyGeometries (d) {
+  var keys = Object.keys(d.response.objects);
+  if (keys.length) {
+    var k = keys[0];
+    if (k in countyGeometriesLoaded) return;
+    countyGeometriesLoaded[k] = 1;
+    var features = topojson.feature(d.response, d.response.objects[k]).features;
+    features.forEach(function(f){
+      data['countyGeometries'].push(f);
+    });
   }
 
 }
 
-function backfill() {
-
-  var c = decade - 10;
-  var queue = [];
-  while(c >= decadeBounds[0]) {
-    queue.push(makeCountyGeometryQueryObject(c));
-    c -= 10;
-  }
-
-
-  dslClient.requestPromiseParallelJSON(queue)
-   .then(function(response) {
-     response.forEach(function(d){
-      var keys = Object.keys(d.response.objects);
-      if (keys.length) {
-        var k = keys[0];
-        console.log('Loaded: ', k);
-        var features = topojson.feature(d.response, d.response.objects[k]).features;
-        features.forEach(function(f){
-          data['countyGeometries'].push(f);
-        });
-
-      }
-     });
-
-    GeographyStore.emitChange('GeographyStore');
-
-   }, function(error){
-     console.error(error.payload);
-     return false;
-   })
-
-}
-
-function makeCountyQueryObject(decade) {
-  var start = decade * 10000 + 101;
-  var end = (decade + 10) * 10000 + 101;
-  console.log( COUNTY_QUERY.replace(/{startN}/g, start).replace(/{endN}/g, end).replace(/{year}/g, decade) )
-  return {
-    key: 'us_counties',
-    sql: COUNTY_QUERY.replace(/{startN}/g, start).replace(/{endN}/g, start).replace(/{year}/g, decade),
-    options: {"format":"JSON"}
-  }
-}
-
-function makeCountryQueryObject(decade) {
-  return {
-    key: 'country',
-    sql: COUNTRY_QUERY,
-    options: {"format":"JSON"}
-  }
-}
-
-function makeCountyGeometryQueryObject(decade) {
-  return {
-    key: 'county_geo',
-    url: 'static/counties/' + decade + '.json'
-  }
-}
 
 function rollupCountryData(countryData) {
   var out = {};
@@ -159,33 +101,11 @@ function rollupCountryData(countryData) {
   return out;
 }
 
-function getInitialData(_state) {
-  decade = _state.decade;
-  // Initial queue
-  var queue = [
-    makeCountyQueryObject(_state.decade),
-    makeCountryQueryObject(_state.decade),
-    makeCountyGeometryQueryObject(_state.decade),
-    WORLD
-  ];
-
- dslClient.requestPromiseParallelJSON(queue)
-  .then(function(response) {
-    setData(response);
-
-  }, function(error){
-    console.error(error.payload);
-    return false;
-  })
-
-}
 
 function filterCountyGeometriesByDecade(decade) {
   if (!data['countyGeometries'].length) return [];
 
-  var now = decade * 10000 + 101,
-      end = (decade + 10) * 10000 + 101,
-      begin = 18;
+  var now = decade * 10000 + 101;
 
   console.log("%s: %s (%s)", decade ,  data['countyGeometries'].length, now);
 
@@ -193,25 +113,24 @@ function filterCountyGeometriesByDecade(decade) {
     return d.properties['start_n'] <= now && d.properties['end_n'] >= now;
   });
 
-  var densities = [];
-  filtered.forEach(function(d){
+  //var densities = [];
+
+  filtered.forEach(function(d,i){
     var joinID = d.properties['nhgis_join'];
 
-    if (countyDataLookup[joinID]) {
+    if (countyDataLookup[decade][joinID]) {
       //d.properties.density = countyDataLookup[joinID].density;
-      d.properties.count = countyDataLookup[joinID].count;
-      d.properties.density = Math.round(countyDataLookup[joinID].count/countyDataLookup[joinID].area_sqmi);
-
-      densities.push(d.properties.density);
+      d.properties.count = countyDataLookup[decade][joinID].count;
+      d.properties.density = Math.round(countyDataLookup[decade][joinID].count/countyDataLookup[decade][joinID].area_sqmi);
+      d.properties.id = d.properties['nhgis_join'] + '-' + decade;
+      //densities.push(d.properties.density);
     } else {
-      console.warn('no join');
+      //console.warn('no join');
       d.properties.density = 0;
     }
   });
-  var max = d3.max(densities),
-      min = d3.min(densities);
 
-  console.log("Max: %s | Min: %s", max, min);
+
   console.log('Filtered: %s', filtered.length);
 
   return filtered;
@@ -225,24 +144,60 @@ var GeographyStore = assign({}, EventEmitter.prototype, {
   },
 
   getDataByDecade: function(decade) {
+
+    if (decadeData[decade]) return decadeData[decade];
+
     var country = data['countryByYear'][decade] || [],
         world = data['world'] || [],
         countyData = data['countyByYear'][decade] || [],
         countyGeo = filterCountyGeometriesByDecade(decade) || [];
 
-    return {
+    var o = {
       country: country,
       world: world,
       countyData: countyData,
       countyGeo: countyGeo
-    }
+    };
+
+    if (!decadeData[decade] && state.loaded) decadeData[decade] = o;
+
+    return o;
   },
 
-  emitChange: function(_caller) {
+  decade: function(decade) {
+    if (!decade) return state.decade;
+    state.decade = decade;
+  },
+
+  decadeBounds: function(decadeBounds) {
+    if (!decadeBounds) return state.decadeBounds;
+    state.decadeBounds = decadeBounds;
+  },
+
+  getBackFill: function(decade) {
+    decade = decade || state.decade;
+
+    if (!state.decadeBounds) return [];
+
+    var a = [],
+        c = decade - 10;
+
+    while(c >= state.decadeBounds[0]) {
+      if (!countyGeometriesLoaded[c]) a.push(c);
+      c -= 10;
+    }
+
+    return a;
+  },
+
+  decadeLoaded: function(_) {
+    return !!data['countyByYear'][_] && !!countyGeometriesLoaded[_];
+  },
+
+  emitChange: function(type, _caller) {
 
     this.emit(CHANGE_EVENT, {
-      state:  state,
-      data:   data,
+      type:  type,
       caller: _caller
     });
 
@@ -271,15 +226,28 @@ AppDispatcher.register(function(action) {
 
   switch(action.actionType) {
 
-    case "getInitialData":
+    case Constants.GET_INITIAL_DATA:
 
-      getInitialData(action.state);
+      if (action.response instanceof Array) {
+        state.decade = action.queryParams.decade;
+        setData(action.response, action.queryParams.decade);
+
+        GeographyStore.emitChange(Constants.GET_INITIAL_DATA, 'GeographyStore');
+      }
 
       break;
 
+    case Constants.GET_DECADE_DATA:
+        if (action.response instanceof Array) {
+          state.decade = action.queryParams.decade;
+          setData(action.response, action.queryParams.decade);
+
+          GeographyStore.emitChange(Constants.GET_DECADE_DATA, 'GeographyStore');
+        }
+      break;
 
     default:
-      // no op
+      return true;
   }
 });
 

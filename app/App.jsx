@@ -5,8 +5,11 @@ require('es6-promise').polyfill();
 // NPM Modules
 var React = require('react');
 
+var Constants = require('./constants/Constants.js');
+
 // Actions
 var Actions = require('./actions/app');
+var AppDispatcher = require("./dispatchers/app");
 
 // Stores
 var GeographyStore = require('./stores/geography.js');
@@ -16,25 +19,31 @@ var DisjointedWorldLayout = require('./components/DisjointedWorldLayout.jsx');
 var BarChart = require('./components/BarChart.jsx');
 var Timeline = require('./components/Timeline.jsx');
 
+
+var decadeBounds = [1850,2010];
+var initialDecade = 1850;
+
+
 var App = React.createClass({
   getInitialState: function () {
     return {
-      decade: 1850,
-      geographyData: GeographyStore.getDataByDecade(1850),
+      decade: initialDecade,
+      geographyData: GeographyStore.getDataByDecade(initialDecade),
     };
   },
 
   componentWillMount: function() {
-
+    GeographyStore.decade(initialDecade);
+    GeographyStore.decadeBounds(decadeBounds);
   },
 
   componentDidMount: function() {
-    Actions.getInitialData({decade: this.state.decade});
+    Actions.getInitialData(this.state.decade, GeographyStore.getBackFill());
     GeographyStore.addChangeListener(this.onChange);
   },
 
   componentWillUnmount: function() {
-
+    GeographyStore.removeChangeListener(this.onChange);
   },
 
   componentDidUpdate: function() {
@@ -49,7 +58,13 @@ var App = React.createClass({
       // Faster to assign data to state, than putting function into component properties
       switch(obj.caller) {
         case "GeographyStore":
-          this.setState({'geographyData': GeographyStore.getDataByDecade(this.state.decade)});
+          if (obj.type === Constants.GET_DECADE_DATA) {
+
+            this.setState({'decade': GeographyStore.decade(), 'geographyData': GeographyStore.getDataByDecade(GeographyStore.decade()) });
+          } else {
+            this.setState({'geographyData': GeographyStore.getDataByDecade(this.state.decade)});
+          }
+
         break;
       }
     } else {
@@ -69,13 +84,22 @@ var App = React.createClass({
     this.centralStateSetter(e);
   },
 
-  decadeUpdate: function() {
-    var val = this.refs.inp.getDOMNode().value;
+  decadeUpdate: function(val) {
+    val = val.getFullYear();
+
     if (val && this.state.decade !== val) {
-      this.centralStateSetter({'decade': val});
+      if (GeographyStore.decadeLoaded(val)) {
+        console.log("%s loaded.", val);
+        GeographyStore.decade(val);
+        GeographyStore.emitChange(Constants.GET_DECADE_DATA, 'GeographyStore');
+      } else {
+        //var backfill = GeographyStore.getBackFill(val);
+        Actions.getDataForDecade(val, GeographyStore.getBackFill(val))
+        //console.log(val, GeographyStore.getBackFill(val))
+      }
+
+      //this.centralStateSetter({'decade': val});
     }
-    //<input ref="inp" type="range" min="1850" max="2010" step="10" onChange={this.decadeUpdate}/>
-    //console.log(this.refs.inp.getDOMNode().value)
   },
 
   render: function() {
@@ -104,7 +128,7 @@ var App = React.createClass({
           <div className="columns eight">
             <div id="population-scale" className="component columns two">Scale</div>
             <div id="color-key" className="component columns two">Key</div>
-            <Timeline startDate={new Date('1/1/1850')} endDate={new Date('12/31/2010')} />
+            <Timeline decade={this.state.decade} startDate={new Date('1/1/1850')} endDate={new Date('12/31/2010')} onSliderChange={this.decadeUpdate} />
           </div>
           <div className="columns four">
             <div id="about-time-period">About time period</div>
