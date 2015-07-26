@@ -53,6 +53,3 @@ Copy code from [build directory](./build) to server.  It's all **static files**,
 scp -prq ./build/. studio.stamen.com:www/richmond/show/foreignborn/
 scp -prq ./build/. studio.stamen.com:www/richmond/show/yyyy-mm-dd/
 ```
-
-
-

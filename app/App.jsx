@@ -68,6 +68,7 @@ var App = React.createClass({
             this.setState({'decade': GeographyStore.decade(), 'geographyData': GeographyStore.getDataByDecade(GeographyStore.decade()) });
           } else {
             this.setState({'geographyData': GeographyStore.getDataByDecade(this.state.decade)});
+
           }
 
         break;
@@ -113,7 +114,9 @@ var App = React.createClass({
 
     var countiesNames = this.state.geographyData.countyGeo.map(function(d){
       return d.properties.name + ", " + d.properties.state;
-    })
+    });
+
+    var countryOverlay = GeographyStore.getCountryPercents('all');
 
     return (
       <div className='container full-height'>
@@ -136,33 +139,60 @@ var App = React.createClass({
               <p><span className="decade">{this.state.decade}</span><span className="total">{numberFormatter(count)}</span></p>
             </div>
             <div id="search-bar" className="component">
-              <Typeahead
-                options={countiesNames}
-                maxVisible={5}
-                placeholder="Search by county name"
-              />
+              <div id="typeahead-container">
+                <Typeahead
+                  options={countiesNames}
+                  maxVisible={5}
+                  placeholder="Search by county name"
+                />
+              </div>
+              <button>
+                <svg xmlns="http://www.w3.org/2000/svg" width="14.6px" height="14.6px" viewBox="0 0 14.6 14.6" >
+                  <path fill="#FFFFFF" d="M12.9,1.7c-2.2-2.2-5.8-2.2-8,0c-1.8,1.8-2.1,4.6-1,6.7l-3.4,3.4c-0.6,0.6-0.6,1.6,0,2.2l0.1,0.1
+                  c0.6,0.6,1.6,0.6,2.2,0l3.4-3.4c2.2,1.2,4.9,0.8,6.7-1C15.1,7.5,15.1,3.9,12.9,1.7z M11.3,8C10,9.4,7.8,9.4,6.5,8
+                  c-1.3-1.3-1.3-3.4,0-4.7s3.4-1.3,4.7,0C12.6,4.6,12.6,6.7,11.3,8z"/>
+                </svg>
+              </button>
+
             </div>
-            <div id="loupe" className="component">Loupe</div>
+            <div id="loupe" className="component"></div>
           </div>
         </section>
         <section className="row">
           <div className="columns eight">
             <div className="row">
-              <div id="population-scale" className="columns two">
-                <LegendNestedCircles values={legendValues}/>
+              <div className="columns five">
+                <div id="legends-container" className="table">
+                  <div className="td">
+                    <LegendNestedCircles values={legendValues}/>
+                  </div>
+                  <div className="td">
+                    <LegendGrid/>
+                  </div>
+                </div>
               </div>
-              <div id="color-key" className="columns two">
-                <LegendGrid/>
-              </div>
-              <div id="timeline-container" className="columns eight">
-                <Timeline decade={this.state.decade} startDate={new Date('1/1/1850')} endDate={new Date('12/31/2010')} onSliderChange={this.decadeUpdate} />
+              <div id="timeline-container" className="columns seven">
+                <div className="wrapper">
+                  <div className="title">
+                    <h3>Population</h3>
+                    <h3>Over Time</h3>
+                  </div>
+                  <div>
+                    <Timeline overlay={countryOverlay} decade={this.state.decade} startDate={new Date('1/1/1850')} endDate={new Date('12/31/2010')} onSliderChange={this.decadeUpdate} />
+                    <div className="timeline-legend left">Total Foreign-Born</div>
+                    <div className="timeline-legend right">Swiss Foreign-Born</div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
           <div className="columns four">
             <div id="about-time-period" className="row">
-                <h3 className="columns three "><span>About the {this.state.decade}'s</span></h3>
-                <p className="columns nine">
+                <div className="columns three title">
+                  <h3>About</h3>
+                  <p><span className="small">the</span> <span>{this.state.decade}'s</span></p>
+                </div>
+                <p className="columns nine description">
                   A county is a political and geographic subdivision of a state, usually assigned some governmental authority. The term "county" is used in 48 of the 50 U.S. states. The exceptions are Louisiana and Alaska.
                 </p>
             </div>

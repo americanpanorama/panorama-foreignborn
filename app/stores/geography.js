@@ -27,6 +27,7 @@ var state = {
 
 var countiesLoaded = {};
 var decadeData = {};
+var populationPercents = {};
 
 
 function setData(newData, decade) {
@@ -53,9 +54,7 @@ function setData(newData, decade) {
         data[d.key] = d.response;
       }
     }
-
   });
-
 }
 
 function processCountyData (d, decade) {
@@ -82,7 +81,27 @@ function processCountyGeometries (d) {
       data['countyGeometries'].push(f);
     });
   }
+}
 
+function computePopulationPercents() {
+  if (!data['total_us_pop']) return [];
+  var pcts = [];
+
+  data['total_us_pop'].forEach(function(d){
+    var yr = d.year,
+        total = d.pop;
+
+    if (!data['countryByYear'][yr]) return;
+
+    var fbTotal = d3.sum(data['countryByYear'][yr], function(o) { return o.count;});
+
+    pcts.push({
+      date: new Date('1/1/' + yr),
+      pct: fbTotal/total
+    });
+  });
+
+  populationPercents['all'] =  pcts;
 }
 
 
@@ -91,6 +110,7 @@ function rollupCountryData(countryData) {
   var clean = countryData.filter(function(d){
     return d.lat && d.lng && d.year && d.country.length;
   });
+
   d3.nest()
     .key(function(d){ return d.year; })
     .entries(clean)
@@ -190,10 +210,25 @@ function getCountryScaleData() {
   parts.forEach(function(d){
     values.push({
       r: scale(d),
-      label: format(d)
-    })
-  })
+      value: d,
+      label: ''
+    });
+  });
 
+
+  values.sort(function(a,b){
+    return a.r - b.r;
+  });
+
+  values.forEach(function(d,i){
+    if (i === 0) {
+      d.label = "<" + format(d.value) + " people"
+    } else {
+      d.label = format(values[i-1].value).replace(/\D/g,'') + ' - ' + format(d.value) + " people"
+    }
+  });
+
+  console.log(values)
   return values;
 }
 
@@ -224,6 +259,10 @@ var GeographyStore = assign({}, EventEmitter.prototype, {
     if (!decadeData[decade] && state.loaded) decadeData[decade] = o;
 
     return o;
+  },
+
+  getCountryPercents: function(country) {
+    return populationPercents[country] || [];
   },
 
   decade: function(decade) {
@@ -293,6 +332,7 @@ AppDispatcher.register(function(action) {
       if (action.response instanceof Array) {
         state.decade = action.queryParams.decade;
         setData(action.response, action.queryParams.decade);
+        computePopulationPercents();
 
         GeographyStore.emitChange(Constants.GET_INITIAL_DATA, 'GeographyStore');
       }

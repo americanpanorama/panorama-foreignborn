@@ -97,13 +97,13 @@ var BarChart = React.createClass({
       return (
         <div className="bar-chart-container component">
           <h3>{this.props.title}</h3>
-          <button className="bar-chart-scrollbtn">︿</button>
+          <button className="bar-chart-scrollbtn up"><span>︿</span></button>
           <div className="bar-chart-rows-wrapper">
             <div className="bar-chart-rows">
               {this.renderBars()}
             </div>
           </div>
-          <button className="bar-chart-scrollbtn">﹀</button>
+          <button className="bar-chart-scrollbtn down"><span>﹀</span></button>
         </div>
       );
     }

@@ -1,3 +1,48 @@
-body {
+/*
+15px PT Serif
+24px PT Serif
+
+12px PT Serif Caption
+15px PT Serif Caption
+18px PT Serif Caption
+
+10px PT Sans Narrow
+12px PT Sans Narrow
+14px PT Sans Narrow
+
+12px PT Sans Caption
+14px PT Sans Caption
+15px PT Sans Caption
+18px PT Sans Caption
+*/
+
+body,
+.serif,
+h1 {
   font-family: $font-family-serif;
+}
+
+.serif-alt,
+h3 {
+  font-family: $font-family-serif-alt;
+}
+
+.sans {
+  font-family: $font-family-sans;
+}
+
+.sans-alt {
+  font-family: $font-family-sans-alt;
+}
+
+h1,h2,h3,h4,h5,h6,p {
+  font-weight: $font-weight-normal;
+}
+
+h1 {
+  font-size: $font-size-largest;
+}
+
+h3 {
+  font-size: $font-size-large;
 }

@@ -8,6 +8,8 @@ var _pendingRequests = {};
 
 var COUNTRY_QUERY = 'SELECT ST_X(the_geom) as lng,ST_Y(the_geom) as lat,category_id,count,country,continent,year FROM site_foreignborn_rolled_country_counts_materialized';
 var COUNTY_QUERY = 'SELECT SUM(count) as count, AVG(area_sqmi) as area_sqmi, nhgis_join FROM site_foreignborn_counties_prod_materialized WHERE start_n < {startN} and end_n >= {startN} group by nhgis_join';
+var TOTAL_US_POP = 'SELECT year, pop FROM site_foreignborn_us_pop_totals_materialized';
+var COUNTY_POP_BREAKDOWN = "SELECT year,total,fb_total FROM site_foreignborn_county_pop_breakdowns_materialized WHERE RTRIM(nhgis_join) = '{nhgis_join}'";
 var WORLD = {
   key: 'world',
   url: 'static/world-50m-subunits.json'
@@ -30,17 +32,28 @@ function dispatch(key, response, params) {
         payload.queryParams = params;
     }
 
-
     AppDispatcher.dispatch(payload);
-    //AppDispatcher.handleRequestAction(payload);
 }
 
+function totalPopulation() {
+  return {
+    key: 'total_us_pop',
+    sql: TOTAL_US_POP,
+    options: {"format":"JSON"}
+  }
+}
 
+function CountyPopulationBreakdown(nhgis_join) {
+  return {
+    key: 'county_pop_' + nhgis_join,
+    sql: COUNTY_POP_BREAKDOWN.replace(/{nhgis_join}/g, nhgis_join),
+    options: {"format":"JSON"}
+  }
+}
 
 function makeCountyQueryObject(decade) {
   var start = decade * 10000 + 101;
   var end = (decade + 10) * 10000 + 101;
-  //console.log( COUNTY_QUERY.replace(/{startN}/g, start).replace(/{endN}/g, end).replace(/{year}/g, decade) )
   return {
     key: 'us_counties',
     sql: COUNTY_QUERY.replace(/{startN}/g, start).replace(/{endN}/g, start).replace(/{year}/g, decade),
@@ -69,6 +82,7 @@ var Api = {
     var params = {decade: decade};
 
     var queue = [
+      totalPopulation(),
       makeCountyQueryObject(decade),
       makeCountryQueryObject(decade),
       makeCountyGeometryQueryObject(decade),

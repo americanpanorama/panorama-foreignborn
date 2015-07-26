@@ -8,9 +8,10 @@ var lastWindowWidth;
 var fullYearFormatter = d3.time.format('%Y');
 var yearFormatter = d3.time.format('%y');
 
+var overlayDrawn;
 var Timeline = React.createClass({
   svgElm: null,
-  margin: {top: 10, right: 1, bottom: 20, left: 40},
+  margin: {top: 20, right: 1, bottom: 20, left: 40},
   width: null,
   height: null,
   xscale: null,
@@ -86,6 +87,7 @@ var Timeline = React.createClass({
       .ticks(d3.time.years, 10)
       .orient("bottom")
       .tickSize(-(this.height+5))
+      .tickPadding(5)
       .tickFormat(function(d){
         if (d.getFullYear() % 50 === 0) {
           return fullYearFormatter(d);
@@ -97,8 +99,8 @@ var Timeline = React.createClass({
     this.yAxis = d3.svg.axis()
       .scale(this.yscale)
       .orient("left")
-      .ticks(4)
-      .tickSize(10,-this.width)
+      .ticks(3)
+      .tickSize(5,-this.width)
       .tickFormat(function(d) {
         if (d === 100 || d === 0) {
           return d + "%";
@@ -133,6 +135,7 @@ var Timeline = React.createClass({
     this.currentYear = value.getFullYear();
     this.currentDate = value;
     if (!callChange) return;
+    this.handle.select('text').text(this.currentYear);
     if (this.props.onSliderChange) this.props.onSliderChange(value);
 
 
@@ -165,7 +168,7 @@ var Timeline = React.createClass({
     var that = this;
     lastWindowWidth = window.innerWidth;
     this.setWidth(container.offsetWidth);
-    this.setHeight(container.offsetHeight);
+    this.setHeight(72);
 
     this.currentDate = new Date('1/1/'+ this.props.decade);
 
@@ -188,8 +191,22 @@ var Timeline = React.createClass({
 
   },
 
+  shouldComponentUpdate: function(nextProps) {
+    if (!this.hasData) return true;
+    if (this.props.decade !== nextProps.decade) return true;
+    if (!overlayDrawn) return true;
+    return false;
+  },
+
   componentDidUpdate: function() {
-    if (this.hasData) return;
+    if (this.hasData) {
+      this.handle.select('text').text(this.props.decade);
+
+      if (!overlayDrawn) {
+        this.drawOverlay();
+      }
+      return;
+    }
 
     this.hasData = true;
 
@@ -201,28 +218,8 @@ var Timeline = React.createClass({
     this.setBrush(this.currentDate);
 
     this.visualize();
+    this.drawOverlay();
 
-    /*
-    if ((this.props.dimensions.width !== lastWindowWidth) && this.hasData) {
-      lastWindowWidth = this.props.dimensions.width;
-      this.updateWidth();
-    }
-    if (this.props.currentDate !== this.currentDate) {
-      this.currentDate = this.props.currentDate;
-      if (this.brush)this.moveBrush(this.currentDate);
-    }
-
-    if (this.hasData) return;
-    if (!this.props.chartdata) return;
-    if (!this.props.chartdata.hasOwnProperty('entries')) return;
-    this.hasData = true;
-
-    this.visualize(
-      this.props.chartdata.entries,
-      this.props.chartdata.source,
-      this.loaded
-    );
-    */
   },
 
   loaded: function(state) {
@@ -244,25 +241,57 @@ var Timeline = React.createClass({
       .append("g")
       .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
 
-
     this.visualize();
 
     this.brush.extent([this.currentDate, this.currentDate]);
     this.handle.attr("transform", "translate(" + this.xscale(this.currentDate) + ",0)");
   },
 
+  drawOverlay: function() {
+    var overlay = this.props.overlay;
+    if (!overlay.length && !this.overlay) return;
+    overlayDrawn = true;
+
+    overlay.sort(function(a,b){
+      return a.date - b.date;
+    });
+
+    var oy = d3.scale.linear()
+      .domain([0, 1])
+      .range([this.height, 0]);
+
+    var that = this;
+    var area = d3.svg.area()
+      .x(function(d) { return that.xscale(d.date); })
+      .y0(this.height)
+      .y1(function(d) { return oy(d.pct); });
+
+    this.overlay
+      .datum(overlay)
+      .attr('d', area);
+
+  },
+
   visualize: function(callback) {
     var that = this;
+
+    this.overlay = this.svgElm.append('g')
+      .attr('class', 'overlay')
+      .append("path")
+      .attr("class", "area");
+
+    this.svgElm.append('g')
+      .attr('class', 'overlay-secondary');
 
     var yAxis = this.svgElm.append("g")
       .attr("class", "y axis")
       .call(that.yAxis);
 
     yAxis.selectAll('line')
-      .attr('transform', 'translate(5,0)');
+      .attr('transform', 'translate(0,0)');
 
     yAxis.selectAll('text')
-      .attr('transform', 'translate(5,0)');
+      .attr('transform', 'translate(-3,0)');
 
     this.svgElm.append("g")
       .attr("class", "x axis")
@@ -273,7 +302,6 @@ var Timeline = React.createClass({
       this.slider = this.svgElm.append("g")
         .attr("class", "slider")
         .call(that.brush);
-
 
       this.slider.selectAll(".extent,.resize")
         .remove();
@@ -290,41 +318,15 @@ var Timeline = React.createClass({
         .attr('class', 'handle-bounds')
         .attr("x", 0)
         .attr("y", 0)
-        .attr("width", 2)
-        .attr("height", this.height + 5)
-        .attr("transform", "translate(-" + 1 + ",0)");
+        .attr("width", 4)
+        .attr("height", this.height + 6)
+        .attr("transform", "translate(-" + 2 + ",-1)");
 
 
-      /*
-      this.handle.append("path")
-        .attr("transform", "translate(0," + this.height / 2 + ")")
-        .attr("d", "M 0 -" +(this.height / 2)+ " V " + (this.height / 2));
+      this.handle.append('text')
+        .attr('dy', "-5")
+        .text(this.props.decade);
 
-      this.handle.append("rect")
-        .attr("x", 0)
-        .attr("y", 0)
-        .style("fill", "#686562")
-        .attr("width", 19)
-        .attr("height", 4)
-        .attr("transform", "translate(-9.5,-4)");
-
-      this.handle.append("polygon")
-        .style("fill", "#686562")
-        .attr("points", "17,0 8.5,12 0,0")
-        .attr("transform", "translate(-8.5, 0)");
-        */
-
-
-
-      /*
-      this.handle.append("polyline")
-        .style("stroke", "#686562")
-        .style("fill", "none")
-        .style("stroke-width", 2)
-        .style("stroke-miterlimit", 10)
-        .attr("points", "1,0 1,4.4 " + yearWidthHalf + ",4.4 " + yearWidthHalf + ",0")
-        .attr("transform", "translate(-" + yearWidthHalf/2 + "," + this.height + ")");
-      */
 
       this.slider
         .call(that.brush.event);
@@ -347,7 +349,7 @@ var Timeline = React.createClass({
 
   render: function() {
     return (
-        <div className="component timeline">
+        <div className="component timeline" ref="timeline">
         </div>
     );
 

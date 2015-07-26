@@ -20,11 +20,11 @@ var LegendGrid = React.createClass({
 
   componentDidMount: function() {
     root = d3.select(React.findDOMNode(this.refs.legend));
-    size = Math.min(Math.floor(root.node().offsetWidth / 6), Math.floor(90 / 6));
+    size = Math.min(Math.floor(root.node().offsetWidth / 6), Math.floor(80 / 6));
 
     root
       .style('width', (size * 6) + 'px')
-      .style('height', '90px');
+      .style('height', '80px');
 
 
   },
@@ -65,6 +65,10 @@ var LegendGrid = React.createClass({
     return (
         <div className="component legend grid" ref="legend">
           {this.renderGrid()}
+          <div className="x axis top">100%</div>
+          <div className="x axis bottom">0%</div>
+          <div className="y axis left">250+</div>
+          <div className="y axis right">0</div>
         </div>
     );
 

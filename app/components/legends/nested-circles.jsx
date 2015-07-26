@@ -3,18 +3,27 @@ var d3      = require('d3');
 
 var root,svg;
 
+
+function supported() {
+  // test for mix-blend-mode
+  if('CSS' in window && 'supports' in window.CSS) {
+      var support = window.CSS.supports('mix-blend-mode','soft-light');
+          support = support?'mix-blend-mode':'no-mix-blend-mode';
+          d3.select('body').classed(support, true);
+  }
+}
+
 function update(data) {
   if (!svg) return;
-
-  var circle = svg.selectAll('circle')
-    .data(data);
 
   var max = d3.max(data, function(d){
     return d.r;
   });
-  data.sort(function(a,b){
-    return a.r -b.r;
-  })
+
+
+  var circle = svg.selectAll('circle')
+    .data(data);
+
   circle.enter().append('circle')
     .attr('r', function(d){
       return d.r;
@@ -24,7 +33,18 @@ function update(data) {
     })
     .attr('cy', function(d){
       return 90 - d.r;
-    })
+    });
+
+  var text = svg.selectAll('text')
+    .data(data);
+
+  text.enter().append('text')
+    .text(function(d){ return d.label;})
+    .attr('x', max * 2 + 10)
+    .attr('dy', '0.8em')
+    .attr('y', function(d){
+      return 90 - (d.r * 2);
+    });
 
 }
 var LegendNestedCircles = React.createClass({
@@ -38,18 +58,18 @@ var LegendNestedCircles = React.createClass({
   },
 
   componentDidMount: function() {
+    supported();
     root = d3.select(React.findDOMNode(this.refs.legend));
     svg = root.append('svg')
       .attr('width', root.node().offsetWidth)
       .attr('height', '90');
-
   },
 
   componentWillUnmount: function() {
+
   },
 
   componentDidUpdate: function() {
-    console.log(this.props.values);
     if (this.props.values && this.props.values.length) {
       update(this.props.values);
     }
@@ -58,7 +78,7 @@ var LegendNestedCircles = React.createClass({
   render: function() {
 
     return (
-        <div className="component legend" ref="legend">
+        <div className="component legend nested-circle" ref="legend">
 
         </div>
     );

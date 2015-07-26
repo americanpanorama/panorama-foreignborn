@@ -1,75 +1,98 @@
+$bar-height: 16px;
+
 .bar-chart-container {
   margin-bottom: 20px;
   background: $medium-dark-grey;
 
   h3 {
-    margin: 0 0 1px 0;
+    margin: 0;
     padding: 0;
-    background: #44474A;
+    background: $medium-dark-grey-lightest;
     text-align: center;
-    line-height: 36px;
-    font-weight: 100;
+    line-height: 32px;
   }
+
   button {
     display: block;
     width: 100%;
-    background: #44474A;
-    text-decoration: none;
-    border: 0;
+    height: $bar-height;
     margin: 0;
     padding: 0;
+    background: $medium-dark-grey-lighter;
+    border: 0;
+    font-size: 21px;
+    text-decoration: none;
     line-height: 1;
     outline: 0;
+
+      span {
+        position: relative;
+      }
+
+      &.up span {
+        top: -8px;
+      }
+
+      &.down span {
+        top: 2px;
+      }
   }
 }
+
 .bar-chart-rows-wrapper {
   width: 90%;
-  margin:5px 0 5px 5%;
+  margin: 10px 0 10px 5%;
   height: 300px;
   overflow: scroll;
 }
+
 .bar-chart-rows {
   display: table;
   table-layout: fixed;
 }
+
 .chartRow {
   display: table-row;
   cursor: pointer;
 
-  .label {
+  .label,
+  .bar {
     display: table-cell;
+    vertical-align: middle;
+    line-height: 1;
+  }
+
+  .label {
     text-align: right;
-    vertical-align: top;
 
     span {
-      padding-right: 10px;
-      font-size: 12px;
-      font-family: sans-serif;
-      color: white;
+      padding-right: 15px;
+      font-size: $font-size-regular;
+      font-family: $font-family-sans-alt;
+      color: $white;
       white-space: nowrap;
     }
   }
 
   .bar {
-    display: table-cell;
     position: relative;
     width: 100%;
 
     span {
-      display: inline-block;
-      height: 16px;
-      background: white;
-      background: rgba(255, 255, 255, 0.8);
+      display: block;
+      height: $bar-height;
+      background: $blue-light;
+      line-height: 1;
     }
 
     .value {
       position: absolute;
-      color: #2D8DB6;
-      left: 10px;
-      top: 0;
-      line-height: 16px;
+      left: 15px;
+      top: 2px;
       background: transparent;
-      font-size: 12px;
+      color: $blue;
+      font-family: $font-family-sans;
+      font-size: $font-size-regular;
     }
   }
 
