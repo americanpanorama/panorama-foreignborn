@@ -33,6 +33,11 @@ var BarChart = React.createClass({
     componentDidUpdate: function() {
     },
 
+    barClick: function(e) {
+      var val = e.target.textContent;
+      if (typeof this.props.onBarClickHandler === 'function') this.props.onBarClickHandler({country: val});
+    },
+
     renderBars: function() {
       var that = this;
       if (!data.length) return;
@@ -99,7 +104,7 @@ var BarChart = React.createClass({
           <h3>{this.props.title}</h3>
           <button className="bar-chart-scrollbtn up"><span>︿</span></button>
           <div className="bar-chart-rows-wrapper">
-            <div className="bar-chart-rows">
+            <div className="bar-chart-rows" onClick={this.barClick}>
               {this.renderBars()}
             </div>
           </div>

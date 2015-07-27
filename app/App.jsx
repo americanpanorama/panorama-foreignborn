@@ -43,6 +43,7 @@ var App = React.createClass({
     },
     country: {
       required: false,
+      value: null
     }
   },
 
@@ -69,12 +70,13 @@ var App = React.createClass({
   mergeHash: function(params) {
     for (var k in params) {
       if (k in this.hashParams) {
-        var value = params[k] + '';
+        var value = params[k];
+        /*
         if (!value.length) value = null;
         if (!value && this.hashParams[k].required) value = this.hashParams[k].default;
 
         if (value && this.hashParams[k].type === "Number") value = +value;
-
+        */
         this.hashParams[k].value = value;
       }
     }
@@ -85,7 +87,11 @@ var App = React.createClass({
 
     for (var k in this.hashParams) {
       var v = this.hashParams[k].value;
-      if (v) out.push(k + '=' + v);
+
+      if (v !== null) {
+        console.log(k,v)
+        out.push(k + '=' + v);
+      }
     }
 
     var hash = "#" + out.join('&');
@@ -172,6 +178,17 @@ var App = React.createClass({
     }
   },
 
+  handleMapClick: function(obj) {
+    if (obj.country) {
+      this.mergeHash({country: obj.country, county: null});
+      this.updateHash(true);
+    } else {
+      this.mergeHash({county: obj.properties.nhgis_join, country: null});
+      this.updateHash(true);
+    }
+
+  },
+
   render: function() {
     var count = d3.sum(this.state.geographyData.country, function(d){ return d.count; });
     var legendValues = GeographyStore.getCountryScaleData();
@@ -190,6 +207,7 @@ var App = React.createClass({
         <section className="row">
           <div className="columns nine">
             <DisjointedWorldLayout
+              onClickHandler={this.handleMapClick}
               decade={this.state.decade}
               countries={this.state.geographyData.country || []}
               counties={this.state.geographyData.countyGeo || []}
@@ -197,7 +215,7 @@ var App = React.createClass({
             />
           </div>
           <div className="columns three stacked">
-            <BarChart width={300} height={400} title={this.state.decade + " Foreign Born"} rows={this.state.geographyData.country || []}/>
+            <BarChart onBarClickHandler={this.handleMapClick} width={300} height={400} title={this.state.decade + " Foreign Born"} rows={this.state.geographyData.country || []}/>
             <div id="population-totals">
               <h3>Total Foreign-Born</h3>
               <p><span className="decade">{this.state.decade}</span><span className="total">{numberFormatter(count)}</span></p>

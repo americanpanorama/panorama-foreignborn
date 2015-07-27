@@ -18,6 +18,7 @@ var worldDirty = true;
 var decade;
 var countryNodes = {};
 var hasData = false;
+var clickCallback;
 
 var color = d3.scale.quantile()
   .range(["#f6eff7","#d0d1e6","#a6bddb","#67a9cf","#3690c0","#02818a","#016450"])
@@ -230,7 +231,7 @@ function drawWorld(world) {
 function drawCounties(data) {
   //console.log(data[1])
   //svg.selectAll(".county").remove();
-
+  var that = this;
   var t = +new Date();
   var counties = svg.selectAll(".county")
     .data(data, function(d){ return d.properties.id; });
@@ -248,6 +249,9 @@ function drawCounties(data) {
     })
     .style("opacity", function(d) {
       return opacity(d.properties.density);
+    })
+    .on('click', function(d){
+      clickCallback(d);
     });
 
   counties.exit().remove();
@@ -256,9 +260,10 @@ function drawCounties(data) {
   console.log("Elapsed SVG: ", (elapsed/1000));
 }
 
+
 function drawCountiesCanvas(data) {
   var t = +new Date();
-  console.log(data[1])
+
   context.clearRect(0, 0, width, height);
 
   canvasPath = d3.geo.path()
@@ -286,7 +291,7 @@ function generateCountryNodes(countries) {
   var min = Infinity,
       max = -Infinity;
 
-  countries.forEach(function(d){
+  countries.forEach(function(d,i){
     min = Math.min(d.count, min);
     max = Math.max(d.count, max);
   });
@@ -423,9 +428,12 @@ function drawCountries(countries) {
     .attr("class", "country")
     .attr("r", function(d) { return d.r; })
     .attr("cx", function(d) { return d.x; })
-    .attr("cy", function(d) { return d.y; });
+    .attr("cy", function(d) { return d.y; })
+    .on('click', null);
 
   node.exit().remove();
+
+  node.on('click',clickCallback);
 
 }
 
@@ -442,6 +450,8 @@ var DisjointedWorldLayout = React.createClass({
   componentDidMount: function() {
     createProjections();
 
+    clickCallback = (typeof this.props.onClickHandler === 'function') ? this.props.onClickHandler : function(){};
+
     mapContainer = d3.select(React.findDOMNode(this.refs.map));
 
     width = mapContainer.node().offsetWidth;
@@ -456,6 +466,7 @@ var DisjointedWorldLayout = React.createClass({
         .attr("width", width)
         .attr("height", height);
 
+    /*
     canvas = mapContainer.append("canvas")
       .attr("width", width)
       .attr("height", height)
@@ -464,6 +475,7 @@ var DisjointedWorldLayout = React.createClass({
       .style("left", "0");
 
     context = canvas.node().getContext("2d");
+    */
 
     background = svg.append("g");
   },
@@ -483,8 +495,8 @@ var DisjointedWorldLayout = React.createClass({
         decade = this.props.decade;
 
         drawCountries(props.countries);
-        //drawCounties(props.counties);
-        drawCountiesCanvas(props.counties);
+        if (svg) drawCounties(props.counties);
+        //drawCountiesCanvas(props.counties);
       }
     }
 
