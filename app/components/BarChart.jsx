@@ -125,7 +125,7 @@ var Bar = React.createClass({
     },
 
     shouldComponentUpdate: function(nextProps) {
-      return this.props.width !== nextProps.width;
+      return true;
     },
 
     renderSvg: function() {
