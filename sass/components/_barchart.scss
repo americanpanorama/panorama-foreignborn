@@ -46,6 +46,10 @@ $bar-height: 16px;
   overflow: scroll;
 }
 
+.has-county .bar-chart-rows-wrapper {
+  height: 120px;
+}
+
 .bar-chart-rows {
   display: table;
   table-layout: fixed;

@@ -104,6 +104,8 @@ var App = React.createClass({
 
     return {
       decade: this.hashParams.decade.value,
+      country: this.hashParams.country.value,
+      county: this.hashParams.county.value,
       geographyData: GeographyStore.getDataByDecade(this.hashParams.decade.value),
     };
   },
@@ -111,6 +113,7 @@ var App = React.createClass({
   componentWillMount: function() {
     GeographyStore.decade(this.state.decade);
     GeographyStore.decadeBounds(decadeBounds);
+    this.toggleCountyClass(this.state.county);
   },
 
   componentDidMount: function() {
@@ -136,13 +139,10 @@ var App = React.createClass({
       switch(obj.caller) {
         case "GeographyStore":
           if (obj.type === Constants.GET_DECADE_DATA) {
-
             this.setState({'decade': GeographyStore.decade(), 'geographyData': GeographyStore.getDataByDecade(GeographyStore.decade()) });
           } else {
             this.setState({'geographyData': GeographyStore.getDataByDecade(this.state.decade)});
-
           }
-
         break;
       }
     } else {
@@ -178,15 +178,22 @@ var App = React.createClass({
     }
   },
 
+  toggleCountyClass: function(b) {
+    d3.select('body').classed('has-county', b);
+  },
+
   handleMapClick: function(obj) {
     if (obj.country) {
       this.mergeHash({country: obj.country, county: null});
       this.updateHash(true);
+      this.toggleCountyClass(false);
+      this.centralStateSetter({county: null, country:obj.country});
     } else {
       this.mergeHash({county: obj.properties.nhgis_join, country: null});
       this.updateHash(true);
+      this.toggleCountyClass(true);
+      this.centralStateSetter({county: obj.properties.nhgis_join, country:null});
     }
-
   },
 
   render: function() {
@@ -208,7 +215,10 @@ var App = React.createClass({
           <div className="columns nine">
             <DisjointedWorldLayout
               onClickHandler={this.handleMapClick}
+              loupeSelector='#loupe'
               decade={this.state.decade}
+              selectedCounty={this.state.county}
+              selectedCountry={this.state.country}
               countries={this.state.geographyData.country || []}
               counties={this.state.geographyData.countyGeo || []}
               world={this.state.geographyData.world}
@@ -237,7 +247,7 @@ var App = React.createClass({
               </button>
 
             </div>
-            <div id="loupe" className="component"></div>
+            <div id="loupe" className="component" ref="loupe"></div>
           </div>
         </section>
         <section className="row">

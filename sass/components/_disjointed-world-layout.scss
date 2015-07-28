@@ -57,3 +57,31 @@ $medium-grey: white !default;
   }
 
 }
+
+#loupe {
+  margin: 0 20px 20px;
+}
+svg.loupe {
+  .crosshair {
+
+    circle {
+      fill: none;
+      stroke: #000;
+      stroke-width: 1;
+    }
+
+    line {
+      fill: none;
+      stroke: #000;
+      stroke-width: 1;
+    }
+  }
+
+  .arrows {
+    .arrow {
+      fill: none;
+      stroke: #000;
+      stroke-width: 2;
+    }
+  }
+}

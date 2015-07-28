@@ -11,6 +11,8 @@ var width = 960,
 
 var mapContainer, svg, background, counties_nested, countries_nested, sorted;
 var canvas, context, canvasPath;
+var loupe, loupeSVG ,loupeGroup, loupeHeight, loupeWidth;
+var selectedCounty;
 var countyLookup = {};
 var countryLookup = {};
 var projections = {};
@@ -238,7 +240,7 @@ function drawCounties(data) {
 
   counties.enter().append('path')
     .attr('class', 'county')
-    .attr('d', function(d){
+    .attr('d', function(d,i){
       return d3.geo.path().projection(projections['usa'])(d.geometry);
     })
     .style('fill', function(d) {
@@ -255,6 +257,9 @@ function drawCounties(data) {
     });
 
   counties.exit().remove();
+
+
+  if(selectedCounty) drawLoupe(data);
 
   var elapsed = +new Date() - t;
   console.log("Elapsed SVG: ", (elapsed/1000));
@@ -284,6 +289,77 @@ function drawCountiesCanvas(data) {
 
   var elapsed = +new Date() - t;
   console.log("Elapsed Canvas: ", (elapsed/1000));
+
+}
+
+
+function drawLoupe(data) {
+  var filtered = data.filter(function(d){
+    return d.properties.nhgis_join === selectedCounty;
+  });
+
+  var w = loupeWidth,
+      h = loupeHeight;
+
+  var lprojection = d3.geo.albersUsa()
+    .scale(1)
+    .translate([0,0]);
+
+  var lpath = d3.geo.path()
+    .projection(lprojection);
+
+
+  var bounds = lpath.bounds(filtered[0]),
+        dx = bounds[1][0] - bounds[0][0],
+        dy = bounds[1][1] - bounds[0][1],
+        x = (bounds[0][0] + bounds[1][0]) / 2,
+        y = (bounds[0][1] + bounds[1][1]) / 2,
+        s = .9 / Math.max(dx / w, dy / h),
+        t = [w / 2 - s * x, h / 2 - s * y];
+
+
+  var scaleMod = s * .20;
+  var zoom = d3.behavior.zoom()
+    .translate(t)
+    .scale(s)
+    .scaleExtent([s-scaleMod, s+scaleMod])
+    .on("zoom", zoomed);
+
+  function zoomed() {
+    if (!loupeGroup) return;
+    loupeGroup.selectAll('path').style("stroke-width", 1 / d3.event.scale);
+    loupeGroup.attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
+  }
+
+  var counties = loupeGroup.selectAll(".county")
+    .data(data, function(d){ return d.properties.id; });
+
+  counties.enter().append('path')
+    .attr('class', 'county')
+    .attr('d', function(d){
+      return lpath(d.geometry);
+    })
+    .style('fill', function(d,i) {
+      return color(d.properties.count);
+    })
+    .style('stroke', function(d) {
+      return '#000'
+    })
+    .style('stroke-width', function(d) {
+      return '1';
+    })
+    .style("opacity", function(d) {
+      return opacity(d.properties.density);
+    })
+    .on('click', function(d){
+      clickCallback(d);
+    })
+
+  counties.exit().remove();
+
+  loupeSVG
+    .call(zoom) // delete this line to disable free zooming
+    .call(zoom.event);
 
 }
 
@@ -437,6 +513,32 @@ function drawCountries(countries) {
 
 }
 
+function setLoupeLayout() {
+  loupeWidth = loupe.node().offsetWidth;
+
+  console.log("loupeWidth: ", loupeWidth)
+
+  loupeSVG.attr('width', loupeWidth)
+      .attr('height', loupeHeight);
+
+  loupe.select('.crosshair')
+    .attr('transform', 'translate(' + (loupeWidth/2) + ', ' + (loupeHeight/2) + ')');
+
+  loupe.select('.arrow.left')
+    .attr('transform', 'translate(10, '+ (loupeHeight/2) + ')');
+
+  loupe.select('.arrow.right')
+    .attr('transform', 'translate(' + (loupeWidth-10) + ', ' + (loupeHeight/2) + ')');
+
+  loupe.select('.arrow.top')
+    .attr('transform', 'translate(' + (loupeWidth/2) + ', 10)');
+
+  loupe.select('.arrow.bottom')
+    .attr('transform', 'translate(' + (loupeWidth/2) + ', ' + (loupeHeight-10) + ')');
+
+
+}
+
 var DisjointedWorldLayout = React.createClass({
 
   getInitialState: function () {
@@ -478,6 +580,74 @@ var DisjointedWorldLayout = React.createClass({
     */
 
     background = svg.append("g");
+
+    if (this.props.loupeSelector) {
+      loupe = d3.select(this.props.loupeSelector);
+      loupeHeight = 160;
+      loupeWidth = loupe.node().offsetWidth;
+
+      loupeSVG = loupe.append('svg')
+        .attr('class', 'loupe')
+        .attr('width', loupeWidth)
+        .attr('height', loupeHeight)
+        .on("click", function() {
+          if (d3.event.defaultPrevented) d3.event.stopPropagation();
+        }, true)
+
+      loupeGroup = loupeSVG.append('g');
+
+      //
+
+      var crosshair = loupeSVG
+        .append('g')
+        .attr('class', 'crosshair')
+        .attr('transform', 'translate(' + (loupeWidth/2) + ', ' + (loupeHeight/2) + ')');
+
+      crosshair.append('circle')
+        .attr('class', 'outer')
+        .attr('r', 16);
+
+      crosshair.append('circle')
+        .attr('class', 'inner')
+        .attr('r', 4);
+
+      crosshair.append('line')
+        .attr('x1', 0)
+        .attr('y1', -26)
+        .attr('x2', 0)
+        .attr('y2', 26);
+
+      crosshair.append('line')
+        .attr('x1', -26)
+        .attr('y1', 0)
+        .attr('x2', 26)
+        .attr('y2', 0);
+
+      //
+      var arrows = loupeSVG.append('g').attr('class', 'arrows');
+      //<polygon fill="#3D3D3D" points="1.6,11.6 10,3.2 18.4,11.6 20,10 11.6,1.6 10,0 8.4,1.6 0,10 "/>
+      var left = arrows.append('path')
+        .attr('class', 'arrow left')
+        .attr('transform', 'translate(10, '+ (loupeHeight/2) + ')')
+        .attr('d', 'M 15 -8 L 0 0 L 15 8');
+
+      var right = arrows.append('path')
+        .attr('class', 'arrow right')
+        .attr('transform', 'translate(' + (loupeWidth-10) + ', ' + (loupeHeight/2) + ')')
+        .attr('d', 'M -15 -8 L 0 0 L -15 8');
+
+      var top = arrows.append('path')
+        .attr('class', 'arrow top')
+        .attr('transform', 'translate(' + (loupeWidth/2) + ', 10)')
+        .attr('d', 'M -8 15 L 0 0 L 8 15');
+
+      var bottom = arrows.append('path')
+        .attr('class', 'arrow bottom')
+        .attr('transform', 'translate(' + (loupeWidth/2) + ', ' + (loupeHeight-10) + ')')
+        .attr('d', 'M -8 -15 L 0 0 L 8 -15');
+
+    }
+
   },
 
   componentWillUnmount: function() {
@@ -490,15 +660,31 @@ var DisjointedWorldLayout = React.createClass({
       drawWorld(props.world);
     }
 
+    var updateCounty = false;
+
+    if (this.props.selectedCounty !== selectedCounty) {
+      selectedCounty = this.props.selectedCounty;
+
+      setLoupeLayout();
+
+      updateCounty = true;
+    }
+
+
     if (decade !== this.props.decade) {
       if (props.countries && props.countries.length && props.counties && props.counties.length) {
         decade = this.props.decade;
 
         drawCountries(props.countries);
         if (svg) drawCounties(props.counties);
-        //drawCountiesCanvas(props.counties);
+      }
+    } else {
+      if (this.props.selectedCounty && updateCounty) {
+        selectedCounty = this.props.selectedCounty;
+        drawLoupe(props.counties)
       }
     }
+
 
 
   },
