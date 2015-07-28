@@ -9,7 +9,7 @@ var width = 960,
     height = 450,
     padding = 0;
 
-var mapContainer, svg, background, counties_nested, countries_nested, sorted;
+var mapContainer, svg, background, lines, counties_nested, countries_nested, sorted;
 var canvas, context, canvasPath;
 var loupe, loupeSVG ,loupeGroup, loupeHeight, loupeWidth;
 var selectedCounty;
@@ -21,6 +21,9 @@ var decade;
 var countryNodes = {};
 var hasData = false;
 var clickCallback;
+
+
+var countryLocations = {};
 
 var color = d3.scale.quantile()
   .range(["#f6eff7","#d0d1e6","#a6bddb","#67a9cf","#3690c0","#02818a","#016450"])
@@ -291,6 +294,44 @@ function drawCountiesCanvas(data) {
   console.log("Elapsed Canvas: ", (elapsed/1000));
 
 }
+//this.props.countriesForCounties
+//
+function drawCountryConnections(countries) {
+  d3.select('.lines').remove();
+  var filtered = svg.selectAll(".county").filter(function(d){
+    return d.properties.nhgis_join === selectedCounty;
+  });
+
+  if (filtered[0][0]) {
+    var lines = svg.append("g")
+      .attr('class', 'lines');
+    lines.selectAll('path').remove();
+
+    var line = d3.svg.line()
+      .x(function(d) { return d[0]; })
+      .y(function(d) { return d[1]; })
+      .tension(0.5)
+      .interpolate("cardinal");
+
+    var pathData = d3.select(filtered[0][0]).datum();
+    var start = d3.geo.path().projection(projections['usa']).centroid(pathData);
+
+    countries.forEach(function(d){
+      var end = countryLocations[decade][d.country];
+      lines.append('path')
+        .attr('class', 'arc-line')
+        .attr('d', function(){
+          var dx = end[0] - start[0],
+              dy = end[1] - start[1],
+              dr = Math.sqrt(dx * dx + dy * dy);
+
+          return "M" + start[0] + "," + start[1] + "A" + dr + "," + dr + " 0 0,1 " + end[0] + "," + end[1];
+        });
+
+    });
+  }
+
+}
 
 
 function drawLoupe(data) {
@@ -486,6 +527,11 @@ function runForce(nodes) {
 function drawCountries(countries) {
   if (!countryNodes[decade]) {
     countryNodes[decade] = generateCountryNodes(countries);
+
+    countryLocations[decade] = {};
+    countryNodes[decade].nodes.forEach(function(d){
+      countryLocations[decade][d.country] = [d.x, d.y];
+    });
   }
 
   var nodes = countryNodes[decade].nodes,
@@ -515,8 +561,6 @@ function drawCountries(countries) {
 
 function setLoupeLayout() {
   loupeWidth = loupe.node().offsetWidth;
-
-  console.log("loupeWidth: ", loupeWidth)
 
   loupeSVG.attr('width', loupeWidth)
       .attr('height', loupeHeight);
@@ -660,8 +704,8 @@ var DisjointedWorldLayout = React.createClass({
       drawWorld(props.world);
     }
 
+    //countriesForCounties
     var updateCounty = false;
-
     if (this.props.selectedCounty !== selectedCounty) {
       selectedCounty = this.props.selectedCounty;
 
@@ -678,14 +722,17 @@ var DisjointedWorldLayout = React.createClass({
         drawCountries(props.countries);
         if (svg) drawCounties(props.counties);
       }
+
     } else {
+
       if (this.props.selectedCounty && updateCounty) {
-        selectedCounty = this.props.selectedCounty;
         drawLoupe(props.counties)
       }
     }
 
-
+    if (this.props.countriesForCounties) {
+      drawCountryConnections(this.props.countriesForCounties);
+    }
 
   },
 

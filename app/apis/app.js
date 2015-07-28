@@ -10,6 +10,8 @@ var COUNTRY_QUERY = 'SELECT ST_X(the_geom) as lng,ST_Y(the_geom) as lat,category
 var COUNTY_QUERY = 'SELECT SUM(count) as count, AVG(area_sqmi) as area_sqmi, nhgis_join FROM site_foreignborn_counties_prod_materialized WHERE start_n < {startN} and end_n >= {startN} group by nhgis_join';
 var TOTAL_US_POP = 'SELECT year, pop FROM site_foreignborn_us_pop_totals_materialized';
 var COUNTY_POP_BREAKDOWN = "SELECT year,total,fb_total FROM site_foreignborn_county_pop_breakdowns_materialized WHERE RTRIM(nhgis_join) = '{nhgis_join}'";
+var COUNTY_BREAKDOWN = "SELECT year, country, count, place_total FROM site_foreignborn_county_breakdowns_materialized WHERE RTRIM(nhgis_join) = '{nhgis_join}'";
+
 var WORLD = {
   key: 'world',
   url: 'static/world-50m-subunits.json'
@@ -35,6 +37,19 @@ function dispatch(key, response, params) {
     AppDispatcher.dispatch(payload);
 }
 
+function makeRequest(key, params, queue) {
+  abortPendingRequests(key);
+  dispatch(key, Constants.request.PENDING, params);
+
+  _pendingRequests[key] = dslClient.requestPromiseParallelJSON(queue)
+    .then(function(response) {
+      dispatch(key, response, params);
+
+    }, function(error){
+      dispatch(key, Constants.request.ERROR, params);
+    });
+}
+
 function totalPopulation() {
   return {
     key: 'total_us_pop',
@@ -43,10 +58,10 @@ function totalPopulation() {
   }
 }
 
-function CountyPopulationBreakdown(nhgis_join) {
+function countyPopulationBreakdown(nhgis_join) {
   return {
-    key: 'county_pop_' + nhgis_join,
-    sql: COUNTY_POP_BREAKDOWN.replace(/{nhgis_join}/g, nhgis_join),
+    key: 'county_pop_breakdown:' + nhgis_join,
+    sql: COUNTY_BREAKDOWN.replace(/{nhgis_join}/g, nhgis_join),
     options: {"format":"JSON"}
   }
 }
@@ -77,7 +92,7 @@ function makeCountyGeometryQueryObject(decade) {
 }
 
 var Api = {
-  getInitialData: function(decade, backfill) {
+  getInitialData: function(decade, backfill, county, country) {
     var key = Constants.GET_INITIAL_DATA;
     var params = {decade: decade};
 
@@ -94,17 +109,13 @@ var Api = {
         queue.push(makeCountyGeometryQueryObject(d))
       });
     }
+    console.log('getInitialData: ', county)
 
-    abortPendingRequests(key);
-    dispatch(key, Constants.request.PENDING, params);
+    if (county) {
+      queue.push(countyPopulationBreakdown(county));
+    }
 
-    _pendingRequests[key] = dslClient.requestPromiseParallelJSON(queue)
-      .then(function(response) {
-        dispatch(key, response, params);
-
-      }, function(error){
-        dispatch(key, Constants.request.ERROR, params);
-      });
+    makeRequest(key, params, queue);
   },
 
   getDataForDecade: function(decade, backfill) {
@@ -121,18 +132,20 @@ var Api = {
       });
     }
 
-    abortPendingRequests(key);
-    dispatch(key, Constants.request.PENDING, params);
+    makeRequest(key, params, queue);
+  },
 
-    _pendingRequests[key] = dslClient.requestPromiseParallelJSON(queue)
-      .then(function(response) {
-        dispatch(key, response, params);
+  getSelectedCounty: function(county) {
+    var key = Constants.GET_COUNTY_BREAKDOWN_DATA;
+    var params = {county: county};
 
-      }, function(error){
-        dispatch(key, Constants.request.ERROR, params);
-      });
+    var queue = [
+      countyPopulationBreakdown(county)
+    ];
 
+    makeRequest(key, params, queue);
   }
+
 };
 
 module.exports = Api;

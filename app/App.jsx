@@ -89,7 +89,6 @@ var App = React.createClass({
       var v = this.hashParams[k].value;
 
       if (v !== null) {
-        console.log(k,v)
         out.push(k + '=' + v);
       }
     }
@@ -111,14 +110,23 @@ var App = React.createClass({
   },
 
   componentWillMount: function() {
+    // Initialize Geography store
     GeographyStore.decade(this.state.decade);
+    GeographyStore.county(this.state.county);
+    GeographyStore.country(this.state.country);
     GeographyStore.decadeBounds(decadeBounds);
+
     this.toggleCountyClass(this.state.county);
   },
 
   componentDidMount: function() {
+    // set the hash
     this.updateHash(true);
-    Actions.getInitialData(this.state.decade, GeographyStore.getBackFill());
+
+    // get initial remote data
+    Actions.getInitialData(this.state.decade, GeographyStore.getBackFill(), this.state.county, this.state.country);
+
+    // set change listener for geography store
     GeographyStore.addChangeListener(this.onChange);
   },
 
@@ -140,6 +148,8 @@ var App = React.createClass({
         case "GeographyStore":
           if (obj.type === Constants.GET_DECADE_DATA) {
             this.setState({'decade': GeographyStore.decade(), 'geographyData': GeographyStore.getDataByDecade(GeographyStore.decade()) });
+          } else if(obj.type === Constants.GET_COUNTY_BREAKDOWN_DATA) {
+            this.setState({county: GeographyStore.county(), country:null});
           } else {
             this.setState({'geographyData': GeographyStore.getDataByDecade(this.state.decade)});
           }
@@ -192,11 +202,18 @@ var App = React.createClass({
       this.mergeHash({county: obj.properties.nhgis_join, country: null});
       this.updateHash(true);
       this.toggleCountyClass(true);
-      this.centralStateSetter({county: obj.properties.nhgis_join, country:null});
+
+      if(GeographyStore.countyLoaded(obj.properties.nhgis_join)) {
+        this.centralStateSetter({county: obj.properties.nhgis_join, country:null});
+      } else {
+        Actions.getSelectedCounty(obj.properties.nhgis_join);
+      }
+
     }
   },
 
   render: function() {
+    var that = this;
     var count = d3.sum(this.state.geographyData.country, function(d){ return d.count; });
     var legendValues = GeographyStore.getCountryScaleData();
 
@@ -205,6 +222,17 @@ var App = React.createClass({
     });
 
     var countryOverlay = GeographyStore.getCountryPercents('all');
+    var countyOverlay = (this.state.county) ? GeographyStore.getCountyPercents(this.state.county) : [];
+    var countriesForCounties = (this.state.county) ? GeographyStore.getCountriesForCounties(this.state.county, this.state.decade) : [];
+
+    var countiesFiltered = [];
+    if (this.state.county) {
+       countiesFiltered = this.state.geographyData.countyGeo.filter(function(d){
+        return d.properties.nhgis_join === that.state.county;
+      });
+    }
+    var legendName = (countiesFiltered.length) ? countiesFiltered[0].properties.name : '';
+    var placeHolder = (legendName.length) ? legendName : "Search by county name";
 
     return (
       <div className='container full-height'>
@@ -219,6 +247,7 @@ var App = React.createClass({
               decade={this.state.decade}
               selectedCounty={this.state.county}
               selectedCountry={this.state.country}
+              countriesForCounties={countriesForCounties}
               countries={this.state.geographyData.country || []}
               counties={this.state.geographyData.countyGeo || []}
               world={this.state.geographyData.world}
@@ -235,7 +264,7 @@ var App = React.createClass({
                 <Typeahead
                   options={countiesNames}
                   maxVisible={5}
-                  placeholder="Search by county name"
+                  placeholder={placeHolder}
                 />
               </div>
               <button>
@@ -270,9 +299,9 @@ var App = React.createClass({
                     <h3>Over Time</h3>
                   </div>
                   <div>
-                    <Timeline overlay={countryOverlay} decade={this.state.decade} startDate={new Date('1/1/1850')} endDate={new Date('12/31/2010')} onSliderChange={this.decadeUpdate} />
+                    <Timeline overlay={countryOverlay} secondaryOverlay={countyOverlay} decade={this.state.decade} startDate={new Date('1/1/1850')} endDate={new Date('12/31/2010')} onSliderChange={this.decadeUpdate} />
                     <div className="timeline-legend left">Total Foreign-Born</div>
-                    <div className="timeline-legend right">Swiss Foreign-Born</div>
+                    <div className="timeline-legend right">{legendName} Foreign-Born</div>
                   </div>
                 </div>
               </div>

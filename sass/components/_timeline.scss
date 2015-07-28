@@ -56,9 +56,12 @@
     right: 0;
   }
 
-  .timeline-legend.right.active {
+  .timeline-legend.right.active,
+  .has-county & .timeline-legend.right {
     display: block;
   }
+
+
 }
 
 .timeline {
@@ -103,6 +106,11 @@
 
   .overlay path {
     fill: $green;
+    stroke: none;
+  }
+
+  .overlay-secondary path {
+    fill: $blue;
     stroke: none;
   }
 }

@@ -33,7 +33,6 @@ var LegendGrid = React.createClass({
   },
 
   componentDidUpdate: function() {
-    console.log(this.props.values);
     if (this.props.values && this.props.values.length) {
     }
   },

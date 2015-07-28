@@ -3,13 +3,17 @@ var Constants = require('../constants/Constants.js');
 var API = require('../apis/app.js');
 
 var AppActions = {
-  getInitialData: function(decade, backfill) {
-    API.getInitialData(decade, backfill);
+  getInitialData: function(decade, backfill, county, country) {
+    API.getInitialData(decade, backfill, county, country);
   },
 
   getDataForDecade: function(decade, backfill) {
     API.getDataForDecade(decade, backfill);
   },
+
+  getSelectedCounty: function(county){
+    API.getSelectedCounty(county);
+  }
 }
 
 AppDispatcher.register(function(payload) {

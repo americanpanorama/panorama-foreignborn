@@ -18,6 +18,7 @@ var data = {
 
 var countyDataLookup = window.countyDataLookup =  {};
 var countyGeometriesLoaded = {};
+var countyBreakdowns = {};
 
 var state = {
   loaded: false,
@@ -41,6 +42,9 @@ function setData(newData, decade) {
     } else if(d.key === 'us_counties') {
       processCountyData(d, decade);
 
+    } else if (d.key.indexOf('county_pop_breakdown') === 0) {
+      processCountyBreakdown(d);
+
     } else if(d.response && d.response.features) {
       data[d.key] = d.response;
 
@@ -55,6 +59,31 @@ function setData(newData, decade) {
       }
     }
   });
+}
+
+function processCountyBreakdown(obj) {
+  var keyParts = obj.key.split(':'),
+      county = keyParts[1];
+  console.log("Processing county %s", county);
+
+  countyBreakdowns[county] = {
+    decades: {},
+    overlay: []
+  };
+
+  d3.nest()
+    .key(function(d){ return d.year; })
+    .entries(obj.response.rows)
+    .forEach(function(d){
+      countyBreakdowns[county].decades[d.key] = d.values;
+      var fbTotal = d3.sum(d.values, function(x){ return x.count; }),
+          total = d.values[0]['place_total'];
+
+      countyBreakdowns[county].overlay.push({
+        date: new Date('1/1/' + d.key),
+        pct: fbTotal/total
+      })
+    });
 }
 
 function processCountyData (d, decade) {
@@ -228,7 +257,6 @@ function getCountryScaleData() {
     }
   });
 
-  console.log(values)
   return values;
 }
 
@@ -264,10 +292,30 @@ var GeographyStore = assign({}, EventEmitter.prototype, {
   getCountryPercents: function(country) {
     return populationPercents[country] || [];
   },
+  getCountyPercents: function(county) {
+    if (!countyBreakdowns[county]) return [];
+
+    return countyBreakdowns[county].overlay || []
+  },
+  getCountriesForCounties: function(county, decade) {
+    if (!countyBreakdowns[county]) return [];
+
+    return countyBreakdowns[county].decades[decade] || []
+  },
 
   decade: function(decade) {
     if (!decade) return state.decade;
     state.decade = decade;
+  },
+
+  county: function(county) {
+    if (!county) return state.county;
+    state.county = county;
+  },
+
+  country: function(country) {
+    if (!country) return state.country;
+    state.country = country;
   },
 
   decadeBounds: function(decadeBounds) {
@@ -293,6 +341,10 @@ var GeographyStore = assign({}, EventEmitter.prototype, {
 
   decadeLoaded: function(_) {
     return !!data['countyByYear'][_] && !!countyGeometriesLoaded[_];
+  },
+
+  countyLoaded: function(county) {
+    return !!countyBreakdowns[county];
   },
 
   emitChange: function(type, _caller) {
@@ -345,6 +397,14 @@ AppDispatcher.register(function(action) {
           setData(action.response, action.queryParams.decade);
 
           GeographyStore.emitChange(Constants.GET_DECADE_DATA, 'GeographyStore');
+        }
+      break;
+    case Constants.GET_COUNTY_BREAKDOWN_DATA:
+        if (action.response instanceof Array) {
+          state.county = action.queryParams.county;
+          setData(action.response, action.queryParams.decade);
+
+          GeographyStore.emitChange(Constants.GET_COUNTY_BREAKDOWN_DATA, 'GeographyStore');
         }
       break;
 

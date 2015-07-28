@@ -195,6 +195,7 @@ var Timeline = React.createClass({
     if (!this.hasData) return true;
     if (this.props.decade !== nextProps.decade) return true;
     if (!overlayDrawn) return true;
+    if (this.props.secondaryOverlay !== nextProps.secondaryOverlay) return true;
     return false;
   },
 
@@ -203,8 +204,11 @@ var Timeline = React.createClass({
       this.handle.select('text').text(this.props.decade);
 
       if (!overlayDrawn) {
-        this.drawOverlay();
+        this.drawMainOverlay();
       }
+
+      this.drawSecondaryOverlay();
+
       return;
     }
 
@@ -218,8 +222,8 @@ var Timeline = React.createClass({
     this.setBrush(this.currentDate);
 
     this.visualize();
-    this.drawOverlay();
-
+    this.drawMainOverlay();
+    this.drawSecondaryOverlay();
   },
 
   loaded: function(state) {
@@ -247,11 +251,7 @@ var Timeline = React.createClass({
     this.handle.attr("transform", "translate(" + this.xscale(this.currentDate) + ",0)");
   },
 
-  drawOverlay: function() {
-    var overlay = this.props.overlay;
-    if (!overlay.length && !this.overlay) return;
-    overlayDrawn = true;
-
+  drawOverlay: function(overlay, elm) {
     overlay.sort(function(a,b){
       return a.date - b.date;
     });
@@ -266,10 +266,24 @@ var Timeline = React.createClass({
       .y0(this.height)
       .y1(function(d) { return oy(d.pct); });
 
-    this.overlay
-      .datum(overlay)
+    elm.datum(overlay)
       .attr('d', area);
 
+  },
+
+  drawMainOverlay: function() {
+    var overlay = this.props.overlay;
+    if (!overlay.length && !this.overlay) return;
+    overlayDrawn = true;
+
+    this.drawOverlay(overlay, this.overlay);
+  },
+
+  drawSecondaryOverlay: function() {
+    var overlay = this.props.secondaryOverlay;
+    if (this.secondaryOverlay)this.secondaryOverlay.attr('d', '');
+    if (!overlay.length && !this.secondaryOverlay) return;
+    this.drawOverlay(overlay, this.secondaryOverlay);
   },
 
   visualize: function(callback) {
@@ -280,8 +294,10 @@ var Timeline = React.createClass({
       .append("path")
       .attr("class", "area");
 
-    this.svgElm.append('g')
-      .attr('class', 'overlay-secondary');
+    this.secondaryOverlay = this.svgElm.append('g')
+      .attr('class', 'overlay-secondary')
+      .append("path")
+      .attr("class", "area");
 
     var yAxis = this.svgElm.append("g")
       .attr("class", "y axis")
