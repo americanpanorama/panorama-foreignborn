@@ -191,6 +191,43 @@ var App = React.createClass({
     this.centralStateSetter({county: null});
   },
 
+  onSearchChange: function(result, evt) {
+
+    var parts = result.split(',');
+    if (!parts.length === 2) {
+      return console.warn('Search result missing parts.', parts);
+    }
+
+    /*
+    console.log(evt);
+    console.log('EV: ', evt.currentTarget.parentNode.parentNode);
+    console.log('EV: ', evt.target.parentNode);
+    d3.select('.header').node().focus();
+    //d3.select('#typeahead-container input').node().blur;
+    //setTimeout(function(){d3.select('#typeahead-container input').property('value','');},200);
+    */
+
+    var cty = parts[0].replace(/(^\s+|\s+$)/g, ''),
+        state = parts[1].replace(/(^\s+|\s+$)/g, '');
+
+    var filtered = this.state.geographyData.countyGeo.filter(function(d){
+      return d.properties.name == cty && d.properties.state == state;
+    });
+
+    if (filtered.length) {
+
+      hashManager.mergeHash({county: filtered[0].properties.nhgis_join, country: null});
+      hashManager.updateHash(true);
+      this.toggleCountyClass(true);
+
+      if(GeographyStore.countyLoaded(filtered[0].properties.nhgis_join)) {
+        this.centralStateSetter({county: filtered[0].properties.nhgis_join, country:null});
+      } else {
+        Actions.getSelectedCounty(filtered[0].properties.nhgis_join);
+      }
+    }
+  },
+
   render: function() {
     var that = this;
 
@@ -236,7 +273,6 @@ var App = React.createClass({
     var placeName = (countiesFiltered.length) ? countiesFiltered[0].properties.name : '';
     var placeHolder = (placeName.length) ? placeName : "Search by county name";
 
-
     // render DOM-ish
     return (
       <div className='container full-height'>
@@ -276,6 +312,7 @@ var App = React.createClass({
                   options={countiesNames}
                   maxVisible={5}
                   placeholder={placeHolder}
+                  onOptionSelected={this.onSearchChange}
                 />
               </div>
               <button>
