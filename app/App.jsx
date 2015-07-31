@@ -31,6 +31,8 @@ var hashManager = require('./lib/hashManager.js');
 var decadeBounds = [1850,2010];
 var numberFormatter = d3.format('0,');
 
+var clearMe = 0;
+
 // Set default hash state
 hashManager.set({
   decade: {
@@ -192,18 +194,19 @@ var App = React.createClass({
   },
 
   onSearchChange: function(result, evt) {
-
+    evt.preventDefault();
+    evt.stopPropagation();
     var parts = result.split(',');
     if (!parts.length === 2) {
       return console.warn('Search result missing parts.', parts);
     }
-
+    clearMe = 1;
     /*
     console.log(evt);
     console.log('EV: ', evt.currentTarget.parentNode.parentNode);
     console.log('EV: ', evt.target.parentNode);
     d3.select('.header').node().focus();
-    //d3.select('#typeahead-container input').node().blur;
+    //d3.select('#typeahead-container input').property('value','');
     //setTimeout(function(){d3.select('#typeahead-container input').property('value','');},200);
     */
 
@@ -226,6 +229,7 @@ var App = React.createClass({
         Actions.getSelectedCounty(filtered[0].properties.nhgis_join);
       }
     }
+
   },
 
   render: function() {
@@ -270,9 +274,14 @@ var App = React.createClass({
       });
     }
 
-    var placeName = (countiesFiltered.length) ? countiesFiltered[0].properties.name : '';
+    var placeName = (countiesFiltered.length) ? countiesFiltered[0].properties.name + ', ' + countiesFiltered[0].properties.state : '';
     var placeHolder = (placeName.length) ? placeName : "Search by county name";
 
+    var ttt = 0;
+    if(clearMe === 1) {
+      ttt = 1;
+      clearMe = 0;
+    }
     // render DOM-ish
     return (
       <div className='container full-height'>
@@ -311,6 +320,7 @@ var App = React.createClass({
                 <Typeahead
                   options={countiesNames}
                   maxVisible={5}
+                  clearMe={ttt}
                   placeholder={placeHolder}
                   onOptionSelected={this.onSearchChange}
                 />
