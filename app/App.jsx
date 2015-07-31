@@ -23,89 +23,43 @@ var Timeline = require('./components/Timeline.jsx');
 var LegendNestedCircles = require('./components/legends/nested-circles.jsx');
 var LegendGrid = require('./components/legends/grid.jsx');
 
+// Misc libraries
+var hashManager = require('./lib/hashManager.js');
 
+// Misc variables & functions
 var decadeBounds = [1850,2010];
 var numberFormatter = d3.format('0,');
 
+// Set default hash state
+hashManager.set({
+  decade: {
+    required: true,
+    default: 1850,
+    value: 1850,
+    type: "Number"
+  },
+  county: {
+    required: false,
+    value: null
+  },
+  country: {
+    required: false,
+    value: null
+  }
+});
+
 
 var App = React.createClass({
-  // These will act as defaults
-  hashParams: {
-    decade: {
-      required: true,
-      default: 1850,
-      value: 1850,
-      type: "Number"
-    },
-    county: {
-      required: false,
-      value: null
-    },
-    country: {
-      required: false,
-      value: null
-    }
-  },
-
-  parseHash: function(hash) {
-    var out = {};
-    if (!hash) return out;
-
-    if(hash.indexOf('#') === 0) {
-      hash = hash.substr(1);
-    }
-
-    var that = this;
-    var things = hash.split('&').map(function(d){return d.split('=');});
-
-    things.forEach(function(thing){
-      if (thing[0] in that.hashParams && thing[1] != '') {
-        out[thing[0]] = thing[1];
-      }
-    });
-
-    return out;
-  },
-
-  mergeHash: function(params) {
-    for (var k in params) {
-      if (k in this.hashParams) {
-        var value = params[k];
-        /*
-        if (!value.length) value = null;
-        if (!value && this.hashParams[k].required) value = this.hashParams[k].default;
-
-        if (value && this.hashParams[k].type === "Number") value = +value;
-        */
-        this.hashParams[k].value = value;
-      }
-    }
-  },
-
-  updateHash: function(silent) {
-    var out = [];
-
-    for (var k in this.hashParams) {
-      var v = this.hashParams[k].value;
-
-      if (v !== null) {
-        out.push(k + '=' + v);
-      }
-    }
-
-    var hash = "#" + out.join('&');
-    if (document.location.hash !== hash) document.location.replace(hash);
-  },
-
   getInitialState: function () {
-    var fromHash = this.parseHash(document.location.hash);
-    this.mergeHash(fromHash);
+    // get hash state
+    var fromHash = hashManager.parseHash(document.location.hash);
+    var merged = hashManager.mergeHash(fromHash);
 
     return {
-      decade: this.hashParams.decade.value,
-      country: this.hashParams.country.value,
-      county: this.hashParams.county.value,
-      geographyData: GeographyStore.getDataByDecade(this.hashParams.decade.value),
+      decade: merged.decade.value,
+      country: merged.country.value,
+      county: merged.county.value,
+      geographyData: GeographyStore.getDataByDecade(merged.decade.value),
     };
   },
 
@@ -121,7 +75,7 @@ var App = React.createClass({
 
   componentDidMount: function() {
     // set the hash
-    this.updateHash(true);
+    hashManager.updateHash(true);
 
     // get initial remote data
     Actions.getInitialData(this.state.decade, GeographyStore.getBackFill(), this.state.county, this.state.country);
@@ -176,8 +130,8 @@ var App = React.createClass({
     val = val.getFullYear();
 
     if (val && this.state.decade !== val) {
-      this.mergeHash({decade: val});
-      this.updateHash(true);
+      hashManager.mergeHash({decade: val});
+      hashManager.updateHash(true);
 
       if (GeographyStore.decadeLoaded(val)) {
         GeographyStore.decade(val);
@@ -194,13 +148,13 @@ var App = React.createClass({
 
   handleMapClick: function(obj) {
     if (obj.country) {
-      this.mergeHash({country: obj.country, county: null});
-      this.updateHash(true);
+      hashManager.mergeHash({country: obj.country, county: null});
+      hashManager.updateHash(true);
       this.toggleCountyClass(false);
       this.centralStateSetter({county: null, country:obj.country});
     } else {
-      this.mergeHash({county: obj.properties.nhgis_join, country: null});
-      this.updateHash(true);
+      hashManager.mergeHash({county: obj.properties.nhgis_join, country: null});
+      hashManager.updateHash(true);
       this.toggleCountyClass(true);
 
       if(GeographyStore.countyLoaded(obj.properties.nhgis_join)) {
@@ -208,7 +162,6 @@ var App = React.createClass({
       } else {
         Actions.getSelectedCounty(obj.properties.nhgis_join);
       }
-
     }
   },
 
