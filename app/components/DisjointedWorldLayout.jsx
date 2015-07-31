@@ -599,9 +599,10 @@ var DisjointedWorldLayout = React.createClass({
     clickCallback = (typeof this.props.onClickHandler === 'function') ? this.props.onClickHandler : function(){};
 
     mapContainer = d3.select(React.findDOMNode(this.refs.map));
+    var mapParentContainer = d3.select(React.findDOMNode(this.refs.mapContainer));
 
-    width = mapContainer.node().offsetWidth;
-    height = window.innerHeight - 200;
+    width = mapParentContainer.node().offsetWidth;
+    height = mapParentContainer.node().offsetHeight;
 
     mapContainer
       .style("width", width + "px")

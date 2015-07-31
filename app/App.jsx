@@ -15,6 +15,7 @@ var AppDispatcher = require("./dispatchers/app");
 
 // Stores
 var GeographyStore = require('./stores/geography.js');
+var LayoutStore = require('./stores/layout.js').initialize();
 
 // Components
 var DisjointedWorldLayout = require('./components/DisjointedWorldLayout.jsx');
@@ -48,6 +49,20 @@ hashManager.set({
   }
 });
 
+// Set Layout
+LayoutStore.block({
+  key: 'bottom-row',
+  height: 100,
+  measure: ['height']
+});
+
+LayoutStore.block({
+  key: 'map',
+  height: 'flex',
+  dependsOn: ['bottom-row'],
+  measure: ['height']
+});
+
 
 var App = React.createClass({
   getInitialState: function () {
@@ -69,6 +84,10 @@ var App = React.createClass({
     GeographyStore.county(this.state.county);
     GeographyStore.country(this.state.country);
     GeographyStore.decadeBounds(decadeBounds);
+
+    // Layout
+    LayoutStore.force();
+    console.log('Width: ', LayoutStore.get())
 
     this.toggleCountyClass(this.state.county);
   },
@@ -167,6 +186,25 @@ var App = React.createClass({
 
   render: function() {
     var that = this;
+
+    // calculate layout heights
+    var windowHeight = window.innerHeight;
+    var headerHeight = 70;
+    var bottomHeight = 100;
+    var middleHeight = window.innerHeight - (bottomHeight + headerHeight);
+
+    var popTotalHeight = 109;
+    var searchHeight = 55;
+    var loupHeight = 180;
+
+    var barChartHeight = middleHeight - (popTotalHeight + searchHeight);
+
+    if (this.state.county) {
+      barChartHeight -= loupHeight;
+    }
+
+    // Misc calculations
+    // TODO: Find a better home for these
     var count = d3.sum(this.state.geographyData.country, function(d){ return d.count; });
     var legendValues = GeographyStore.getCountryScaleData();
 
@@ -187,13 +225,15 @@ var App = React.createClass({
     var legendName = (countiesFiltered.length) ? countiesFiltered[0].properties.name : '';
     var placeHolder = (legendName.length) ? legendName : "Search by county name";
 
+
+    // render DOM-ish
     return (
       <div className='container full-height'>
         <header className="header">
           <h1>Foreign-Born Population</h1>
         </header>
         <section className="row">
-          <div className="columns nine">
+          <div className="columns nine" style={{height: middleHeight + 'px'}}>
             <DisjointedWorldLayout
               onClickHandler={this.handleMapClick}
               loupeSelector='#loupe'
@@ -206,8 +246,8 @@ var App = React.createClass({
               world={this.state.geographyData.world}
             />
           </div>
-          <div className="columns three stacked">
-            <BarChart onBarClickHandler={this.handleMapClick} width={300} height={400} title={this.state.decade + " Foreign Born"} rows={this.state.geographyData.country || []}/>
+          <div className="columns three stacked" style={{height: middleHeight + 'px'}}>
+            <BarChart onBarClickHandler={this.handleMapClick} width={300} height={barChartHeight} title={this.state.decade + " Foreign Born"} rows={this.state.geographyData.country || []}/>
             <div id="population-totals">
               <h3>Total Foreign-Born</h3>
               <p><span className="decade">{this.state.decade}</span><span className="total">{numberFormatter(count)}</span></p>
