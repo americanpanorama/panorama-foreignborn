@@ -1,16 +1,11 @@
 $bar-height: 16px;
+$default-height: 300px;
+$chart-background-color: $medium-dark-grey;
+$button-background-color: $medium-dark-grey-lighter;
 
 .bar-chart-container {
   margin-bottom: 20px;
-  background: $medium-dark-grey;
-
-  h3 {
-    margin: 0;
-    padding: 0;
-    background: $medium-dark-grey-lightest;
-    text-align: center;
-    line-height: 32px;
-  }
+  background: $chart-background-color;
 
   button {
     display: block;
@@ -18,7 +13,7 @@ $bar-height: 16px;
     height: $bar-height;
     margin: 0;
     padding: 0;
-    background: $medium-dark-grey-lighter;
+    background: $button-background-color;
     border: 0;
     font-size: 21px;
     text-decoration: none;
@@ -42,7 +37,7 @@ $bar-height: 16px;
 .bar-chart-rows-wrapper {
   width: 90%;
   margin: 10px 0 10px 5%;
-  height: 300px;
+  height: $default-height;
   overflow: scroll;
 }
 

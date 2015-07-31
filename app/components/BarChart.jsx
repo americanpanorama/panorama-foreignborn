@@ -68,7 +68,6 @@ var BarChart = React.createClass({
 
       return (
         <div className="bar-chart-container component">
-          <h3>{this.props.title}</h3>
           <button className="bar-chart-scrollbtn up"><span>︿</span></button>
           <div className="bar-chart-rows-wrapper" style={{height: height + 'px'}}>
             <div className="bar-chart-rows" onClick={this.barClick}>

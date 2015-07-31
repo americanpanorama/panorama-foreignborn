@@ -184,23 +184,33 @@ var App = React.createClass({
     }
   },
 
+  closeCounty: function() {
+    hashManager.mergeHash({county: null});
+    hashManager.updateHash(true);
+    this.toggleCountyClass(false);
+    this.centralStateSetter({county: null});
+  },
+
   render: function() {
     var that = this;
 
     // calculate layout heights
     var windowHeight = window.innerHeight;
+    windowHeight = Math.max(windowHeight, 670);
+
     var headerHeight = 70;
     var bottomHeight = 100;
-    var middleHeight = window.innerHeight - (bottomHeight + headerHeight);
+    var middleHeight = windowHeight - (bottomHeight + headerHeight);
 
     var popTotalHeight = 99;
     var searchHeight = 55;
     var loupHeight = 184;
+    var barchartCountyClose = 30;
 
     var barChartHeight = middleHeight - (popTotalHeight + searchHeight + 20);
 
     if (this.state.county) {
-      barChartHeight -= loupHeight;
+      barChartHeight -= (loupHeight + barchartCountyClose);
     }
 
     // Misc calculations
@@ -222,8 +232,9 @@ var App = React.createClass({
         return d.properties.nhgis_join === that.state.county;
       });
     }
-    var legendName = (countiesFiltered.length) ? countiesFiltered[0].properties.name : '';
-    var placeHolder = (legendName.length) ? legendName : "Search by county name";
+
+    var placeName = (countiesFiltered.length) ? countiesFiltered[0].properties.name : '';
+    var placeHolder = (placeName.length) ? placeName : "Search by county name";
 
 
     // render DOM-ish
@@ -247,7 +258,14 @@ var App = React.createClass({
             />
           </div>
           <div className="columns three stacked" style={{height: middleHeight + 'px'}}>
-            <BarChart onBarClickHandler={this.handleMapClick} width={300} height={barChartHeight} title={this.state.decade + " Foreign Born"} rows={this.state.geographyData.country || []}/>
+            <div id="bar-chart">
+              <h3>{this.state.decade + " Foreign Born"}</h3>
+              {placeName &&
+              <div id="barchart-county-close"><button onClick={this.closeCounty} className='link'>{placeName}<span className="close">[<span className="close-x">×</span>]</span></button></div>
+              }
+              <BarChart onBarClickHandler={this.handleMapClick} width={300} height={barChartHeight} rows={this.state.geographyData.country || []}/>
+            </div>
+
             <div id="population-totals">
               <h3>Total Foreign-Born</h3>
               <p><span className="decade">{this.state.decade}</span><span className="total">{numberFormatter(count)}</span></p>
@@ -294,7 +312,7 @@ var App = React.createClass({
                   <div>
                     <Timeline overlay={countryOverlay} secondaryOverlay={countyOverlay} decade={this.state.decade} startDate={new Date('1/1/1850')} endDate={new Date('12/31/2010')} onSliderChange={this.decadeUpdate} />
                     <div className="timeline-legend left">Total Foreign-Born</div>
-                    <div className="timeline-legend right">{legendName} Foreign-Born</div>
+                    <div className="timeline-legend right">{placeName} Foreign-Born</div>
                   </div>
                 </div>
               </div>

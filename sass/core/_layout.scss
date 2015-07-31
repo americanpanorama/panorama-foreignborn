@@ -23,8 +23,25 @@ body {
   min-width: 1200px;
   max-width: 1200px;
   width: 1200px;
+  min-height: 670px;
   background: $dark-grey;
   color: $white;
+}
+
+button.link {
+  background: transparent;
+  border: 0;
+  outline: 0;
+  margin: 0;
+  padding: 0;
+}
+
+button.link.underline:hover {
+  text-decoration: underline;
+}
+
+button.link.full {
+  width: 100%;
 }
 
 header, section {
@@ -44,6 +61,41 @@ header {
 .disjointed-world-layout {
   padding-right: 20px;
   height: 100%;
+}
+
+#bar-chart {
+
+  h3 {
+    margin: 0;
+    padding: 0;
+    background: $medium-dark-grey-lightest;
+    text-align: center;
+    line-height: 32px;
+  }
+
+  #barchart-county-close {
+    background: $medium-dark-grey-lightest;
+    margin: 1px 0 0;
+    padding: 4px 0;
+    text-align: center;
+
+    button:hover .close {
+      color: #ccc;
+    }
+
+    .close {
+      vertical-align: top;
+      position: relative;
+      top: -2px;
+      margin-left: 10px;
+
+      .close-x {
+        vertical-align: middle;
+      }
+    }
+  }
+
+
 }
 
 
