@@ -193,11 +193,11 @@ var App = React.createClass({
     var bottomHeight = 100;
     var middleHeight = window.innerHeight - (bottomHeight + headerHeight);
 
-    var popTotalHeight = 109;
+    var popTotalHeight = 99;
     var searchHeight = 55;
-    var loupHeight = 180;
+    var loupHeight = 184;
 
-    var barChartHeight = middleHeight - (popTotalHeight + searchHeight);
+    var barChartHeight = middleHeight - (popTotalHeight + searchHeight + 20);
 
     if (this.state.county) {
       barChartHeight -= loupHeight;
