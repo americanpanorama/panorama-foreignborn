@@ -35,8 +35,7 @@ var opacity = d3.scale.sqrt()
   .clamp(true);
 
 var radius = d3.scale.sqrt()
-  .range([1,20])
-  .domain([200,1500000]);
+  .range([1,45]);
 
 var projectionParams = {
   asia: {
@@ -298,6 +297,9 @@ function drawCountiesCanvas(data) {
 //
 function drawCountryConnections(countries) {
   d3.select('.lines').remove();
+
+  if (!countries.length) return resetCountries();
+
   var filtered = svg.selectAll(".county").filter(function(d){
     return d.properties.nhgis_join === selectedCounty;
   });
@@ -337,19 +339,41 @@ function drawCountryConnections(countries) {
 
     });
 
-    svg.selectAll(".country").each(function(d){
-        var country = d.country;
-        var elm = d3.select(this);
-        var display = 'none';
-        countries.forEach(function(x){
-          if (x.country === d.country) display = 'block';
-        });
-        elm.style('display', display);
-    });
+    filterCountries(countries);
 
   } else {
-    svg.selectAll(".country").style('display', 'block');
+    resetCountries();
   }
+}
+
+function filterCountries(filterBy) {
+  setRadiusDomain(filterBy);
+  svg.selectAll(".country").each(function(d){
+      var country = d.country;
+      var elm = d3.select(this);
+      var display = 'none';
+      var ct = 1;
+
+      filterBy.forEach(function(x){
+        if (x.country === d.country) {
+          display = 'block';
+          ct = x.count;
+        }
+      });
+
+      elm.style('display', display)
+        .attr('r', radius(ct));
+  });
+}
+
+function resetCountries() {
+  var nodes = countryNodes[decade];
+  radius.domain([nodes.min, nodes.max]);
+  svg.selectAll(".country")
+    .style('display', 'block')
+    .attr('r', function(d){
+      return radius(d.value);
+    })
 }
 
 
@@ -423,11 +447,13 @@ function drawLoupe(data) {
 
 }
 
-function generateCountryNodes(countries) {
+function setRadiusDomain(arr) {
+  if (!arr.length) return;
+
   var min = Infinity,
       max = -Infinity;
 
-  countries.forEach(function(d,i){
+  arr.forEach(function(d,i){
     min = Math.min(d.count, min);
     max = Math.max(d.count, max);
   });
@@ -437,6 +463,10 @@ function generateCountryNodes(countries) {
   }
 
   radius.domain([min, max]);
+}
+
+function generateCountryNodes(countries) {
+  setRadiusDomain(countries);
 
   var nodes = countries.map(function(d) {
     var point,
@@ -476,8 +506,8 @@ function generateCountryNodes(countries) {
   runForce(nodes);
 
   return {
-    min: min,
-    max: max,
+    min: radius.domain()[0],
+    max: radius.domain()[1],
     nodes: nodes
   }
 
@@ -558,6 +588,9 @@ function drawCountries(countries) {
       max = countryNodes[decade].max;
 
   // update radius scale
+  radius.domain([min, max]);
+
+  // prep layout
   runForce(nodes);
 
   svg.selectAll(".country").remove();
