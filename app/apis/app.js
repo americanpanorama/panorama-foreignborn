@@ -109,7 +109,6 @@ var Api = {
         queue.push(makeCountyGeometryQueryObject(d))
       });
     }
-    console.log('getInitialData: ', county)
 
     if (county) {
       queue.push(countyPopulationBreakdown(county));
@@ -118,7 +117,7 @@ var Api = {
     makeRequest(key, params, queue);
   },
 
-  getDataForDecade: function(decade, backfill) {
+  getDataForDecade: function(decade, backfill, county) {
     var key = Constants.GET_DECADE_DATA;
     var params = {decade: decade};
 
@@ -130,6 +129,10 @@ var Api = {
       backfill.forEach(function(d){
         queue.push(makeCountyGeometryQueryObject(d))
       });
+    }
+
+    if (county) {
+      queue.push(countyPopulationBreakdown(county));
     }
 
     makeRequest(key, params, queue);

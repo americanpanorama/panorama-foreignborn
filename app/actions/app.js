@@ -7,8 +7,8 @@ var AppActions = {
     API.getInitialData(decade, backfill, county, country);
   },
 
-  getDataForDecade: function(decade, backfill) {
-    API.getDataForDecade(decade, backfill);
+  getDataForDecade: function(decade, backfill, county) {
+    API.getDataForDecade(decade, backfill, county);
   },
 
   getSelectedCounty: function(county){

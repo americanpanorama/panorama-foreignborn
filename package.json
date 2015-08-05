@@ -60,6 +60,6 @@
     "deepcopy": "^0.5.0",
     "proj4": "",
     "es6-promise": "",
-    "react-typeahead": ""
+    "react-typeahead": "git@github.com:stamen/react-typeahead.git"
   }
 }

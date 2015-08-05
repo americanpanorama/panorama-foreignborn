@@ -158,7 +158,7 @@ var App = React.createClass({
         GeographyStore.decade(val);
         GeographyStore.emitChange(Constants.GET_DECADE_DATA, 'GeographyStore');
       } else {
-        Actions.getDataForDecade(val, GeographyStore.getBackFill(val))
+        Actions.getDataForDecade(val, GeographyStore.getBackFill(val), this.state.county)
       }
     }
   },
@@ -201,14 +201,6 @@ var App = React.createClass({
       return console.warn('Search result missing parts.', parts);
     }
     clearMe = 1;
-    /*
-    console.log(evt);
-    console.log('EV: ', evt.currentTarget.parentNode.parentNode);
-    console.log('EV: ', evt.target.parentNode);
-    d3.select('.header').node().focus();
-    //d3.select('#typeahead-container input').property('value','');
-    //setTimeout(function(){d3.select('#typeahead-container input').property('value','');},200);
-    */
 
     var cty = parts[0].replace(/(^\s+|\s+$)/g, ''),
         state = parts[1].replace(/(^\s+|\s+$)/g, '');
@@ -256,7 +248,6 @@ var App = React.createClass({
 
     // Misc calculations
     // TODO: Find a better home for these
-    var count = d3.sum(this.state.geographyData.country, function(d){ return d.count; });
     var legendValues = GeographyStore.getCountryScaleData();
 
     var countiesNames = this.state.geographyData.countyGeo.map(function(d){
@@ -274,14 +265,43 @@ var App = React.createClass({
       });
     }
 
+    var count = 0;
+    if (countriesForCounties.length) {
+      count = d3.sum(countriesForCounties, function(d){ return d.count; });
+    } else {
+      count = d3.sum(this.state.geographyData.country, function(d){ return d.count; });
+    }
+
+    var percent = '';
+    if (countriesForCounties.length) {
+      var t = countriesForCounties[0].place_total;
+      percent = d3.format('%')(count/t);
+
+    }else {
+
+      var t = countryOverlay.filter(function(d){
+        return d.date.getFullYear() === that.state.decade;
+      });
+
+      if (t.length) {
+        percent = d3.format('%')(t[0].pct);
+      }
+
+    }
+
     var placeName = (countiesFiltered.length) ? countiesFiltered[0].properties.name + ', ' + countiesFiltered[0].properties.state : '';
     var placeHolder = (placeName.length) ? placeName : "Search by county name";
 
-    var ttt = 0;
+    var bardata = this.state.geographyData.country || [];
+    if (countriesForCounties.length) bardata = countriesForCounties;
+
+    // Work around to clear input value of the search input
+    var shouldClearInput = false;
     if(clearMe === 1) {
-      ttt = 1;
-      clearMe = 0;
+      shouldClearInput = true;
     }
+    clearMe = 0;
+
     // render DOM-ish
     return (
       <div className='container full-height'>
@@ -308,19 +328,20 @@ var App = React.createClass({
               {placeName &&
               <div id="barchart-county-close"><button onClick={this.closeCounty} className='link'>{placeName}<span className="close">[<span className="close-x">×</span>]</span></button></div>
               }
-              <BarChart onBarClickHandler={this.handleMapClick} width={300} height={barChartHeight} rows={this.state.geographyData.country || []}/>
+              <BarChart onBarClickHandler={this.handleMapClick} width={300} height={barChartHeight} rows={bardata}/>
             </div>
 
             <div id="population-totals">
               <h3>Total Foreign-Born</h3>
-              <p><span className="decade">{this.state.decade}</span><span className="total">{numberFormatter(count)}</span></p>
+              <p><span className="decade">{this.state.decade}</span><span className="total">{numberFormatter(count)}</span><span className="percent">{percent}</span></p>
             </div>
+
             <div id="search-bar" className="component">
               <div id="typeahead-container">
                 <Typeahead
                   options={countiesNames}
                   maxVisible={5}
-                  clearMe={ttt}
+                  clearInputValue={shouldClearInput}
                   placeholder={placeHolder}
                   onOptionSelected={this.onSearchChange}
                 />

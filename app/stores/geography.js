@@ -64,7 +64,6 @@ function setData(newData, decade) {
 function processCountyBreakdown(obj) {
   var keyParts = obj.key.split(':'),
       county = keyParts[1];
-  console.log("Processing county %s", county);
 
   countyBreakdowns[county] = {
     decades: {},
@@ -385,6 +384,8 @@ AppDispatcher.register(function(action) {
         state.decade = action.queryParams.decade;
         setData(action.response, action.queryParams.decade);
         computePopulationPercents();
+
+        console.log(action.response)
 
         GeographyStore.emitChange(Constants.GET_INITIAL_DATA, 'GeographyStore');
       }

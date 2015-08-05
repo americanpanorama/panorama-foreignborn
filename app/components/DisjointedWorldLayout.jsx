@@ -317,7 +317,14 @@ function drawCountryConnections(countries) {
     var start = d3.geo.path().projection(projections['usa']).centroid(pathData);
 
     countries.forEach(function(d){
+
       var end = countryLocations[decade][d.country];
+
+      if (!end) {
+        console.warn('Could not find location for (%s)', d.country);
+        return;
+      }
+
       lines.append('path')
         .attr('class', 'arc-line')
         .attr('d', function(){
@@ -329,8 +336,20 @@ function drawCountryConnections(countries) {
         });
 
     });
-  }
 
+    svg.selectAll(".country").each(function(d){
+        var country = d.country;
+        var elm = d3.select(this);
+        var display = 'none';
+        countries.forEach(function(x){
+          if (x.country === d.country) display = 'block';
+        });
+        elm.style('display', display);
+    });
+
+  } else {
+    svg.selectAll(".country").style('display', 'block');
+  }
 }
 
 
