@@ -11,7 +11,7 @@ var width = 960,
 
 var mapContainer, svg, background, lines, counties_nested, countries_nested, sorted;
 var canvas, context, canvasPath;
-var loupe, loupeSVG ,loupeGroup, loupeHeight, loupeWidth;
+var loupe, loupeSVG, loupeGroup, loupeHeight, loupeWidth;
 var selectedCounty;
 var countyLookup = {};
 var countryLookup = {};
@@ -25,14 +25,22 @@ var clickCallback;
 
 var countryLocations = {};
 
-var color = d3.scale.quantile()
-  .range(["#f6eff7","#d0d1e6","#a6bddb","#67a9cf","#3690c0","#02818a","#016450"])
-  .domain([0,10,100,1000,10000,50000,100000]);
+var colorTable = ["#f6eff7","#d0d1e6","#a6bddb","#67a9cf","#3690c0","#02818a","#016450"];
+// based on count
+var colorScale = d3.scale.quantile()
+  .range(colorTable);
 
+function color(val) {
+  return colorScale(val);
+}
+
+// based on density
+// [0.1, 0.3, 0.5, 0.7, 0.9, 1]
 var opacity = d3.scale.sqrt()
   .range([0.1, 0.3, 0.9, 1])
   .domain([0.01, 1, 100, 7000])
   .clamp(true);
+
 
 var radius = d3.scale.sqrt()
   .range([1,45]);
@@ -240,6 +248,33 @@ function drawCounties(data) {
   var counties = svg.selectAll(".county")
     .data(data, function(d){ return d.properties.id; });
 
+  var values = [];
+  var densities = [];
+  var maxCount = d3.max(data, function(d){
+    values.push(d.properties.count);
+    return d.properties.count;
+  })
+  var maxDensity = d3.max(data, function(d){
+    if (densities.indexOf(d.properties.density) < 0) densities.push(d.properties.density);
+    return d.properties.density;
+  })
+
+
+  var q = d3.scale.quantile()
+    .range([0,1,2,3,4,5,6])
+    .domain(values);
+
+  var qd = d3.scale.quantile()
+    .range([0,1,2])
+    .domain(densities);
+
+  colorScale.domain(q.quantiles());
+
+  var op = qd.quantiles();
+  opacity.domain([0.01, 1, op[0], op[1]]);
+
+  //console.log('MM: ', maxCount, maxDensity, qd.quantiles());
+
   counties.enter().append('path')
     .attr('class', 'county')
     .attr('d', function(d,i){
@@ -348,6 +383,7 @@ function drawCountryConnections(countries) {
 
 function filterCountries(filterBy) {
   setRadiusDomain(filterBy);
+
   svg.selectAll(".country").each(function(d){
       var country = d.country;
       var elm = d3.select(this);
@@ -361,8 +397,9 @@ function filterCountries(filterBy) {
         }
       });
 
+      var r = Math.max(radius(ct),1);
       elm.style('display', display)
-        .attr('r', radius(ct));
+        .attr('r', r);
   });
 }
 
@@ -372,8 +409,8 @@ function resetCountries() {
   svg.selectAll(".country")
     .style('display', 'block')
     .attr('r', function(d){
-      return radius(d.value);
-    })
+      return d.r;
+    });
 }
 
 
@@ -381,6 +418,11 @@ function drawLoupe(data) {
   var filtered = data.filter(function(d){
     return d.properties.nhgis_join === selectedCounty;
   });
+
+  if (!filtered.length) {
+    console.warn("Could not join!");
+    return;
+  }
 
   var w = loupeWidth,
       h = loupeHeight;

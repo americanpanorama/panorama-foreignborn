@@ -7,7 +7,7 @@ var TIMEOUT = 10000;
 var _pendingRequests = {};
 
 var COUNTRY_QUERY = 'SELECT ST_X(the_geom) as lng,ST_Y(the_geom) as lat,category_id,count,country,continent,year FROM site_foreignborn_rolled_country_counts_materialized';
-var COUNTY_QUERY = 'SELECT SUM(count) as count, AVG(area_sqmi) as area_sqmi, nhgis_join FROM site_foreignborn_counties_prod_materialized WHERE start_n < {startN} and end_n >= {startN} group by nhgis_join';
+var COUNTY_QUERY = 'SELECT SUM(count) as count, AVG(area_sqmi) as area_sqmi, nhgis_join FROM site_foreignborn_counties_prod_materialized WHERE start_n < {startN} and end_n >= {startN} and year = {year} group by nhgis_join';
 var TOTAL_US_POP = 'SELECT year, pop FROM site_foreignborn_us_pop_totals_materialized';
 var COUNTY_POP_BREAKDOWN = "SELECT year,total,fb_total FROM site_foreignborn_county_pop_breakdowns_materialized WHERE RTRIM(nhgis_join) = '{nhgis_join}'";
 var COUNTY_BREAKDOWN = "SELECT year, country, count, place_total FROM site_foreignborn_county_breakdowns_materialized WHERE RTRIM(nhgis_join) = '{nhgis_join}'";
@@ -69,6 +69,7 @@ function countyPopulationBreakdown(nhgis_join) {
 function makeCountyQueryObject(decade) {
   var start = decade * 10000 + 101;
   var end = (decade + 10) * 10000 + 101;
+  console.log("Start: ", start)
   return {
     key: 'us_counties',
     sql: COUNTY_QUERY.replace(/{startN}/g, start).replace(/{endN}/g, start).replace(/{year}/g, decade),

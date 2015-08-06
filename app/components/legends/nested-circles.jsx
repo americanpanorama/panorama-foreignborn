@@ -20,6 +20,8 @@ function update(data) {
     return d.r;
   });
 
+  svg.selectAll('circle').remove();
+  svg.selectAll('text').remove();
 
   var circle = svg.selectAll('circle')
     .data(data);
@@ -32,7 +34,7 @@ function update(data) {
       return max;
     })
     .attr('cy', function(d){
-      return 90 - d.r;
+      return (max * 2) - d.r;
     });
 
   var text = svg.selectAll('text')
@@ -40,10 +42,15 @@ function update(data) {
 
   text.enter().append('text')
     .text(function(d){ return d.label;})
-    .attr('x', max * 2 + 10)
+    .attr('x', (max * 2) + 10)
     .attr('dy', '0.8em')
-    .attr('y', function(d){
-      return 90 - (d.r * 2);
+    .attr('y', function(d,i){
+      var y = (max * 2) - (d.r * 2);
+
+      // should be the smallest radius on bottom
+      if (i === 0) y -= 4;
+
+      return y;
     });
 
 }

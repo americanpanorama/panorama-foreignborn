@@ -17,6 +17,8 @@ var BarChart = React.createClass({
     },
 
     componentDidMount: function() {
+      this.checkBounds();
+      React.findDOMNode(this.refs.wrapper).onscroll = this.checkBounds;
     },
 
     shouldComponentUpdate: function(nextProps) {
@@ -24,6 +26,7 @@ var BarChart = React.createClass({
     },
 
     componentDidUpdate: function() {
+      this.checkBounds();
     },
 
     barClick: function(e) {
@@ -61,6 +64,35 @@ var BarChart = React.createClass({
 
     },
 
+    checkBounds: function() {
+      var wrapper = React.findDOMNode(this.refs.wrapper);
+      var rows = React.findDOMNode(this.refs.rows);
+      var upBtn = React.findDOMNode(this.refs.scrollupBtn);
+      var dwnBtn = React.findDOMNode(this.refs.scrolldownBtn);
+
+      var pos = wrapper.scrollTop;
+      var bottom = rows.offsetHeight - wrapper.offsetHeight;
+
+      upBtn.disabled = (pos === 0);
+      dwnBtn.disabled = (pos === bottom);
+
+    },
+
+    scrollContent: function(dir) {
+      var elm = React.findDOMNode(this.refs.wrapper);
+      var amt = elm.offsetHeight * .5;
+      var move = dir * amt;
+      elm.scrollTop += move;
+      this.checkBounds();
+    },
+
+    scrollUp: function() {
+      this.scrollContent(-1);
+    },
+
+    scrollDown: function() {
+      this.scrollContent(1)
+    },
 
     render: function() {
       this.prepData();
@@ -68,13 +100,15 @@ var BarChart = React.createClass({
 
       return (
         <div className="bar-chart-container component">
-          <button className="bar-chart-scrollbtn up"><span>︿</span></button>
-          <div className="bar-chart-rows-wrapper" style={{height: height + 'px'}}>
-            <div className="bar-chart-rows" onClick={this.barClick}>
-              {this.renderBars()}
+          <button className="bar-chart-scrollbtn up" onClick={this.scrollUp} ref='scrollupBtn'><span>︿</span></button>
+          <div className="bar-chart-scrollable-area" style={{height: height + 'px'}}>
+            <div className="bar-chart-rows-wrapper" ref="wrapper">
+              <div className="bar-chart-rows" ref="rows" onClick={this.barClick}>
+                {this.renderBars()}
+              </div>
             </div>
           </div>
-          <button className="bar-chart-scrollbtn down"><span>﹀</span></button>
+          <button className="bar-chart-scrollbtn down" onClick={this.scrollDown} ref='scrolldownBtn'><span>﹀</span></button>
         </div>
       );
     }

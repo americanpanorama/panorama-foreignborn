@@ -89,7 +89,7 @@ var App = React.createClass({
 
     // Layout
     LayoutStore.force();
-    console.log('Width: ', LayoutStore.get())
+    //console.log('Width: ', LayoutStore.get())
 
     this.toggleCountyClass(this.state.county);
   },
@@ -248,7 +248,6 @@ var App = React.createClass({
 
     // Misc calculations
     // TODO: Find a better home for these
-    var legendValues = GeographyStore.getCountryScaleData();
 
     var countiesNames = this.state.geographyData.countyGeo.map(function(d){
       return d.properties.name + ", " + d.properties.state;
@@ -257,6 +256,20 @@ var App = React.createClass({
     var countryOverlay = GeographyStore.getCountryPercents('all');
     var countyOverlay = (this.state.county) ? GeographyStore.getCountyPercents(this.state.county) : [];
     var countriesForCounties = (this.state.county) ? GeographyStore.getCountriesForCounties(this.state.county, this.state.decade) : [];
+
+    var legendValues;
+
+    if (countriesForCounties.length) {
+      legendValues = GeographyStore.getCountryScaleData(countriesForCounties)
+    } else {
+      legendValues = GeographyStore.getCountryScaleData();
+    }
+
+    var yDomainMax = d3.max(this.state.geographyData.countyGeo, function(d){
+      return d.properties.density;
+    });
+    var yDomain = [0, GeographyStore.round(yDomainMax)];
+    //
 
     var countiesFiltered = [];
     if (this.state.county) {
@@ -290,6 +303,7 @@ var App = React.createClass({
     }
 
     var placeName = (countiesFiltered.length) ? countiesFiltered[0].properties.name + ', ' + countiesFiltered[0].properties.state : '';
+    var placeNameShort = (countiesFiltered.length) ? countiesFiltered[0].properties.name : '';
     var placeHolder = (placeName.length) ? placeName : "Search by county name";
 
     var bardata = this.state.geographyData.country || [];
@@ -367,7 +381,7 @@ var App = React.createClass({
                     <LegendNestedCircles values={legendValues}/>
                   </div>
                   <div className="td">
-                    <LegendGrid/>
+                    <LegendGrid yDomain={yDomain} yFormatter={d3.format('s')}/>
                   </div>
                 </div>
               </div>
@@ -380,7 +394,7 @@ var App = React.createClass({
                   <div>
                     <Timeline overlay={countryOverlay} secondaryOverlay={countyOverlay} decade={this.state.decade} startDate={new Date('1/1/1850')} endDate={new Date('12/31/2010')} onSliderChange={this.decadeUpdate} />
                     <div className="timeline-legend left">Total Foreign-Born</div>
-                    <div className="timeline-legend right">{placeName} Foreign-Born</div>
+                    <div className="timeline-legend right">{placeNameShort} Foreign-Born</div>
                   </div>
                 </div>
               </div>

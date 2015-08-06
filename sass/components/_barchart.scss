@@ -4,8 +4,11 @@ $chart-background-color: $medium-dark-grey;
 $button-background-color: $medium-dark-grey-lighter;
 
 .bar-chart-container {
+  width: 100%;
+  max-width: 100%;
   margin-bottom: 20px;
   background: $chart-background-color;
+  overflow: hidden;
 
   button {
     display: block;
@@ -31,14 +34,28 @@ $button-background-color: $medium-dark-grey-lighter;
       &.down span {
         top: 2px;
       }
+
+      &[disabled] {
+        opacity: 0.2;
+      }
   }
+}
+.bar-chart-scrollable-area {
+  position: relative;
+  width: 100%;
+  margin: 10px;
+  overflow: hidden;
+  height: $default-height;
 }
 
 .bar-chart-rows-wrapper {
-  width: 90%;
-  margin: 10px 0 10px 5%;
-  height: $default-height;
-  overflow: scroll;
+  position : absolute;
+  overflow : scroll;
+  overflow-x : hidden;
+  top : 0;
+  right : 0;
+  bottom : 0;
+  left : 0;
 }
 
 .has-county .bar-chart-rows-wrapper {
@@ -48,6 +65,9 @@ $button-background-color: $medium-dark-grey-lighter;
 .bar-chart-rows {
   display: table;
   table-layout: fixed;
+  width: 100%;
+  padding-right: 25px;
+  overflow: hidden;
 }
 
 .chartRow {
@@ -57,6 +77,7 @@ $button-background-color: $medium-dark-grey-lighter;
   .label,
   .bar {
     display: table-cell;
+    padding-bottom: 1px;
     vertical-align: middle;
     line-height: 1;
   }
@@ -65,17 +86,21 @@ $button-background-color: $medium-dark-grey-lighter;
     text-align: right;
 
     span {
+      display: block;
       padding-right: 15px;
       font-size: $font-size-regular;
       font-family: $font-family-sans-alt;
       color: $white;
+      max-width: 100%;
       white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
   }
 
   .bar {
     position: relative;
-    width: 100%;
+    width: 50%;
 
     span {
       display: block;

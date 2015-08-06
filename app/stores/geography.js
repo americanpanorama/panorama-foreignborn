@@ -105,6 +105,8 @@ function processCountyGeometries (d) {
     if (k in countyGeometriesLoaded) return;
     countyGeometriesLoaded[k] = 1;
     var features = topojson.feature(d.response, d.response.objects[k]).features;
+    if (!features) features = [];
+
     features.forEach(function(f){
       data['countyGeometries'].push(f);
     });
@@ -161,32 +163,34 @@ function filterCountyGeometriesByDecade(decade) {
     return d.properties['start_n'] <= now && d.properties['end_n'] >= now;
   });
 
-  //var densities = [];
-
   filtered.forEach(function(d,i){
     var joinID = d.properties['nhgis_join'];
 
-    if (countyDataLookup[decade][joinID]) {
-      //d.properties.density = countyDataLookup[joinID].density;
+    d.properties.id = d.properties['nhgis_join'] + '-' + decade;
+
+    if (countyDataLookup[decade][joinID] && !isNaN(countyDataLookup[decade][joinID].count) && !isNaN(countyDataLookup[decade][joinID].area_sqmi)) {
       d.properties.count = countyDataLookup[decade][joinID].count;
-      d.properties.density = Math.round(countyDataLookup[decade][joinID].count/countyDataLookup[decade][joinID].area_sqmi);
-      d.properties.id = d.properties['nhgis_join'] + '-' + decade;
-      //densities.push(d.properties.density);
+
+      var area = countyDataLookup[decade][joinID].area_sqmi;
+      // make sure area_sqmi is not zero
+      if (area === 0) area = 1;
+      d.properties.density = Math.round(countyDataLookup[decade][joinID].count / area);
+
     } else {
       //console.warn('no join');
+      d.properties.count = 0;
       d.properties.density = 0;
     }
   });
 
-
-  console.log('Filtered: %s', filtered.length);
-
   return filtered;
 }
 
-function getCountryScaleData() {
+function getCountryScaleData(countries) {
   if (!state.decade) return [];
-  var countries = data['countryByYear'][state.decade] || [];
+
+  countries = countries || data['countryByYear'][state.decade] || [];
+
   if (!countries.length) return [];
 
   var domain = countries.map(function(d){
@@ -200,40 +204,30 @@ function getCountryScaleData() {
       .range([5,45])
       .domain([min, max]);
 
-
   var format = d3.format('s');
   var values = [];
 
-  var length = (max-min) * 0.70,
-      subLength = round(length / 4);
-
-  function round(n) {
-    if (n < 100) {
-      n = Math.round(n/10)*10;
-    } else if (n < 1000) {
-      n = Math.round(n/100)*100;
-    } else if (n < 10000) {
-      n = Math.round(n/1000)*1000;
-    } else if (n < 100000) {
-      n = Math.round(n/10000)*10000;
-    } else if (n < 1000000) {
-      n = Math.round(n/100000)*100000;
-    } else if (n < 10000000) {
-      n = Math.round(n/1000000)*1000000;
-    } else if (n < 100000000) {
-      n = Math.round(n/10000000)*10000000;
-    }
-
-    return n;
-  }
-
   var parts = [];
-  for (var i = 0; i < 4; i++) {
-    var n = subLength + subLength*i;
-    parts.push(n);
+  var steps, subLength;
+  var length = (max - min) * 0.70;
+
+  if (length < 60) {
+    steps = 2;
+    parts = [min,max];
+
+  } else {
+
+    steps = 4;
+    subLength = round(length / steps);
+
+    for (var i = 0; i < steps; i++) {
+      var n = subLength + subLength * i;
+
+      parts.push(n);
+    }
   }
 
-  scale.domain([parts[0], parts[3]]);
+  scale.domain([parts[0], parts[steps-1]]);
 
   parts.forEach(function(d){
     values.push({
@@ -243,20 +237,49 @@ function getCountryScaleData() {
     });
   });
 
-
   values.sort(function(a,b){
     return a.r - b.r;
   });
 
   values.forEach(function(d,i){
-    if (i === 0) {
-      d.label = "<" + format(d.value) + " people"
+    if (values.length === 2) {
+      d.label = format(d.value ) + " " + pluralize(d.value, "person", "people")
     } else {
-      d.label = format(values[i-1].value).replace(/\D/g,'') + ' - ' + format(d.value) + " people"
+      if (i === 0) {
+        d.label = "<" + format(d.value) + " " + pluralize(d.value, "person", "people");
+      } else {
+        d.label = format(values[i-1].value).replace(/\D/g,'') + ' - ' + format(d.value) + " " + pluralize(d.value, "person", "people");
+      }
     }
+
   });
 
   return values;
+}
+
+function round(n) {
+  if (n < 100) {
+    n = Math.round(n/10)*10;
+  } else if (n < 1000) {
+    n = Math.round(n/100)*100;
+  } else if (n < 10000) {
+    n = Math.round(n/1000)*1000;
+  } else if (n < 100000) {
+    n = Math.round(n/10000)*10000;
+  } else if (n < 1000000) {
+    n = Math.round(n/100000)*100000;
+  } else if (n < 10000000) {
+    n = Math.round(n/1000000)*1000000;
+  } else if (n < 100000000) {
+    n = Math.round(n/10000000)*10000000;
+  }
+
+  return n;
+}
+
+function pluralize(val, singular, plural) {
+   if (val === 1) return singular;
+   return plural;
 }
 
 
@@ -322,6 +345,10 @@ var GeographyStore = assign({}, EventEmitter.prototype, {
     state.decadeBounds = decadeBounds;
   },
 
+  round: function(x) {
+    return round(x);
+  },
+
   getBackFill: function(decade) {
     decade = decade || state.decade;
 
@@ -344,6 +371,14 @@ var GeographyStore = assign({}, EventEmitter.prototype, {
 
   countyLoaded: function(county) {
     return !!countyBreakdowns[county];
+  },
+
+  getCountyColorScale: function(arr) {
+
+  },
+
+  getCountyOpacityScale: function(arr) {
+
   },
 
   emitChange: function(type, _caller) {
@@ -384,8 +419,6 @@ AppDispatcher.register(function(action) {
         state.decade = action.queryParams.decade;
         setData(action.response, action.queryParams.decade);
         computePopulationPercents();
-
-        console.log(action.response)
 
         GeographyStore.emitChange(Constants.GET_INITIAL_DATA, 'GeographyStore');
       }
