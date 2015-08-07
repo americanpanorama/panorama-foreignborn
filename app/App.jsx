@@ -238,12 +238,15 @@ var App = React.createClass({
     var that = this;
 
     // calculate layout heights
+    var windowPadding = 10;
     var windowHeight = window.innerHeight;
     windowHeight = Math.max(windowHeight, 670);
+    windowHeight -= windowPadding * 2;
 
     var headerHeight = 70;
     var bottomHeight = 100;
-    var middleHeight = windowHeight - (bottomHeight + headerHeight);
+    var middleHeight = windowHeight - bottomHeight;
+    var mapHeight = middleHeight - headerHeight;
 
     var popTotalHeight = 99;
     var searchHeight = 55;
@@ -347,23 +350,25 @@ var App = React.createClass({
 
     // render DOM-ish
     return (
-      <div className='container full-height'>
-        <header className="header">
-          <h1>Foreign-Born Population</h1>
-        </header>
+      <div className='container full-height' style={{paddingTop: windowPadding + 'px'}}>
         <section className="row">
           <div className="columns nine" style={{height: middleHeight + 'px'}}>
-            <DisjointedWorldLayout
-              onClickHandler={this.handleMapClick}
-              loupeSelector='#loupe'
-              decade={this.state.decade}
-              selectedCounty={this.state.county}
-              selectedCountry={this.state.country}
-              countriesForCounties={countriesForCounties}
-              countries={this.state.geographyData.country || []}
-              counties={this.state.geographyData.countyGeo || []}
-              world={this.state.geographyData.world}
-            />
+            <header className="header">
+              <h1>Foreign-Born Population</h1>
+            </header>
+            <div style={{height: mapHeight + 'px'}}>
+              <DisjointedWorldLayout
+                onClickHandler={this.handleMapClick}
+                loupeSelector='#loupe'
+                decade={this.state.decade}
+                selectedCounty={this.state.county}
+                selectedCountry={this.state.country}
+                countriesForCounties={countriesForCounties}
+                countries={this.state.geographyData.country || []}
+                counties={this.state.geographyData.countyGeo || []}
+                world={this.state.geographyData.world}
+              />
+            </div>
           </div>
           <div className="columns three stacked" style={{height: middleHeight + 'px'}}>
             <div id="bar-chart">

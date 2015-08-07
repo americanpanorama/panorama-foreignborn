@@ -273,7 +273,7 @@ function drawCounties(data) {
   var op = qd.quantiles();
   opacity.domain([0.01, 1, op[0], op[1]]);
 
-  //console.log('MM: ', maxCount, maxDensity, qd.quantiles());
+  //console.log('MM: ', maxCount, q.quantiles(), maxDensity, qd.quantiles() );
 
   counties.enter().append('path')
     .attr('class', 'county')
@@ -825,7 +825,7 @@ var DisjointedWorldLayout = React.createClass({
         decade = this.props.decade;
 
         drawCountries(props.countries, props.selectedCountry);
-        if (svg) drawCounties(props.counties);
+        drawCounties(props.counties);
       }
 
     } else {

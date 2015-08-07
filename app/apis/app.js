@@ -69,7 +69,7 @@ function countyPopulationBreakdown(nhgis_join) {
 function makeCountyQueryObject(decade) {
   var start = decade * 10000 + 101;
   var end = (decade + 10) * 10000 + 101;
-  console.log("Start: ", start)
+
   return {
     key: 'us_counties',
     sql: COUNTY_QUERY.replace(/{startN}/g, start).replace(/{endN}/g, start).replace(/{year}/g, decade),
