@@ -12,7 +12,7 @@ var width = 960,
 var mapContainer, svg, background, lines, counties_nested, countries_nested, sorted;
 var canvas, context, canvasPath;
 var loupe, loupeSVG, loupeGroup, loupeHeight, loupeWidth;
-var selectedCounty;
+var selectedCounty, selectedCountry;
 var countyLookup = {};
 var countryLookup = {};
 var projections = {};
@@ -615,7 +615,7 @@ function runForce(nodes) {
   force.stop();
 }
 
-function drawCountries(countries) {
+function drawCountries(countries, selected) {
   if (!countryNodes[decade]) {
     countryNodes[decade] = generateCountryNodes(countries);
 
@@ -645,12 +645,22 @@ function drawCountries(countries) {
     .attr("r", function(d) { return d.r; })
     .attr("cx", function(d) { return d.x; })
     .attr("cy", function(d) { return d.y; })
+    .classed('selected', function(d){
+      return d.country === selected;
+    })
     .on('click', null);
 
   node.exit().remove();
 
   node.on('click',clickCallback);
 
+}
+
+function toggleCountries(selected) {
+  svg.selectAll(".country")
+  .classed('selected', function(d){
+    return d.country === selected;
+  });
 }
 
 function setLoupeLayout() {
@@ -814,14 +824,19 @@ var DisjointedWorldLayout = React.createClass({
       if (props.countries && props.countries.length && props.counties && props.counties.length) {
         decade = this.props.decade;
 
-        drawCountries(props.countries);
+        drawCountries(props.countries, props.selectedCountry);
         if (svg) drawCounties(props.counties);
       }
 
     } else {
 
+      if (props.selectedCountry !== selectedCountry) {
+        selectedCountry = props.selectedCountry;
+        toggleCountries(selectedCountry);
+      }
+
       if (this.props.selectedCounty && updateCounty) {
-        drawLoupe(props.counties)
+        drawLoupe(props.counties);
       }
     }
 

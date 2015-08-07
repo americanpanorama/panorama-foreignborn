@@ -74,6 +74,14 @@ $button-background-color: $medium-dark-grey-lighter;
   display: table-row;
   cursor: pointer;
 
+  .spotlight & {
+    opacity: 0.5;
+  }
+
+  .spotlight &.selected {
+    opacity: 1;
+  }
+
   .label,
   .bar {
     display: table-cell;
@@ -125,4 +133,11 @@ $button-background-color: $medium-dark-grey-lighter;
       color: #aaa;
     }
   }
+
+  &.selected:hover {
+    .label span {
+      color: $white;
+    }
+  }
+
 }

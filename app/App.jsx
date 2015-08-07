@@ -186,11 +186,21 @@ var App = React.createClass({
     }
   },
 
-  closeCounty: function() {
-    hashManager.mergeHash({county: null});
-    hashManager.updateHash(true);
-    this.toggleCountyClass(false);
-    this.centralStateSetter({county: null});
+  closeSelectedPlace: function() {
+    if (this.state.county) {
+      hashManager.mergeHash({county: null});
+      hashManager.updateHash(true);
+      this.toggleCountyClass(false);
+      this.centralStateSetter({county: null});
+
+    } else if (this.state.country) {
+
+      hashManager.mergeHash({country: null});
+      hashManager.updateHash(true);
+      this.toggleCountyClass(false);
+      this.centralStateSetter({country: null});
+    }
+
   },
 
   onSearchChange: function(result, evt) {
@@ -244,6 +254,8 @@ var App = React.createClass({
 
     if (this.state.county) {
       barChartHeight -= (loupHeight + barchartCountyClose);
+    } else if (this.state.country) {
+      barChartHeight -= barchartCountyClose;
     }
 
     // Misc calculations
@@ -254,7 +266,13 @@ var App = React.createClass({
     });
 
     var countryOverlay = GeographyStore.getCountryPercents('all');
-    var countyOverlay = (this.state.county) ? GeographyStore.getCountyPercents(this.state.county) : [];
+    var secondaryOverlay = [];
+    if (this.state.county) {
+      secondaryOverlay = GeographyStore.getCountyPercents(this.state.county);
+    } else if (this.state.country) {
+      secondaryOverlay = GeographyStore.getSelectedCountry(this.state.country);
+    }
+
     var countriesForCounties = (this.state.county) ? GeographyStore.getCountriesForCounties(this.state.county, this.state.decade) : [];
 
     var legendValues;
@@ -279,32 +297,43 @@ var App = React.createClass({
     }
 
     var count = 0;
+    var percent = '';
+    var t;
     if (countriesForCounties.length) {
       count = d3.sum(countriesForCounties, function(d){ return d.count; });
-    } else {
-      count = d3.sum(this.state.geographyData.country, function(d){ return d.count; });
-    }
 
-    var percent = '';
-    if (countriesForCounties.length) {
-      var t = countriesForCounties[0].place_total;
+      t = countriesForCounties[0].place_total;
       percent = d3.format('%')(count/t);
 
-    }else {
+    } else if (this.state.country) {
+      t = secondaryOverlay.filter(function(d){
+        return d.year == that.state.decade;
+      });
+      if (t.length) {
+        count = t[0].count;
+        percent = d3.format('%')(t[0].pct);
+      }
 
-      var t = countryOverlay.filter(function(d){
+    } else {
+      count = d3.sum(this.state.geographyData.country, function(d){ return d.count; });
+      t = countryOverlay.filter(function(d){
         return d.date.getFullYear() === that.state.decade;
       });
 
       if (t.length) {
         percent = d3.format('%')(t[0].pct);
       }
-
     }
+
 
     var placeName = (countiesFiltered.length) ? countiesFiltered[0].properties.name + ', ' + countiesFiltered[0].properties.state : '';
     var placeNameShort = (countiesFiltered.length) ? countiesFiltered[0].properties.name : '';
     var placeHolder = (placeName.length) ? placeName : "Search by county name";
+
+    if (this.state.country) {
+      placeName = this.state.country;
+      placeNameShort = this.state.country;
+    }
 
     var bardata = this.state.geographyData.country || [];
     if (countriesForCounties.length) bardata = countriesForCounties;
@@ -340,9 +369,9 @@ var App = React.createClass({
             <div id="bar-chart">
               <h3>{this.state.decade + " Foreign Born"}</h3>
               {placeName &&
-              <div id="barchart-county-close"><button onClick={this.closeCounty} className='link'>{placeName}<span className="close">[<span className="close-x">×</span>]</span></button></div>
+              <div id="barchart-county-close"><button onClick={this.closeSelectedPlace} className='link'>{placeName}<span className="close">[<span className="close-x">×</span>]</span></button></div>
               }
-              <BarChart onBarClickHandler={this.handleMapClick} width={300} height={barChartHeight} rows={bardata}/>
+              <BarChart onBarClickHandler={this.handleMapClick} width={300} spotlight={this.state.country} height={barChartHeight} rows={bardata}/>
             </div>
 
             <div id="population-totals">
@@ -392,7 +421,7 @@ var App = React.createClass({
                     <h3>Over Time</h3>
                   </div>
                   <div>
-                    <Timeline overlay={countryOverlay} secondaryOverlay={countyOverlay} decade={this.state.decade} startDate={new Date('1/1/1850')} endDate={new Date('12/31/2010')} onSliderChange={this.decadeUpdate} />
+                    <Timeline overlay={countryOverlay} secondaryOverlay={secondaryOverlay} decade={this.state.decade} startDate={new Date('1/1/1850')} endDate={new Date('12/31/2010')} onSliderChange={this.decadeUpdate} />
                     <div className="timeline-legend left">Total Foreign-Born</div>
                     <div className="timeline-legend right">{placeNameShort} Foreign-Born</div>
                   </div>

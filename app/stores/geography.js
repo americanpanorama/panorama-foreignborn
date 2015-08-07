@@ -131,7 +131,7 @@ function computePopulationPercents() {
     });
   });
 
-  populationPercents['all'] =  pcts;
+  populationPercents['all'] = pcts;
 }
 
 
@@ -314,15 +314,42 @@ var GeographyStore = assign({}, EventEmitter.prototype, {
   getCountryPercents: function(country) {
     return populationPercents[country] || [];
   },
+
   getCountyPercents: function(county) {
     if (!countyBreakdowns[county]) return [];
 
     return countyBreakdowns[county].overlay || []
   },
+
   getCountriesForCounties: function(county, decade) {
     if (!countyBreakdowns[county]) return [];
 
     return countyBreakdowns[county].decades[decade] || []
+  },
+
+  getSelectedCountry: function(country) {
+    var o = [];
+
+    for(var yr in data['countryByYear']) {
+      var r = data['countryByYear'][yr].filter(function(d){
+        return d.country === country;
+      });
+
+      var usPop = data['total_us_pop'].filter(function(d){
+        return d.year == yr;
+      });
+
+      if (r.length && usPop.length) {
+        o.push({
+          year: yr,
+          count: r[0].count,
+          date: new Date("1/1/" + yr),
+          pct: r[0].count / usPop[0].pop
+        });
+      }
+    }
+
+    return o;
   },
 
   decade: function(decade) {

@@ -30,8 +30,24 @@ var BarChart = React.createClass({
     },
 
     barClick: function(e) {
-      var val = e.target.textContent;
-      if (typeof this.props.onBarClickHandler === 'function') this.props.onBarClickHandler({country: val});
+      e.preventDefault();
+      e.stopPropagation();
+
+      var elm = e.target;
+      var btn = null;
+      var ct = 0;
+      while (!btn && ct < 10) {
+        if (d3.select(elm).classed('chartRow')) {
+          btn = elm;
+        }
+        ct++;
+        elm = elm.parentNode
+      }
+
+      if (btn) {
+        var val = btn.getAttribute('data-value');
+        if (typeof this.props.onBarClickHandler === 'function') this.props.onBarClickHandler({country: val});
+      }
     },
 
     renderBars: function() {
@@ -43,6 +59,7 @@ var BarChart = React.createClass({
           <Bar width={xScale(row.count)}
                 country={row.country}
                 count={numberFormatter(row.count)}
+                selected={that.props.spotlight === row.country}
                 key={i} />
         )
       });
@@ -97,9 +114,10 @@ var BarChart = React.createClass({
     render: function() {
       this.prepData();
       var height = this.props.height - (32 + 32 + 20);
+      var spotlight = (this.props.spotlight) ? ' spotlight' : '';
 
       return (
-        <div className="bar-chart-container component">
+        <div className={"bar-chart-container component" + spotlight}>
           <button className="bar-chart-scrollbtn up" onClick={this.scrollUp} ref='scrollupBtn'><span>︿</span></button>
           <div className="bar-chart-scrollable-area" style={{height: height + 'px'}}>
             <div className="bar-chart-rows-wrapper" ref="wrapper">
@@ -122,7 +140,8 @@ var Bar = React.createClass({
         return {
             width: 0,
             country: '',
-            count: 0
+            count: 0,
+            selected: false
         }
     },
 
@@ -131,8 +150,9 @@ var Bar = React.createClass({
     },
 
     render: function() {
+        var selectedClass = (this.props.selected) ? ' selected' : '';
         return (
-          <div className="chartRow">
+          <div className={"chartRow" + selectedClass} data-value={this.props.country}>
             <div className="label">
               <span>{this.props.country}</span>
             </div>
