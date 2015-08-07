@@ -49,12 +49,45 @@ header, section {
 }
 
 header {
-  height: 70px;
-  overflow: hidden;
+  position: relative;
+  height: 48px;
+  margin-right: $default-padding;
+  text-align: center;
+  background: url('static/images/header-banner.svg') 0 0 no-repeat;
+  background-size: cover;
+
+  .table {
+    width: 100%;
+  }
 
   h1 {
-    line-height: 70px;
-    margin: 0;
+    display: inline-block;
+    margin: 0 20px;
+    line-height: 1;
+    text-transform: uppercase;
+    vertical-align: middle;
+    color: $white;
+  }
+
+  .decorative-decade {
+    font-size: $font-size-largest;
+    display: inline-block;
+    vertical-align: middle;
+    line-height: 0;
+    color: $green;
+  }
+
+  .tagline {
+    position: absolute;
+    width: 100%;
+    left: 0;
+    top: 100%;
+    margin: 5px 0 0;
+    padding: 0;
+    line-height: 1;
+    white-space: nowrap;
+    color: $green;
+    font-size: $font-size-small;
   }
 }
 

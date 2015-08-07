@@ -243,7 +243,7 @@ var App = React.createClass({
     windowHeight = Math.max(windowHeight, 670);
     windowHeight -= windowPadding * 2;
 
-    var headerHeight = 70;
+    var headerHeight = 48;
     var bottomHeight = 100;
     var middleHeight = windowHeight - bottomHeight;
     var mapHeight = middleHeight - headerHeight;
@@ -354,7 +354,12 @@ var App = React.createClass({
         <section className="row">
           <div className="columns nine" style={{height: middleHeight + 'px'}}>
             <header className="header">
-              <h1>Foreign-Born Population</h1>
+              <div className="table">
+                <div className="td">
+                  <span className="decorative-decade">1810</span><h1>Foreign-Born<br/>Population</h1><span className="decorative-decade">2010</span>
+                </div>
+                <p className="tagline">A Nation of Overlapping Diasporas</p>
+              </div>
             </header>
             <div style={{height: mapHeight + 'px'}}>
               <DisjointedWorldLayout
