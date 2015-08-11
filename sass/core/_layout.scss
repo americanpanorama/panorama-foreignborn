@@ -53,8 +53,8 @@ header {
   height: 48px;
   margin-right: $default-padding;
   text-align: center;
-  background: url('static/images/header-banner.svg') 0 0 no-repeat;
-  background-size: cover;
+  background: url('static/images/header-banner.svg') 0 0 repeat-x;
+  background-size: contain;
 
   .table {
     width: 100%;

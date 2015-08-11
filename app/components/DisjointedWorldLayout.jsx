@@ -415,12 +415,14 @@ function resetCountries() {
 
 
 function drawLoupe(data) {
+  if (!loupeGroup) return;
+
   var filtered = data.filter(function(d){
     return d.properties.nhgis_join === selectedCounty;
   });
 
   if (!filtered.length) {
-    console.warn("Could not join!");
+    console.warn("Loupe: Could not join!");
     return;
   }
 
@@ -443,6 +445,15 @@ function drawLoupe(data) {
         s = .9 / Math.max(dx / w, dy / h),
         t = [w / 2 - s * x, h / 2 - s * y];
 
+  console.log("Bounds: ", bounds);
+  var rr = d3.geo.albersUsa()
+    .scale(s)
+    .translate(t);
+  var rrPath = d3.geo.path()
+    .projection(rr);
+
+  console.log("p1: ",bounds[0])
+  console.log("p1: ",bounds[1])
 
   var scaleMod = s * .20;
   var zoom = d3.behavior.zoom()
@@ -457,8 +468,28 @@ function drawLoupe(data) {
     loupeGroup.attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
   }
 
+  var sx = Math.abs(dx * 2);
+  var sy = Math.abs(dy * 2);
+
+  var left = bounds[0][0] - sx,
+      right = bounds[1][0] + sx,
+      top = bounds[0][1] - sy,
+      bottom = bounds[1][1] + sy;
+
+  var ff = data.filter(function(d){
+    var b = lpath.centroid(d.geometry),
+      x = b[0],
+      y = b[1];
+
+    return x >= left && x <= right && y >= top && y <= bottom;
+  });
+
+  ff.forEach(function(d){
+    console.log(d.properties.nhgis_join);
+  });
+
   var counties = loupeGroup.selectAll(".county")
-    .data(data, function(d){ return d.properties.id; });
+    .data(ff, function(d){ return d.properties.id; });
 
   counties.enter().append('path')
     .attr('class', 'county')
@@ -466,7 +497,7 @@ function drawLoupe(data) {
       return lpath(d.geometry);
     })
     .style('fill', function(d,i) {
-      return color(d.properties.count);
+      return 'red';//color(d.properties.count);
     })
     .style('stroke', function(d) {
       return '#000'
@@ -475,7 +506,7 @@ function drawLoupe(data) {
       return '1';
     })
     .style("opacity", function(d) {
-      return opacity(d.properties.density);
+      return 1;//opacity(d.properties.density);
     })
     .on('click', function(d){
       clickCallback(d);
@@ -664,6 +695,7 @@ function toggleCountries(selected) {
 }
 
 function setLoupeLayout() {
+  if (!loupeSVG) return;
   loupeWidth = loupe.node().offsetWidth;
 
   loupeSVG.attr('width', loupeWidth)
@@ -683,7 +715,6 @@ function setLoupeLayout() {
 
   loupe.select('.arrow.bottom')
     .attr('transform', 'translate(' + (loupeWidth/2) + ', ' + (loupeHeight-10) + ')');
-
 
 }
 

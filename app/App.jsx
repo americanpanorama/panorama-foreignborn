@@ -23,6 +23,7 @@ var BarChart = require('./components/BarChart.jsx');
 var Timeline = require('./components/Timeline.jsx');
 var LegendNestedCircles = require('./components/legends/nested-circles.jsx');
 var LegendGrid = require('./components/legends/grid.jsx');
+var Loupe = require('./components/Loupe.jsx');
 
 // Misc libraries
 var hashManager = require('./lib/hashManager.js');
@@ -364,7 +365,6 @@ var App = React.createClass({
             <div style={{height: mapHeight + 'px'}}>
               <DisjointedWorldLayout
                 onClickHandler={this.handleMapClick}
-                loupeSelector='#loupe'
                 decade={this.state.decade}
                 selectedCounty={this.state.county}
                 selectedCountry={this.state.country}
@@ -408,7 +408,7 @@ var App = React.createClass({
               </button>
 
             </div>
-            <div id="loupe" className="component" ref="loupe"></div>
+            <Loupe filterOn={this.state.county} data={this.state.geographyData.countyGeo || []}/>
           </div>
         </section>
         <section className="row">
