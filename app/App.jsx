@@ -31,6 +31,18 @@ var hashManager = require('./lib/hashManager.js');
 // Misc variables & functions
 var decadeBounds = [1850,2010];
 var numberFormatter = d3.format('0,');
+var percentFormatter = function(v){
+
+  // above 1%
+  if (v >= 0.01) return d3.format('%')(v);
+
+  // convert
+  v *= 100;
+  if (v > 0.1) return d3.format('.1f')(v) + '%';
+  if (v >= 0.01) return d3.format('.2f')(v) + '%';
+  if (v < 0.01) return "< 0.01%";
+
+}
 
 var clearMe = 0;
 
@@ -307,7 +319,7 @@ var App = React.createClass({
       count = d3.sum(countriesForCounties, function(d){ return d.count; });
 
       t = countriesForCounties[0].place_total;
-      percent = d3.format('%')(count/t);
+      percent = percentFormatter(count/t);
 
     } else if (this.state.country) {
       t = secondaryOverlay.filter(function(d){
@@ -315,7 +327,9 @@ var App = React.createClass({
       });
       if (t.length) {
         count = t[0].count;
-        percent = d3.format('%')(t[0].pct);
+
+        percent = percentFormatter(t[0].pct);
+        console.log('pct: ', t[0].pct, percent)
       }
 
     } else {
@@ -325,7 +339,7 @@ var App = React.createClass({
       });
 
       if (t.length) {
-        percent = d3.format('%')(t[0].pct);
+        percent = percentFormatter(t[0].pct);
       }
     }
 
