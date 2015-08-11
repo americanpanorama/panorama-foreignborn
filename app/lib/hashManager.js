@@ -23,8 +23,6 @@ var hashManager = {
     var things = hash.split('&').map(function(d){return d.split('=');});
 
     things.forEach(function(thing){
-      thing[0] = that.decode(thing[0]);
-      thing[1] = that.decode(thing[1]);
       if (thing[0] in that.hashParams && thing[1] != '') {
         out[thing[0]] = thing[1];
       }
