@@ -422,7 +422,7 @@ var App = React.createClass({
               </button>
 
             </div>
-            <Loupe filterOn={this.state.county} data={this.state.geographyData.countyGeo || []}/>
+            <Loupe changeCallback={this.handleMapClick} filterOn={this.state.county} data={this.state.geographyData.countyGeo || []} decade={this.state.decade}/>
           </div>
         </section>
         <section className="row">
