@@ -5,6 +5,13 @@ $medium-grey: white !default;
     border: 1px solid #333;
   }
 
+  .layout-assist-box {
+    stroke: red;
+    stroke-width: 1;
+    stroke-opacity: 0.3;
+    fill: none;
+  }
+
   .graticule {
     fill: none;
     stroke: #777;
@@ -15,8 +22,8 @@ $medium-grey: white !default;
 
   .land {
     stroke: none;
-    stroke-width: 0;
-    stroke-opacity: 0;
+    stroke-width: 1;
+    stroke-opacity: 1;
     fill: $medium-grey;
   }
 

@@ -97,25 +97,31 @@ function createProjections() {
 
 // ALSO SEE: https://gist.githubusercontent.com/nrabinowitz/1756257/raw/9e31098d064e036b0378a3e16876a4450a854917/fitProjection.js
 // AS WELL AS: http://bl.ocks.org/mbostock/4699541
-function fitIn(projection, data, size, country) {
+function fitIn(projection, obj, key) {
   projection
     .scale(1)
     .translate([0, 0]);
 
-  if (country) {
+
+  var multiplier = 1;
+  if (key) {
     try {
-      projection.centerCoords = projectionParams[country].centerCoords;
-    } catch(e) { console.log("ERROR: No centerCoords for -->", country)}
+      var c = projectionParams[key].centerCoords;
+      if (c) {
+        projection.rotate([-c[0],-c[1]])
+      }
+    } catch(e) { console.log("ERROR: No centerCoords for -->", key)}
   }
 
   var path = d3.geo.path().projection(projection);
+  var size = [obj.width, obj.height];
 
   var left = Infinity,
       bottom = -Infinity,
       right = -Infinity,
       top = Infinity;
 
-  data.forEach(function(feature) {
+  obj.features.forEach(function(feature) {
     var b = path.bounds(feature);
     left = Math.min(left, b[0][0]);
     top = Math.min(top, b[0][1]);
@@ -128,83 +134,138 @@ function fitIn(projection, data, size, country) {
         dy = bounds[1][1] - bounds[0][1],
         x = (bounds[0][0] + bounds[1][0]) / 2,
         y = (bounds[0][1] + bounds[1][1]) / 2,
-        scale = .9 / Math.max(dx / size[0], dy / size[1]),
+        scale = multiplier / Math.max(dx / size[0], dy / size[1]),
         translate = [size[0] / 2 - scale * x, size[1] / 2 - scale * y];
+
+  translate[0] += obj.x;
+  translate[1] += obj.y;
 
   return [scale, translate];
 }
 
 function drawWorld(world) {
-  var worldFeatures = topojson.feature(world, world.objects.countries).features;
-
-
   // Auto Position countries based on view box
   // TODO: Basically needs more attention and simplification
-  var worldGroups = {
-    'usa':[],
-    'asia': [],
-    'africa': [],
-    'europe': [],
-    'southamerica': [],
-    'centralamerica': [],
-    'oceania': [],
-    'canada': []
-  };
 
-  worldFeatures.forEach(function(d) {
-    if (d.id == 'USB' || d.id == 'USK' || d.id == 'USH') worldGroups.usa.push(d);
-    else if (d.properties.continent == 'Asia') worldGroups.asia.push(d);
-    else if (d.properties.continent == 'Africa') worldGroups.africa.push(d);
-    else if (d.properties.continent == 'Europe') worldGroups.europe.push(d);
-    else if (d.properties.continent == 'South America') worldGroups.southamerica.push(d);
-    else if (d.properties.subregion == 'Central America') worldGroups.centralamerica.push(d);
-    else if (d.properties.continent == 'Oceania') worldGroups.oceania.push(d);
-    else if (d.id == 'CAN')worldGroups.canada.push(d);
-  });
+  // geometry data
+  var worldFeatures = topojson.feature(world, world.objects.countries).features;
 
+  // basic grid dimensions
   var center = [width/2, height/2];
   var sizeUSA = [(width * .5)/2, (height * .5)/2];
   var sizeCorners = [(width * .25)/2, (height * .5)/2];
   var sizeMiddle = [(width * .25)/2, (height * .25)/2];
 
-  var usa = fitIn(d3.geo.albersUsa(), worldGroups.usa, [sizeUSA[0]*2, sizeUSA[1]*2], 'usa');
-  var asia = fitIn(d3.geo.azimuthalEqualArea(), worldGroups.asia, [sizeCorners[0]*2, sizeCorners[1]*2], 'asia');
-  var europe = fitIn(d3.geo.azimuthalEqualArea(), worldGroups.europe, [sizeCorners[0]*2, sizeCorners[1]*2], 'europe');
-  var africa = fitIn(d3.geo.azimuthalEqualArea(), worldGroups.africa, [sizeCorners[0]*2, sizeCorners[1]*2], 'africa');
-  var oceania = fitIn(d3.geo.azimuthalEqualArea(), worldGroups.oceania, [sizeCorners[0]*2, sizeCorners[1]*2], 'oceania');
-  var southamerica = fitIn(d3.geo.azimuthalEqualArea(), worldGroups.southamerica, [sizeMiddle[0]*2, sizeMiddle[1]*2], 'southamerica');
-  var centralamerica = fitIn(d3.geo.azimuthalEqualArea(), worldGroups.centralamerica, [sizeMiddle[0]*2, sizeMiddle[1]*2], 'centralamerica');
-  var canada = fitIn(d3.geo.azimuthalEqualArea(), worldGroups.canada, [sizeMiddle[0]*2, sizeMiddle[1]*2], 'canada');
+  // building blocks
+  // Tinker with x, y, width and height to adjust layout
+  var rects = {
+    asia: {
+      x: 0,
+      y: 0,
+      width: sizeCorners[0] * 2,
+      height: sizeCorners[1] * 2,
+      features: []
+    },
+    oceania: {
+      x: 20,
+      y: height-(sizeCorners[1]*2),
+      width: sizeCorners[0] * 2,
+      height: sizeCorners[1] * 2,
+      features: []
+    },
+    europe: {
+      x: (width-((sizeCorners[0]*2) * 1.5) - 5),
+      dx: -10,
+      y: (sizeCorners[1] * 2) - ((sizeCorners[1] * 2) * 1.2),
+      width: (sizeCorners[0] * 2) * 1.5,
+      height: (sizeCorners[1] * 2) * 1.2,
+      features: []
+    },
+    africa: {
+      x: (width-(sizeCorners[0]*2)-5),
+      y: height-(sizeCorners[1]*2),
+      width: sizeCorners[0] * 2,
+      height: sizeCorners[1] * 2,
+      features: []
+    },
+    canada: {
+      x: center[0] - sizeMiddle[0],
+      y: 0,
+      width: sizeMiddle[0] * 2,
+      height: sizeMiddle[1] * 2,
+      features: []
+    },
+    southamerica: {
+      x: center[0],
+      y: (height - ((sizeMiddle[1]*2) * 1.3) ),
+      width: sizeMiddle[0] * 2,
+      height: ((sizeMiddle[1] * 2) * 1.3),
+      features: []
+    },
+    centralamerica: {
+      x: sizeCorners[0] * 2,
+      y: height - ((sizeMiddle[1]*2)),
+      width: sizeMiddle[0] * 2,
+      height: (sizeMiddle[1] * 2) * .5,
+      features: []
+    },
+    usa: {
+      x: sizeCorners[0] * 2,
+      y: (sizeMiddle[1] * 2) - 10,
+      width: sizeUSA[0] * 2,
+      height: sizeUSA[1] * 2,
+      features: []
+    }
+  }
 
-  projectionParams.asia.scale = asia[0];
-  projectionParams.asia.translate = sizeCorners;
+  // parse out geometry features
+  worldFeatures.forEach(function(d) {
+    if (d.id == 'USB' || d.id == 'USK' || d.id == 'USH') rects.usa.features.push(d);
+    else if (d.properties.continent == 'Asia') rects.asia.features.push(d);
+    else if (d.properties.continent == 'Africa') rects.africa.features.push(d);
+    else if (d.properties.continent == 'Europe') rects.europe.features.push(d);
+    else if (d.properties.continent == 'South America') rects.southamerica.features.push(d);
+    else if (d.properties.subregion == 'Central America') rects.centralamerica.features.push(d);
+    else if (d.properties.continent == 'Oceania') rects.oceania.features.push(d);
+    else if (d.id == 'CAN') rects.canada.features.push(d);
+  });
 
-  projectionParams.oceania.scale = oceania[0];
-  projectionParams.oceania.translate = [sizeCorners[0], height-sizeCorners[1]];
 
-  projectionParams.europe.scale = europe[0];
-  projectionParams.europe.translate = [width-sizeCorners[0], sizeCorners[1]];
+  var rectsArr = [];
+  for (var rect in rects) {
+    rectsArr.push(rects[rect]);
 
-  projectionParams.africa.scale = africa[0];
-  projectionParams.africa.translate = [width-sizeCorners[0], height-sizeCorners[1]];
+    var st;
+    if (rect === 'usa') {
+      st = fitIn(d3.geo.albersUsa(), rects[rect], rect)
+    } else {
+      st = fitIn(d3.geo.azimuthalEqualArea(), rects[rect], rect)
+    }
 
-  projectionParams.southamerica.scale = southamerica[0];
-  projectionParams.southamerica.translate = [center[0] + sizeMiddle[0], height - sizeMiddle[1]];
+    projectionParams[rect].scale = st[0];
+    projectionParams[rect].translate = st[1];
+  }
 
-  projectionParams.centralamerica.scale = centralamerica[0];
-  projectionParams.centralamerica.translate = [center[0] - sizeMiddle[0], height - sizeMiddle[1]];
-
-  projectionParams.canada.scale = canada[0];
-  projectionParams.canada.translate = [center[0] , sizeCorners[1]];
-
-  projectionParams.usa.scale = usa[0];
-  projectionParams.usa.translate = center;
+  // show layout grid
+  var showGrid = false;
+  if (showGrid) {
+    var grid = svg.append('g');
+    grid.selectAll('.layout-assist-box')
+      .data(rectsArr)
+      .enter()
+        .append('rect')
+        .attr('class', 'layout-assist-box')
+        .attr('x', function(d){ return d.x; })
+        .attr('y', function(d){ return d.y; })
+        .attr('width', function(d){ return d.width; })
+        .attr('height', function(d){ return d.height; });
+  }
 
   // Update and create projections to use
   // for drawing countries
   createProjections();
 
-
+  // finally draw
   background.selectAll(".land")
     .data(worldFeatures)
   .enter().append("path")
