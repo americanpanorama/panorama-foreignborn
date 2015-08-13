@@ -121,21 +121,18 @@ function fitIn(projection, obj, key) {
       right = -Infinity,
       top = Infinity;
 
-  obj.features.forEach(function(feature) {
-    var b = path.bounds(feature);
-    left = Math.min(left, b[0][0]);
-    top = Math.min(top, b[0][1]);
-    right = Math.max(right, b[1][0]);
-    bottom = Math.max(bottom, b[1][1]);
-  });
+  var bounds;
 
-  var bounds = [[left,top],[right,bottom]],
-        dx = bounds[1][0] - bounds[0][0],
-        dy = bounds[1][1] - bounds[0][1],
-        x = (bounds[0][0] + bounds[1][0]) / 2,
-        y = (bounds[0][1] + bounds[1][1]) / 2,
-        scale = multiplier / Math.max(dx / size[0], dy / size[1]),
-        translate = [size[0] / 2 - scale * x, size[1] / 2 - scale * y];
+
+
+  bounds = path.bounds(obj.features);
+
+  var dx = bounds[1][0] - bounds[0][0],
+    dy = bounds[1][1] - bounds[0][1],
+    x = (bounds[0][0] + bounds[1][0]) / 2,
+    y = (bounds[0][1] + bounds[1][1]) / 2,
+    scale = multiplier / Math.max(dx / size[0], dy / size[1]),
+    translate = [size[0] / 2 - scale * x, size[1] / 2 - scale * y];
 
   translate[0] += obj.x;
   translate[1] += obj.y;
@@ -146,9 +143,6 @@ function fitIn(projection, obj, key) {
 function drawWorld(world) {
   // Auto Position countries based on view box
   // TODO: Basically needs more attention and simplification
-
-  // geometry data
-  var worldFeatures = topojson.feature(world, world.objects.countries).features;
 
   // basic grid dimensions
   var center = [width/2, height/2];
@@ -164,14 +158,14 @@ function drawWorld(world) {
       y: 0,
       width: sizeCorners[0] * 2,
       height: sizeCorners[1] * 2,
-      features: []
+      features: topojson.merge(world, world.objects.countries.geometries.filter(function(d) { return d.properties.continent == 'Asia'; }))
     },
     oceania: {
       x: 20,
       y: height-(sizeCorners[1]*2),
       width: sizeCorners[0] * 2,
       height: sizeCorners[1] * 2,
-      features: []
+      features: topojson.merge(world, world.objects.countries.geometries.filter(function(d) { return d.properties.continent == 'Oceania'; }))
     },
     europe: {
       x: (width-((sizeCorners[0]*2) * 1.5) - 5),
@@ -179,60 +173,48 @@ function drawWorld(world) {
       y: (sizeCorners[1] * 2) - ((sizeCorners[1] * 2) * 1.2),
       width: (sizeCorners[0] * 2) * 1.5,
       height: (sizeCorners[1] * 2) * 1.2,
-      features: []
+      features: topojson.merge(world, world.objects.countries.geometries.filter(function(d) { return d.properties.continent == 'Europe'; }))
     },
     africa: {
       x: (width-(sizeCorners[0]*2)-5),
       y: height-(sizeCorners[1]*2),
       width: sizeCorners[0] * 2,
       height: sizeCorners[1] * 2,
-      features: []
+      features:topojson.merge(world, world.objects.countries.geometries.filter(function(d) { return d.properties.continent == 'Africa'; }))
     },
     canada: {
       x: center[0] - sizeMiddle[0],
       y: 0,
       width: sizeMiddle[0] * 2,
       height: sizeMiddle[1] * 2,
-      features: []
+      features: topojson.merge(world, world.objects.countries.geometries.filter(function(d) { return d.id == 'CAN'; }))
     },
     southamerica: {
       x: center[0],
       y: (height - ((sizeMiddle[1]*2) * 1.3) ),
       width: sizeMiddle[0] * 2,
       height: ((sizeMiddle[1] * 2) * 1.3),
-      features: []
+      features: topojson.merge(world, world.objects.countries.geometries.filter(function(d) { return d.properties.continent == 'South America'; }))
     },
     centralamerica: {
       x: sizeCorners[0] * 2,
       y: height - ((sizeMiddle[1]*2)),
       width: sizeMiddle[0] * 2,
       height: (sizeMiddle[1] * 2) * .5,
-      features: []
+      features: topojson.merge(world, world.objects.countries.geometries.filter(function(d) { return d.properties.subregion == 'Central America'; }))
     },
     usa: {
       x: sizeCorners[0] * 2,
       y: (sizeMiddle[1] * 2) - 10,
       width: sizeUSA[0] * 2,
       height: sizeUSA[1] * 2,
-      features: []
+      features: topojson.merge(world, world.objects.countries.geometries.filter(function(d) { return (d.id == 'USB' || d.id == 'USK' || d.id == 'USH'); }))
     }
   }
 
-  // parse out geometry features
-  worldFeatures.forEach(function(d) {
-    if (d.id == 'USB' || d.id == 'USK' || d.id == 'USH') rects.usa.features.push(d);
-    else if (d.properties.continent == 'Asia') rects.asia.features.push(d);
-    else if (d.properties.continent == 'Africa') rects.africa.features.push(d);
-    else if (d.properties.continent == 'Europe') rects.europe.features.push(d);
-    else if (d.properties.continent == 'South America') rects.southamerica.features.push(d);
-    else if (d.properties.subregion == 'Central America') rects.centralamerica.features.push(d);
-    else if (d.properties.continent == 'Oceania') rects.oceania.features.push(d);
-    else if (d.id == 'CAN') rects.canada.features.push(d);
-  });
-
-
   var rectsArr = [];
   for (var rect in rects) {
+    rects[rect].key = rect;
     rectsArr.push(rects[rect]);
 
     var st;
@@ -267,23 +249,14 @@ function drawWorld(world) {
 
   // finally draw
   background.selectAll(".land")
-    .data(worldFeatures)
+    .data(rectsArr)
   .enter().append("path")
     .attr("class", function(d){
-      if (d.id == 'USB' || d.id == 'USK' || d.id == 'USH') return "land usa";
+      if (d.key === 'usa') return "land usa";
       return "land"
     })
     .attr("d", function(d) {
-
-      if (d.id == 'USB' || d.id == 'USK' || d.id == 'USH') return d3.geo.path().projection(projections['usa'])(d);
-      else if (d.properties.continent == 'Asia') return d3.geo.path().projection(projections['asia'])(d);
-      else if (d.properties.continent == 'Africa') return d3.geo.path().projection(projections['africa'])(d);
-      else if (d.properties.continent == 'Europe') return d3.geo.path().projection(projections['europe'])(d);
-      else if (d.properties.continent == 'South America') return d3.geo.path().projection(projections['southamerica'])(d);
-      else if (d.properties.subregion == 'Central America') return d3.geo.path().projection(projections['centralamerica'])(d);
-      else if (d.properties.continent == 'Oceania') return d3.geo.path().projection(projections['oceania'])(d);
-      else if (d.id == 'CAN') return d3.geo.path().projection(projections['canada'])(d);
-      else return "";
+      return d3.geo.path().projection(projections[d.key])(d.features);
     });
 }
 
