@@ -358,7 +358,6 @@ var Timeline = React.createClass({
       val = Math.ceil(pct / 2) * 2;
     }
 
-    console.log("MAX: %s, VAL: %s", max, val)
     var yscale = d3.scale.linear()
       .range([this.height, 0])
       .domain([0, val / 100]);

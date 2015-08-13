@@ -260,7 +260,6 @@ function drawCounties(data) {
 function drawCountryConnections(countries) {
   d3.select('.lines').remove();
 
-  console.log(countries)
   if (!countries.length) {
     if (selectedCounty) {
       return zeroOutCountries();
@@ -336,7 +335,6 @@ function filterCountries(filterBy) {
         }
       });
 
-      console.log(d.country,ct)
       // make sure radius is above 0
       var r = Math.max(radius(ct),1);
 
