@@ -9,9 +9,10 @@ var fullYearFormatter = d3.time.format('%Y');
 var yearFormatter = d3.time.format('%y');
 
 var overlayDrawn;
+var hasSecondaryOverlay;
 var Timeline = React.createClass({
   svgElm: null,
-  margin: {top: 20, right: 1, bottom: 20, left: 40},
+  margin: {top: 20, right: 15, bottom: 20, left: 40},
   width: null,
   height: null,
   xscale: null,
@@ -53,7 +54,7 @@ var Timeline = React.createClass({
 
     this.yscale = d3.scale.linear()
       .range([this.height, 0])
-      .domain([0, 100]);
+      .domain(this.props.yDomain || [0,100]);
   },
 
   getStepSize: function() {
@@ -96,14 +97,17 @@ var Timeline = React.createClass({
         }
       });
 
+
+    var yDomain = this.yscale.domain().slice(0);
+    var tv = [yDomain[0],(yDomain[1]-yDomain[0])/2, yDomain[1] ];
     this.yAxis = d3.svg.axis()
       .scale(this.yscale)
       .orient("left")
-      .ticks(3)
+      .tickValues(tv)
       .tickSize(5,-this.width)
-      .tickFormat(function(d) {
-        if (d === 100 || d === 0) {
-          return d + "%";
+      .tickFormat(function(d,i) {
+        if (i === 0 || i === 2) {
+          return Math.ceil(d * 100) + "%";
         }
         return "";
       });
@@ -162,6 +166,34 @@ var Timeline = React.createClass({
     if (this.props.onSliderChange) this.props.onSliderChange(value);
   },
 
+  updateDisplay: function(justContainer) {
+    var container = this.getDOMNode();
+    this.setWidth(container.offsetWidth);
+    this.setHeight(72);
+
+    var svg = d3.select(container).select('svg');
+
+    svg
+      .attr("width", this.width + this.margin.left + this.margin.right)
+      .attr("height", this.height  + this.margin.top + this.margin.bottom);
+
+    this.svgElm
+      .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
+
+    if (justContainer ) return;
+
+    this.svgElm.selectAll('*').remove();
+
+    this.setXYScales();
+    this.setXYAxis();
+    this.setBrush(this.currentDate);
+
+    this.visualize();
+
+    this.drawMainOverlay();
+    this.drawSecondaryOverlay();
+  },
+
 
   componentDidMount: function() {
     var container = this.getDOMNode();
@@ -184,6 +216,7 @@ var Timeline = React.createClass({
       .attr("width", this.width + this.margin.left + this.margin.right)
       .attr("height", this.height  + this.margin.top + this.margin.bottom)
       .append("g")
+      .attr("class", "group")
       .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
   },
 
@@ -207,9 +240,26 @@ var Timeline = React.createClass({
         this.drawMainOverlay();
       }
 
-      this.drawSecondaryOverlay();
+      if (this.props.secondaryOverlay && this.props.secondaryOverlay.length) {
+        if (!hasSecondaryOverlay) {
+          this.margin.right = 30;
+          this.updateDisplay();
+        } else {
+          this.drawSecondaryOverlay();
+        }
+      } else {
+        if (hasSecondaryOverlay) {
+          this.margin.right = 15;
+          this.updateDisplay();
+        }
+      }
 
       return;
+    }
+
+    if (this.props.secondaryOverlay && this.props.secondaryOverlay.length) {
+      this.margin.right = 30;
+      this.updateDisplay(true);
     }
 
     this.hasData = true;
@@ -223,7 +273,7 @@ var Timeline = React.createClass({
 
     this.visualize();
     this.drawMainOverlay();
-    this.drawSecondaryOverlay();
+    if (this.props.secondaryOverlay && this.props.secondaryOverlay.length) this.drawSecondaryOverlay();
   },
 
   loaded: function(state) {
@@ -251,20 +301,18 @@ var Timeline = React.createClass({
     this.handle.attr("transform", "translate(" + this.xscale(this.currentDate) + ",0)");
   },
 
-  drawOverlay: function(overlay, elm) {
+  drawOverlay: function(overlay, elm, yscale) {
     overlay.sort(function(a,b){
       return a.date - b.date;
     });
 
-    var oy = d3.scale.linear()
-      .domain([0, 1])
-      .range([this.height, 0]);
-
     var that = this;
+    yscale = yscale || that.yscale;
+
     var area = d3.svg.area()
       .x(function(d) { return that.xscale(d.date); })
       .y0(this.height)
-      .y1(function(d) { return oy(d.pct); });
+      .y1(function(d) { return yscale(d.pct); });
 
     elm.datum(overlay)
       .attr('d', area);
@@ -281,9 +329,62 @@ var Timeline = React.createClass({
 
   drawSecondaryOverlay: function() {
     var overlay = this.props.secondaryOverlay;
-    if (this.secondaryOverlay)this.secondaryOverlay.attr('d', '');
-    if (!overlay.length && !this.secondaryOverlay) return;
-    this.drawOverlay(overlay, this.secondaryOverlay);
+
+    if (this.secondaryOverlay) {
+      this.secondaryOverlay.attr('d', '');
+    } else {
+      return;
+    }
+
+    if (!overlay.length) {
+      hasSecondaryOverlay = false;
+      this.svgElm.select('.y.axis.secondary').remove();
+      return;
+    }
+
+    hasSecondaryOverlay = true;
+
+    var vals = [];
+    overlay.forEach(function(d){
+      vals.push(d.pct);
+    });
+
+    var max = d3.max(vals) * 1.1;
+    var pct = max * 100;
+    var val;
+    if (pct < 1) {
+      val = 1;
+    } else {
+      val = Math.ceil(pct / 2) * 2;
+    }
+
+    console.log("MAX: %s, VAL: %s", max, val)
+    var yscale = d3.scale.linear()
+      .range([this.height, 0])
+      .domain([0, val / 100]);
+
+    var yDomain = yscale.domain();
+    var tv = [yDomain[0],(yDomain[1]-yDomain[0])/2, yDomain[1] ];
+    var yAxis = d3.svg.axis()
+      .scale(yscale)
+      .orient("right")
+      .tickValues(tv)
+      .tickSize(5, -this.width)
+      .tickFormat(function(d,i) {
+        if (i === 0 || i === 2) {
+          return Math.ceil(d * 100) + "%";
+        }
+        return "";
+      });
+
+    this.svgElm.select('.y.axis.secondary').remove();
+
+    this.svgElm.append("g")
+      .attr("class", "y axis secondary")
+      .attr("transform", "translate(" + this.width + ",0)")
+      .call(yAxis);
+
+    this.drawOverlay(overlay, this.secondaryOverlay, yscale);
   },
 
   visualize: function(callback) {

@@ -54,7 +54,6 @@ header {
   margin-right: $default-padding;
   text-align: center;
   background: url('static/images/header-banner.svg') 0 0 repeat-x;
-  background-size: contain;
 
   .table {
     width: 100%;
@@ -148,7 +147,9 @@ header {
   table-layout: fixed;
   width: 100%;
   height: 100px;
-
+  .td {
+    height: 100px;
+  }
   .td:first-child {
     width: 100%;
   }

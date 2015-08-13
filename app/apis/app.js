@@ -7,11 +7,10 @@ var TIMEOUT = 10000;
 var _pendingRequests = {};
 
 var COUNTRY_QUERY = 'SELECT ST_X(the_geom) as lng,ST_Y(the_geom) as lat,category_id,count,country,continent,year FROM site_foreignborn_rolled_country_counts_materialized';
-var COUNTY_QUERY = 'SELECT SUM(count) as count, AVG(area_sqmi) as area_sqmi, nhgis_join FROM site_foreignborn_counties_prod_materialized WHERE start_n < {startN} and end_n >= {startN} and year = {year} group by nhgis_join';
+var COUNTY_QUERY = 'SELECT SUM(count) as count, SUM(cty_pop) as cty_pop, AVG(area_sqmi) as area_sqmi, nhgis_join FROM site_foreignborn_counties_prod_materialized WHERE start_n < {startN} and end_n >= {startN} and year = {year} group by nhgis_join';
 var TOTAL_US_POP = 'SELECT year, pop FROM site_foreignborn_us_pop_totals_materialized';
-var COUNTY_POP_BREAKDOWN = "SELECT year,total,fb_total FROM site_foreignborn_county_pop_breakdowns_materialized WHERE RTRIM(nhgis_join) = '{nhgis_join}'";
 var COUNTY_BREAKDOWN = "SELECT year, country, count, place_total FROM site_foreignborn_county_breakdowns_materialized WHERE RTRIM(nhgis_join) = '{nhgis_join}'";
-
+var COUNTY_POP_BREAKDOWN = "SELECT year, count, cty_pop, name, state_terr FROM site_foreignborn_counties_prod_materialized WHERE RTRIM(nhgis_join) = '{nhgis_join}'"
 var WORLD = {
   key: 'world',
   url: 'static/world-50m-subunits.json'
@@ -58,6 +57,14 @@ function totalPopulation() {
   }
 }
 
+function countyPopulation(nhgis_join) {
+  return {
+    key: 'total_county_pop:' + nhgis_join,
+    sql: COUNTY_POP_BREAKDOWN.replace(/{nhgis_join}/g, nhgis_join),
+    options: {"format":"JSON"}
+  }
+}
+
 function countyPopulationBreakdown(nhgis_join) {
   return {
     key: 'county_pop_breakdown:' + nhgis_join,
@@ -65,6 +72,7 @@ function countyPopulationBreakdown(nhgis_join) {
     options: {"format":"JSON"}
   }
 }
+
 
 function makeCountyQueryObject(decade) {
   var start = decade * 10000 + 101;
@@ -112,6 +120,7 @@ var Api = {
     }
 
     if (county) {
+      queue.push(countyPopulation(county));
       queue.push(countyPopulationBreakdown(county));
     }
 
@@ -133,6 +142,7 @@ var Api = {
     }
 
     if (county) {
+      queue.push(countyPopulation(county));
       queue.push(countyPopulationBreakdown(county));
     }
 
@@ -144,6 +154,7 @@ var Api = {
     var params = {county: county};
 
     var queue = [
+      countyPopulation(county),
       countyPopulationBreakdown(county)
     ];
 

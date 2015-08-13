@@ -27,6 +27,16 @@ var BarChart = React.createClass({
 
     componentDidUpdate: function() {
       this.checkBounds();
+
+      // Make sure spotlight effect propagates
+      this.forceRepaint(React.findDOMNode(this.refs.wrapper));
+    },
+
+    forceRepaint: function(element) {
+      var disp = element.style.display;
+      element.style.display = 'none';
+      var trick = element.offsetHeight;
+      element.style.display = disp;
     },
 
     barClick: function(e) {
@@ -52,6 +62,11 @@ var BarChart = React.createClass({
 
     renderBars: function() {
       var that = this;
+
+      if (this.props.errorMsg) {
+        return (<div className="error">{this.props.errorMsg}</div>);
+      }
+
       if (!data.length) return;
 
       return data.map(function(row, i) {

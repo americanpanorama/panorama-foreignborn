@@ -16,6 +16,8 @@ var AppDispatcher = require("./dispatchers/app");
 // Stores
 var GeographyStore = require('./stores/geography.js');
 var LayoutStore = require('./stores/layout.js').initialize();
+var Scales = require('./stores/scales.js');
+var ForeignBornCopy = require('./stores/foreignbornCopy.js');
 
 // Components
 var DisjointedWorldLayout = require('./components/DisjointedWorldLayout.jsx');
@@ -34,7 +36,7 @@ var numberFormatter = d3.format('0,');
 var percentFormatter = function(v){
 
   // above 1%
-  if (v >= 0.01) return d3.format('%')(v);
+  if (v >= 0.01) return d3.format('.1%')(v);
 
   // convert
   v *= 100;
@@ -79,7 +81,19 @@ LayoutStore.block({
 });
 
 
+
 var App = React.createClass({
+
+  getDefaultProps: function() {
+    return {
+      valuesForGrid: Scales.getValuesForGridKey(),
+      radiusScaleValuesForLegend: Scales.getRadiusForLegend(),
+      radiusScale: Scales.radius,
+      colorScale: Scales.colors,
+      opacityScale: Scales.opacity
+    }
+  },
+
   getInitialState: function () {
     // get hash state
     var fromHash = hashManager.parseHash(document.location.hash);
@@ -105,6 +119,7 @@ var App = React.createClass({
     //console.log('Width: ', LayoutStore.get())
 
     this.toggleCountyClass(this.state.county);
+    this.toggleCountryClass(this.state.country);
   },
 
   componentDidMount: function() {
@@ -179,17 +194,22 @@ var App = React.createClass({
   toggleCountyClass: function(b) {
     d3.select('body').classed('has-county', b);
   },
+  toggleCountryClass: function(b) {
+    d3.select('body').classed('has-country', b);
+  },
 
   handleMapClick: function(obj) {
     if (obj.country) {
       hashManager.mergeHash({country: obj.country, county: null});
       hashManager.updateHash(true);
       this.toggleCountyClass(false);
+      this.toggleCountryClass(true);
       this.centralStateSetter({county: null, country:obj.country});
     } else {
       hashManager.mergeHash({county: obj.properties.nhgis_join, country: null});
       hashManager.updateHash(true);
       this.toggleCountyClass(true);
+      this.toggleCountryClass(false);
 
       if(GeographyStore.countyLoaded(obj.properties.nhgis_join)) {
         this.centralStateSetter({county: obj.properties.nhgis_join, country:null});
@@ -204,6 +224,7 @@ var App = React.createClass({
       hashManager.mergeHash({county: null});
       hashManager.updateHash(true);
       this.toggleCountyClass(false);
+      this.toggleCountryClass(false);
       this.centralStateSetter({county: null});
 
     } else if (this.state.country) {
@@ -211,6 +232,7 @@ var App = React.createClass({
       hashManager.mergeHash({country: null});
       hashManager.updateHash(true);
       this.toggleCountyClass(false);
+      this.toggleCountryClass(false);
       this.centralStateSetter({country: null});
     }
 
@@ -237,6 +259,7 @@ var App = React.createClass({
       hashManager.mergeHash({county: filtered[0].properties.nhgis_join, country: null});
       hashManager.updateHash(true);
       this.toggleCountyClass(true);
+      this.toggleCountryClass(false);
 
       if(GeographyStore.countyLoaded(filtered[0].properties.nhgis_join)) {
         this.centralStateSetter({county: filtered[0].properties.nhgis_join, country:null});
@@ -276,65 +299,77 @@ var App = React.createClass({
 
     // Misc calculations
     // TODO: Find a better home for these
+    var error = null;
 
     var countiesNames = this.state.geographyData.countyGeo.map(function(d){
       return d.properties.name + ", " + d.properties.state;
     });
 
-    var countryOverlay = GeographyStore.getCountryPercents('all');
+    var overallOverlay = GeographyStore.getCountryPercents('all');
     var secondaryOverlay = [];
-    if (this.state.county) {
-      secondaryOverlay = GeographyStore.getCountyPercents(this.state.county);
-    } else if (this.state.country) {
-      secondaryOverlay = GeographyStore.getSelectedCountry(this.state.country);
-    }
-
-    var countriesForCounties = (this.state.county) ? GeographyStore.getCountriesForCounties(this.state.county, this.state.decade) : [];
-
-    var legendValues;
-
-    if (countriesForCounties.length) {
-      legendValues = GeographyStore.getCountryScaleData(countriesForCounties)
-    } else {
-      legendValues = GeographyStore.getCountryScaleData();
-    }
-
-    var yDomainMax = d3.max(this.state.geographyData.countyGeo, function(d){
-      return d.properties.density;
-    });
-    var yDomain = [0, GeographyStore.round(yDomainMax)];
-    //
-
+    var radiusScale = this.props.radiusScale;
+    var radiusLegend = this.props.radiusScaleValuesForLegend;
+    var countriesForCounties = [];
     var countiesFiltered = [];
-    if (this.state.county) {
-       countiesFiltered = this.state.geographyData.countyGeo.filter(function(d){
-        return d.properties.nhgis_join === that.state.county;
-      });
-    }
-
     var count = 0;
     var percent = '';
     var t;
-    if (countriesForCounties.length) {
-      count = d3.sum(countriesForCounties, function(d){ return d.count; });
+    var totalName = "Total Foreign-Born";
 
-      t = countriesForCounties[0].place_total;
-      percent = percentFormatter(count/t);
+    if (this.state.county) {
+      secondaryOverlay = GeographyStore.getCountyPercents(this.state.county);
+
+      countriesForCounties = GeographyStore.getCountriesForCounties(this.state.county, this.state.decade);
+      radiusScale = Scales.makeCountyRadiusScale(countriesForCounties);
+      radiusLegend = Scales.getLegendForCounty(radiusScale);
+
+      var exist = this.state.geographyData.countyGeo.filter(function(d){
+        return d.properties.nhgis_join === that.state.county;
+      });
+
+      countiesFiltered = secondaryOverlay.filter(function(d){
+        return d.name && d.name.length;
+      });
+
+      t = secondaryOverlay.filter(function(d){
+        return d.year == that.state.decade;
+      });
+
+      if (t.length) {
+        count = numberFormatter(t[0].fbTotal);
+        percent = percentFormatter(t[0].pct);
+      }
+
+      if (!exist.length) {
+        error = ForeignBornCopy.errors['NO_COUNTY'];
+        percent = "";
+        count = "N/A";
+
+      } else if (exist.length && count <= 0) {
+        error = ForeignBornCopy.errors['NO_COUNTY_DATA'];
+        count = 0;
+        percent = "0%";
+
+      } else if (countriesForCounties.length < 1) {
+        error = ForeignBornCopy.errors['NO_COUNTRY_DATA_FOR_COUNTY'];
+      }
+
+      totalName = "County Total";
 
     } else if (this.state.country) {
+      secondaryOverlay = GeographyStore.getSelectedCountry(this.state.country);
       t = secondaryOverlay.filter(function(d){
         return d.year == that.state.decade;
       });
       if (t.length) {
-        count = t[0].count;
-
+        count = numberFormatter(t[0].count);
         percent = percentFormatter(t[0].pct);
-        console.log('pct: ', t[0].pct, percent)
       }
 
     } else {
       count = d3.sum(this.state.geographyData.country, function(d){ return d.count; });
-      t = countryOverlay.filter(function(d){
+      count = numberFormatter(count);
+      t = overallOverlay.filter(function(d){
         return d.date.getFullYear() === that.state.decade;
       });
 
@@ -344,8 +379,8 @@ var App = React.createClass({
     }
 
 
-    var placeName = (countiesFiltered.length) ? countiesFiltered[0].properties.name + ', ' + countiesFiltered[0].properties.state : '';
-    var placeNameShort = (countiesFiltered.length) ? countiesFiltered[0].properties.name : '';
+    var placeName = (countiesFiltered.length) ? countiesFiltered[0].name + ', ' + countiesFiltered[0].state : '';
+    var placeNameShort = (countiesFiltered.length) ? countiesFiltered[0].name : '';
     var placeHolder = (placeName.length) ? placeName : "Search by county name";
 
     if (this.state.country) {
@@ -386,6 +421,9 @@ var App = React.createClass({
                 countries={this.state.geographyData.country || []}
                 counties={this.state.geographyData.countyGeo || []}
                 world={this.state.geographyData.world}
+                radiusScale={radiusScale}
+                colorScale={this.props.colorScale}
+                opacityScale={this.props.opacityScale}
               />
             </div>
           </div>
@@ -395,12 +433,12 @@ var App = React.createClass({
               {placeName &&
               <div id="barchart-county-close"><button onClick={this.closeSelectedPlace} className='link'>{placeName}<span className="close">[<span className="close-x">×</span>]</span></button></div>
               }
-              <BarChart onBarClickHandler={this.handleMapClick} width={300} spotlight={this.state.country} height={barChartHeight} rows={bardata}/>
+              <BarChart errorMsg={error} onBarClickHandler={this.handleMapClick} width={300} spotlight={this.state.country} height={barChartHeight} rows={bardata}/>
             </div>
 
             <div id="population-totals">
-              <h3>Total Foreign-Born</h3>
-              <p><span className="decade">{this.state.decade}</span><span className="total">{numberFormatter(count)}</span><span className="percent">{percent}</span></p>
+              <h3>{totalName}</h3>
+              <p><span className="decade">{this.state.decade}</span><span className="total">{count}</span><span className="percent">{percent}</span></p>
             </div>
 
             <div id="search-bar" className="component">
@@ -422,7 +460,13 @@ var App = React.createClass({
               </button>
 
             </div>
-            <Loupe changeCallback={this.handleMapClick} filterOn={this.state.county} data={this.state.geographyData.countyGeo || []} decade={this.state.decade}/>
+            <Loupe changeCallback={this.handleMapClick}
+              filterOn={this.state.county}
+              data={this.state.geographyData.countyGeo || []}
+              decade={this.state.decade}
+              colorScale={this.props.colorScale}
+              opacityScale={this.props.opacityScale}
+              height={loupHeight-20} />
           </div>
         </section>
         <section className="row">
@@ -431,10 +475,14 @@ var App = React.createClass({
               <div className="columns five">
                 <div id="legends-container" className="table">
                   <div className="td">
-                    <LegendNestedCircles values={legendValues}/>
+                    <LegendNestedCircles values={radiusLegend}/>
                   </div>
                   <div className="td">
-                    <LegendGrid yDomain={yDomain} yFormatter={d3.format('s')}/>
+                    <LegendGrid steps={6}
+                      xValues={this.props.valuesForGrid.xvals}
+                      yValues={this.props.valuesForGrid.yvals}
+                      axisLabels={this.props.valuesForGrid.axis}
+                      labels={this.props.valuesForGrid.labels}/>
                   </div>
                 </div>
               </div>
@@ -445,7 +493,7 @@ var App = React.createClass({
                     <h3>Over Time</h3>
                   </div>
                   <div>
-                    <Timeline overlay={countryOverlay} secondaryOverlay={secondaryOverlay} decade={this.state.decade} startDate={new Date('1/1/1850')} endDate={new Date('12/31/2010')} onSliderChange={this.decadeUpdate} />
+                    <Timeline yDomain={[0,.4]} overlay={overallOverlay} secondaryOverlay={secondaryOverlay} decade={this.state.decade} startDate={new Date('1/1/1850')} endDate={new Date('12/31/2010')} onSliderChange={this.decadeUpdate} />
                     <div className="timeline-legend left">Total Foreign-Born</div>
                     <div className="timeline-legend right">{placeNameShort} Foreign-Born</div>
                   </div>
@@ -457,7 +505,7 @@ var App = React.createClass({
             <div id="about-time-period" className="row">
                 <div className="columns three title">
                   <h3>About</h3>
-                  <p><span className="small">the</span> <span>{this.state.decade}'s</span></p>
+                  <p><span className="small">the</span> <span>{this.state.decade + "'s"}</span></p>
                 </div>
                 <p className="columns nine description">
                   A county is a political and geographic subdivision of a state, usually assigned some governmental authority. The term "county" is used in 48 of the 50 U.S. states. The exceptions are Louisiana and Alaska.

@@ -8,13 +8,22 @@ var client = new CartoDBClient(config.cartodbAccountName);
 
 /* Privates */
 var QUERY = 'SELECT the_geom, gisjoin as nhgis_join FROM us_county_mapshaper_materialized WHERE year = {year} and ({bbox})';
-var filterOn = null;
+var filterOn = null
+var decade;
 var projection, path, extent;
 var lookup;
 var width, height;
 var halt = false;
-var Loupe = React.createClass({
 
+var color = d3.scale.linear()
+  .domain([0,1])
+  .range(['#ffffff', '#ffffff']);
+
+var opacity = d3.scale.linear()
+  .domain([0,1])
+  .range([0,1]);
+
+var Loupe = React.createClass({
   getInitialState: function () {
     return {};
   },
@@ -56,8 +65,8 @@ var Loupe = React.createClass({
 
   setDimensions: function() {
     var elm = React.findDOMNode(this.refs.loupe);
-    width = elm.offsetWidth;
-    height = elm.offsetHeight;
+    width = this.props.width || elm.offsetWidth;
+    height = this.props.height || elm.offsetHeight;
   },
 
   componentDidMount: function() {
@@ -70,9 +79,15 @@ var Loupe = React.createClass({
   },
 
   componentDidUpdate: function() {
+    var that = this;
+    if (this.props.colorScale) color = this.props.colorScale;
+    if (this.props.opacityScale) opacity = this.props.opacityScale;
+
     if (this.props.data.length) {
-      if (this.props.filterOn && filterOn !== this.props.filterOn) {
+      if ((this.props.filterOn && filterOn !== this.props.filterOn) || this.props.decade !== decade) {
+
         filterOn = this.props.filterOn;
+        decade = this.props.decade;
         var loader = d3.select(React.findDOMNode(this.refs.loader));
         loader.classed('active', true);
         this.update();
@@ -175,6 +190,10 @@ var Loupe = React.createClass({
   draw: function(features) {
     halt = false;
 
+    features = features.filter(function(d){
+      return lookup.hasOwnProperty(d.properties.nhgis_join);
+    });
+
     var that = this;
     var loader = d3.select(React.findDOMNode(this.refs.loader));
     var geo = d3.select(React.findDOMNode(this.refs.geo));
@@ -244,7 +263,7 @@ var Loupe = React.createClass({
     function zoomed() {
       if (halt) return;
       if (!d3.event) return;
-      geo.selectAll('path').style("stroke-width", 1 / d3.event.scale);
+      //geo.selectAll('path').style("stroke-width", 1 / d3.event.scale);
       geo.attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
     }
 
@@ -257,22 +276,13 @@ var Loupe = React.createClass({
     counties.enter().append('path')
       .attr('class', 'county')
       .attr('d', function(d){
-        if (!d.properties.nhgis_join in lookup) {
-          console.warn('Loupe: No lookup for ', d.properties.nhgis_join);
-        }
         return path(d.geometry);
       })
       .style('fill', function(d,i) {
-        return 'rgba(255,255,255,0.6)';//color(d.properties.count);
+        return color(lookup[d.properties.nhgis_join].properties.fbPct);//color(d.properties.count);
       })
-      .style('stroke', function(d) {
-        return '#000'
-      })
-      .style('stroke-width', function(d) {
-        return '1';
-      })
-      .style("opacity", function(d) {
-        return 1;//opacity(d.properties.density);
+      .style("fill-opacity", function(d) {
+        return opacity(lookup[d.properties.nhgis_join].properties.density);//opacity(d.properties.density);
       })
       .on('click', function(d){
         that._onChange(d.properties.nhgis_join);
@@ -285,6 +295,7 @@ var Loupe = React.createClass({
 
   update: function() {
     this.setDimensions();
+    this.updateLayout();
 
     var data = this.props.data;
     var selectedCounty = filterOn;
@@ -296,7 +307,16 @@ var Loupe = React.createClass({
       return d.properties.nhgis_join === selectedCounty;
     });
 
-    if (!filtered.length) return;
+    if (!filtered.length) {
+      console.warn("Could not find matching county.")
+      var loader = d3.select(React.findDOMNode(this.refs.loader));
+      var geo = d3.select(React.findDOMNode(this.refs.geo));
+      loader.classed('active', false);
+      geo.selectAll('.county').remove();
+      filterOn = null;
+      return;
+    }
+
 
     this.setProjection(filtered[0]);
     this.load();
@@ -304,8 +324,13 @@ var Loupe = React.createClass({
 
   render: function() {
 
+    var display = (this.props.filterOn) ? "block" : "none";
+    var style = {
+      'display' : display
+    };
+
     return (
-        <div id="loupe" className="component loupe" ref="loupe">
+        <div id="loupe" className="component loupe" ref="loupe" style={style}>
           <div ref="loader" className="loupe-loading active"><div className="table"><span className="td">Loading...</span></div></div>
           <svg ref="svg">
             <g ref="geo"></g>

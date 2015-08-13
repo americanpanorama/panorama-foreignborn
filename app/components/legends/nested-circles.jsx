@@ -20,6 +20,7 @@ function update(data) {
     return d.r;
   });
 
+  svg.attr('height', max * 2);
   svg.selectAll('circle').remove();
   svg.selectAll('text').remove();
 
@@ -47,13 +48,11 @@ function update(data) {
     .attr('y', function(d,i){
       var y = (max * 2) - (d.r * 2);
 
-      // should be the smallest radius on bottom
-      if (i === 0) y -= 4;
-
       return y;
     });
 
 }
+var drawn = false;
 var LegendNestedCircles = React.createClass({
 
   getInitialState: function () {
@@ -64,12 +63,25 @@ var LegendNestedCircles = React.createClass({
 
   },
 
+  testEquality: function(a,b) {
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+    for (var i = 0; i < a.length; ++i) {
+      if (a[i].r !== b[i].r) return false;
+    }
+    return true;
+  },
+
+  shouldComponentUpdate: function(nextProps, nextState) {
+    return this.testEquality(nextProps.values, this.props.values);
+  },
+
   componentDidMount: function() {
     supported();
     root = d3.select(React.findDOMNode(this.refs.legend));
-    svg = root.append('svg')
-      .attr('width', root.node().offsetWidth)
-      .attr('height', '90');
+    svg = d3.select(React.findDOMNode(this.refs.svg));
+
+    svg.attr('width', root.node().offsetWidth);
   },
 
   componentWillUnmount: function() {
@@ -78,6 +90,7 @@ var LegendNestedCircles = React.createClass({
 
   componentDidUpdate: function() {
     if (this.props.values && this.props.values.length) {
+      drawn = true;
       update(this.props.values);
     }
   },
@@ -86,7 +99,7 @@ var LegendNestedCircles = React.createClass({
 
     return (
         <div className="component legend nested-circle" ref="legend">
-
+          <svg ref="svg"></svg>
         </div>
     );
 

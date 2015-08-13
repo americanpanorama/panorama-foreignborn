@@ -20,6 +20,13 @@ $medium-grey: white !default;
     fill: $medium-grey;
   }
 
+  .land.usa {
+    fill: none;
+    stroke: $medium-dark-grey;
+    stroke-opacity: 1;
+    stroke-width: 1;
+  }
+
   .error {
     stroke: darkred;
     fill: red;
@@ -27,10 +34,10 @@ $medium-grey: white !default;
   }
 
   .county {
-    stroke: $medium-grey;
+    stroke: none;
     stroke-width: 0.1;
     stroke-opacity: 1;
-    fill: $medium-grey;
+    fill: none;
   }
 
   .county:hover {
@@ -38,17 +45,22 @@ $medium-grey: white !default;
   }
 
   .country {
-    fill: green;
-    opacity: 0.7;
+    fill: $green;
+    opacity: 0.8;
     stroke: none;
     cursor:pointer;
   }
   .country.selected {
     stroke: $white;
-    stroke-width: 2;
-    stroke-opacity: 0.7;
+    stroke-width: 2 !important;
+    stroke-opacity: 0.7 !important;
     cursor: default;
     pointer-events: none;
+  }
+  .country:hover {
+    stroke: $white;
+    stroke-width: 2;
+    stroke-opacity: 0.4;
   }
 
   .link {
@@ -114,6 +126,12 @@ $medium-grey: white !default;
 .loupe > svg {
   &.zooming {
     cursor: move !important;
+  }
+
+  .county {
+    stroke: #000;
+    stroke-width: 2;
+    stroke-opacity: 1;
   }
 
   .crosshair {

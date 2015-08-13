@@ -10,6 +10,13 @@ $button-background-color: $medium-dark-grey-lighter;
   background: $chart-background-color;
   overflow: hidden;
 
+  .error {
+    font-family: $font-family-sans-alt;
+    font-size: $font-size-regular;
+    text-align: center;
+    padding: 5px 20px;
+  }
+
   button {
     display: block;
     width: 100%;
@@ -70,13 +77,6 @@ $button-background-color: $medium-dark-grey-lighter;
   display: table-row;
   cursor: pointer;
 
-  .spotlight & {
-    opacity: 0.5;
-  }
-
-  .spotlight &.selected {
-    opacity: 1;
-  }
 
   .label,
   .bar {
@@ -124,6 +124,14 @@ $button-background-color: $medium-dark-grey-lighter;
     }
   }
 
+  .spotlight & {
+    opacity: 0.5;
+  }
+
+  .spotlight &.selected {
+    opacity: 1;
+  }
+
   &:hover {
     .label span {
       color: #aaa;
@@ -135,5 +143,4 @@ $button-background-color: $medium-dark-grey-lighter;
       color: $white;
     }
   }
-
 }

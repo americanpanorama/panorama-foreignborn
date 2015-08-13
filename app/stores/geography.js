@@ -42,6 +42,9 @@ function setData(newData, decade) {
     } else if(d.key === 'us_counties') {
       processCountyData(d, decade);
 
+    } else if(d.key.indexOf('total_county_pop') === 0) {
+      processCountyPop(d);
+
     } else if (d.key.indexOf('county_pop_breakdown') === 0) {
       processCountyBreakdown(d);
 
@@ -58,6 +61,41 @@ function setData(newData, decade) {
         data[d.key] = d.response;
       }
     }
+  });
+}
+
+function processCountyPop(obj) {
+  var keyParts = obj.key.split(':'),
+      county = keyParts[1];
+
+  var lk = {};
+  obj.response.rows.forEach(function(d){
+    lk[d.year] = d;
+  });
+
+  var intervals = d3.range(state.decadeBounds[0], state.decadeBounds[1]+10,10);
+
+  populationPercents[county] = [];
+
+  intervals.forEach(function(yr){
+
+    var total = (lk[yr]) ? lk[yr].cty_pop : 0,
+        fbTotal = (lk[yr]) ? lk[yr].count : 0,
+        name = (lk[yr]) ? lk[yr].name : '',
+        state = (lk[yr]) ? lk[yr].state_terr : '';
+
+    var pct = (total === 0) ? 0 : fbTotal/total;
+
+    populationPercents[county].push({
+      date: new Date('1/1/' + yr),
+      pct: pct,
+      total: total,
+      fbTotal: fbTotal,
+      year: yr,
+      name: name,
+      state: state
+    });
+
   });
 }
 
@@ -157,8 +195,6 @@ function filterCountyGeometriesByDecade(decade) {
 
   var now = decade * 10000 + 101;
 
-  //console.log("%s: %s (%s)", decade ,  data['countyGeometries'].length, now);
-
   var filtered = data['countyGeometries'].filter(function(d){
     return d.properties['start_n'] <= now && d.properties['end_n'] >= now;
   });
@@ -168,19 +204,25 @@ function filterCountyGeometriesByDecade(decade) {
 
     d.properties.id = d.properties['nhgis_join'] + '-' + decade;
 
-    if (countyDataLookup[decade][joinID] && !isNaN(countyDataLookup[decade][joinID].count) && !isNaN(countyDataLookup[decade][joinID].area_sqmi)) {
+    if (countyDataLookup[decade][joinID] &&
+        !isNaN(countyDataLookup[decade][joinID].count) &&
+        !isNaN(countyDataLookup[decade][joinID].area_sqmi)) {
+
       d.properties.count = countyDataLookup[decade][joinID].count;
 
       var area = countyDataLookup[decade][joinID].area_sqmi;
       // make sure area_sqmi is not zero
       if (area === 0) area = 1;
-      d.properties.density = Math.round(countyDataLookup[decade][joinID].count / area);
+      d.properties.density = countyDataLookup[decade][joinID].count / area;
+
+      d.properties.fbPct = countyDataLookup[decade][joinID].count / countyDataLookup[decade][joinID]['cty_pop'];
 
     } else {
-      //console.warn('no join');
+      d.properties.fbPct = 0;
       d.properties.count = 0;
       d.properties.density = 0;
     }
+
   });
 
   return filtered;
@@ -316,9 +358,11 @@ var GeographyStore = assign({}, EventEmitter.prototype, {
   },
 
   getCountyPercents: function(county) {
-    if (!countyBreakdowns[county]) return [];
+    return populationPercents[county] || [];
 
-    return countyBreakdowns[county].overlay || []
+    //if (!countyBreakdowns[county]) return [];
+
+    //return countyBreakdowns[county].overlay || []
   },
 
   getCountriesForCounties: function(county, decade) {
@@ -460,6 +504,7 @@ AppDispatcher.register(function(action) {
           GeographyStore.emitChange(Constants.GET_DECADE_DATA, 'GeographyStore');
         }
       break;
+
     case Constants.GET_COUNTY_BREAKDOWN_DATA:
         if (action.response instanceof Array) {
           state.county = action.queryParams.county;

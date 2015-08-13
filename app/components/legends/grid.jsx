@@ -2,14 +2,14 @@ var React   = require('react');
 var d3      = require('d3');
 
 
-var root;
-var size = 10;
-var steps = 7;
-
-var colors = ["#f6eff7","#d0d1e6","#a6bddb","#67a9cf","#3690c0","#02818a","#016450"].reverse();
-var opacity = [0.15, 0.3, 0.45, 0.6, 0.75, .9, 1].reverse();
-
+var root, size = 0;
 var LegendGrid = React.createClass({
+
+  getDefaultProps: function () {
+    return {
+      steps: 5
+    };
+  },
 
   getInitialState: function () {
     return {};
@@ -21,48 +21,112 @@ var LegendGrid = React.createClass({
 
   componentDidMount: function() {
     root = d3.select(React.findDOMNode(this.refs.legend));
-    size = Math.min(Math.floor(root.node().offsetWidth / steps), Math.floor(root.node().offsetHeight / steps));
+
   },
 
   componentWillUnmount: function() {
   },
 
   componentDidUpdate: function() {
-    if (this.props.values && this.props.values.length) {
-    }
+    size = Math.min(Math.floor((root.node().offsetWidth - 2) / this.props.steps), Math.floor((root.node().offsetHeight - 2) / this.props.steps));
+    this.renderGrid(size);
   },
 
-  renderGrid: function() {
-    var items = []
+  renderGrid: function(size) {
+    if (!root) return [];
+
+    var blocks = d3.select(React.findDOMNode(this.refs.blocks));
+    blocks.selectAll('.grid-item').remove();
+
+    var xValues = this.props.xValues,
+        yValues = this.props.yValues,
+        steps = this.props.steps;
+
     for (var i=0;i<steps;i++){
       for (var j=0;j<steps;j++){
-        var k = "grid-" + i + "-" + j;
-        var style = {
-          width: size + 'px',
-          height: size + 'px',
-          top: (i*size) + 'px',
-          left: (j*size) + 'px',
-          background: colors[j],
-          opacity: opacity[i]
-        }
-        items.push((<div key={k} className="grid-item" style={style}></div>));
-
+        blocks.append('rect')
+          .attr('class', 'grid-item')
+          .style({
+            fill: yValues[i],
+            'fill-opacity': xValues[j]
+          })
+          .attr('width', size)
+          .attr('height', size)
+          .attr('x', j*size)
+          .attr('y', i*size);
       }
     }
-    return items;
+
+    var labels = d3.select(React.findDOMNode(this.refs.labels));
+    labels.selectAll('.label-item').remove();
+
+    var wh = size * this.props.steps + 2;
+
+    var yMax = this.props.axisLabels.yMax || '';
+    var yMin = this.props.axisLabels.yMin || '';
+    var xMax = this.props.axisLabels.xMax || '';
+    var xMin = this.props.axisLabels.xMin || '';
+    var yLabel = this.props.labels.y;
+    var xLabel = this.props.labels.x;
+
+    labels.append('text')
+      .attr('class', 'label-item')
+      .attr('x', wh + 3)
+      .attr('y', wh)
+      .attr('dy', '-2')
+      .text(yMin)
+
+    labels.append('text')
+      .attr('class', 'label-item')
+      .attr('x', wh + 3)
+      .attr('y', 0)
+      .attr('dy', '8')
+      .text(yMax)
+
+    labels.append('text')
+      .attr('class', 'label-item')
+      .attr('x', 0)
+      .attr('y', wh)
+      .attr('dy', '10')
+      .text(xMax)
+
+    labels.append('text')
+      .attr('class', 'label-item')
+      .attr('dy', '10')
+      .attr('dx', '-2')
+      .attr('text-anchor', 'end')
+      .attr('x', wh)
+      .attr('y', wh)
+      .text(xMin)
+
+    labels.append('text')
+      .attr('class', 'label-item')
+      .attr('dy', '-7')
+      .attr('text-anchor', 'middle')
+      .attr('x', wh/2)
+      .attr('y', 0)
+      .text(xLabel)
+
+    labels.append('text')
+      .attr('class', 'label-item')
+      .attr('text-anchor', 'middle')
+      .attr('x', 0)
+      .attr('y', 0)
+      .attr('transform', "rotate(-90,0,0) translate(-40, -7)")
+      .text(yLabel);
+
   },
 
   render: function() {
-    var yMax = this.props.yDomain[1] || '';
-    if(this.props.yFormatter) yMax = this.props.yFormatter(yMax);
-
+    var wh = size * this.props.steps;
     return (
         <div className="component legend grid" ref="legend">
-          {this.renderGrid()}
-          <div className="x axis top">100%</div>
-          <div className="x axis bottom">0%</div>
-          <div className="y axis left">{yMax}+</div>
-          <div className="y axis right">0</div>
+          <svg ref="svg" width={wh + 2} height={wh + 2}>
+          <g ref="grid" transform="translate(1,1)">
+            <g ref="blocks"></g>
+            <g ref="labels"></g>
+          </g>
+          </svg>
         </div>
     );
 

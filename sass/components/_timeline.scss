@@ -57,7 +57,8 @@
   }
 
   .timeline-legend.right.active,
-  .has-county & .timeline-legend.right {
+  .has-county & .timeline-legend.right,
+  .has-country & .timeline-legend.right {
     display: block;
   }
 
@@ -107,6 +108,11 @@
   .overlay path {
     fill: $green;
     stroke: none;
+  }
+
+  .has-county & .overlay path,
+  .has-country & .overlay path {
+    opacity: 0.4;
   }
 
   .overlay-secondary path {
