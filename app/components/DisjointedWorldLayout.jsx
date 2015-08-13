@@ -260,7 +260,14 @@ function drawCounties(data) {
 function drawCountryConnections(countries) {
   d3.select('.lines').remove();
 
-  if (!countries.length) return resetCountries();
+  console.log(countries)
+  if (!countries.length) {
+    if (selectedCounty) {
+      return zeroOutCountries();
+    } else {
+      return resetCountries();
+    }
+  }
 
   var filtered = countiesGroup.selectAll(".county").filter(function(d){
     return d.properties.nhgis_join === selectedCounty;
@@ -308,6 +315,13 @@ function drawCountryConnections(countries) {
   }
 }
 
+function zeroOutCountries() {
+  countriesGroup.selectAll(".country").each(function(d){
+    d3.select(this)
+      .attr('r',0);
+  });
+}
+
 function filterCountries(filterBy) {
   countriesGroup.selectAll(".country").each(function(d){
       var country = d.country;
@@ -316,12 +330,13 @@ function filterCountries(filterBy) {
       var ct = 1;
 
       filterBy.forEach(function(x){
-        if (x.country === d.country) {
+        if (x.country === country) {
           display = 'block';
           ct = x.count;
         }
       });
 
+      console.log(d.country,ct)
       // make sure radius is above 0
       var r = Math.max(radius(ct),1);
 
