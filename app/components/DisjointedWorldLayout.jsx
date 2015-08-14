@@ -85,14 +85,14 @@ var worldrects = {
       y: 0,
       width: 0,
       height: 0,
-      features: []
+      features: {}
     },
     oceania: {
       x: 40,
       y: 0,
       width: 0,
       height: 0,
-      features: []
+      features: {}
     },
     europe: {
       x: 0,
@@ -100,42 +100,42 @@ var worldrects = {
       y: 0,
       width: 0,
       height: 0,
-      features: []
+      features: {}
     },
     africa: {
       x: 0,
       y: 0,
       width: 0,
       height: 0,
-      features: []
+      features: {}
     },
     canada: {
       x: 0,
       y: 0,
       width: 0,
       height: 0,
-      features: []
+      features: {}
     },
     southamerica: {
       x: 0,
       y: 0,
       width: 0,
       height: 0,
-      features: []
+      features: {}
     },
     centralamerica: {
       x: 0,
       y: 0,
       width: 0,
       height: 0,
-      features: []
+      features: {}
     },
     usa: {
       x: 0,
       y: 0,
       width: 0,
       height: 0,
-      features: []
+      features: {}
     }
   }
 
@@ -204,6 +204,8 @@ function fitIn(projection, obj, key) {
 }
 
 function parseWorldGeometry(world, key) {
+  if ('coordinates' in worldrects[key].features && worldrects[key].features.coordinates.length) return worldrects[key].features;
+
   switch(key) {
     case 'asia':
       return topojson.merge(world, world.objects.countries.geometries.filter(function(d) { return d.properties.continent == 'Asia'; }));

@@ -238,6 +238,11 @@ var Timeline = React.createClass({
     if (this.hasData) {
       this.handle.select('text').text(this.props.decade);
 
+      if (this.props.redraw) {
+        this.updateDisplay();
+        return;
+      }
+
       if (!overlayDrawn) {
         this.drawMainOverlay();
       }
@@ -245,22 +250,20 @@ var Timeline = React.createClass({
       if (this.props.secondaryOverlay && this.props.secondaryOverlay.length) {
         if (!hasSecondaryOverlay) {
           this.margin.right = 30;
-          //this.updateDisplay();
+          this.updateDisplay();
         } else {
           this.drawSecondaryOverlay();
         }
       } else {
         if (hasSecondaryOverlay) {
           this.margin.right = 15;
-          //this.updateDisplay();
+          this.updateDisplay();
         }
       }
 
-      if (this.props.redraw) {
-        //this.updateDisplay(false, true);
-      }
 
-      this.updateDisplay();
+
+      //this.updateDisplay();
 
       return;
     }

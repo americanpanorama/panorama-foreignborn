@@ -1,7 +1,9 @@
 var intro = require("intro.js").introJs;
 var d3    = require("d3");
 
-var mapText = "The map shows where nearly a million enslaved people were moved from and where they were moved to through the American slave trade and the migration of planters from 1810 to 1860. Over time, the places where people were bought and the places where they were sold moved progressively westward.  The domestic slave trade changed continually, shifting shape in response to markets for cotton and sugar as well as to the seizing of land from the American Indians of the southeastern United States.";
+var barchartText = "The map shows where nearly a million enslaved people were moved from and where they were moved to through the American slave trade and the migration of planters from 1810 to 1860. Over time, the places where people were bought and the places where they were sold moved progressively westward.  The domestic slave trade changed continually, shifting shape in response to markets for cotton and sugar as well as to the seizing of land from the American Indians of the southeastern United States.";
+var legendText = "";
+var timelineText = "";
 
 var IntroManager = {
   state: false,
@@ -11,17 +13,17 @@ var IntroManager = {
   steps: {
     legend: {
       element: ".circle-legend-cell",
-      intro: mapText,
+      intro: legendText,
       position: "top"
     },
     barchart: {
       element: "#bar-chart",
-      intro: mapText,
+      intro: barchartText,
       position: "left"
     },
     timeline: {
       element: "#timeline-container .outer-wrap",
-      intro: mapText,
+      intro: timelineText,
       position: "top"
     }
 
