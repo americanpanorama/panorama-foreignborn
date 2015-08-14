@@ -24,7 +24,7 @@ $medium-grey: white !default;
     stroke: none;
     stroke-width: 1;
     stroke-opacity: 1;
-    fill: $medium-grey;
+    fill: $continent-grey;
   }
 
   .land.usa {
@@ -53,7 +53,6 @@ $medium-grey: white !default;
 
   .country {
     fill: $green;
-    fill: none;
     opacity: 0.8;
     stroke: none;
     cursor:pointer;
