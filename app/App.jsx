@@ -470,7 +470,7 @@ var App = React.createClass({
           </div>
         </section>
         <section className="row">
-          <div className="columns eight">
+          <div className="columns nine">
             <div className="row">
               <div className="columns five">
                 <div id="legends-container" className="table">
@@ -487,27 +487,26 @@ var App = React.createClass({
                 </div>
               </div>
               <div id="timeline-container" className="columns seven">
-                <div className="wrapper">
-                  <div className="title">
-                    <h3>Population</h3>
-                    <h3>Over Time</h3>
-                  </div>
-                  <div>
-                    <Timeline yDomain={[0,.4]} overlay={overallOverlay} secondaryOverlay={secondaryOverlay} decade={this.state.decade} startDate={new Date('1/1/1850')} endDate={new Date('12/31/2010')} onSliderChange={this.decadeUpdate} />
-                    <div className="timeline-legend left">Total Foreign-Born</div>
-                    <div className="timeline-legend right">{placeNameShort} Foreign-Born</div>
+                <div className="outer-wrap">
+                  <div className="wrapper">
+                    <div className="title">
+                      <h3>Population</h3>
+                      <h3>Over Time</h3>
+                    </div>
+                    <div>
+                      <Timeline yDomain={[0,.4]} overlay={overallOverlay} secondaryOverlay={secondaryOverlay} decade={this.state.decade} startDate={new Date('1/1/1850')} endDate={new Date('12/31/2010')} onSliderChange={this.decadeUpdate} />
+                      <div className="timeline-legend left">Total Foreign-Born</div>
+                      <div className="timeline-legend right">{placeNameShort} Foreign-Born</div>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-          <div className="columns four">
+          <div className="columns three">
             <div id="about-time-period" className="row">
-                <div className="columns three title">
-                  <h3>About</h3>
-                  <p><span className="small">the</span> <span>{this.state.decade + "'s"}</span></p>
-                </div>
-                <p className="columns nine description">
+
+                <p className="columns twelve description">
                   A county is a political and geographic subdivision of a state, usually assigned some governmental authority. The term "county" is used in 48 of the 50 U.S. states. The exceptions are Louisiana and Alaska.
                 </p>
             </div>

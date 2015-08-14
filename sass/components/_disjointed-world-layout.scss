@@ -53,6 +53,7 @@ $medium-grey: white !default;
 
   .country {
     fill: $green;
+    fill: none;
     opacity: 0.8;
     stroke: none;
     cursor:pointer;
@@ -68,6 +69,9 @@ $medium-grey: white !default;
     stroke: $white;
     stroke-width: 2;
     stroke-opacity: 0.4;
+  }
+  &.layout-assist-on .country {
+    display: none !important;
   }
 
   .link {

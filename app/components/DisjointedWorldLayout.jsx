@@ -161,22 +161,22 @@ function drawWorld(world) {
       features: topojson.merge(world, world.objects.countries.geometries.filter(function(d) { return d.properties.continent == 'Asia'; }))
     },
     oceania: {
-      x: 20,
+      x: 40,
       y: height-(sizeCorners[1]*2),
-      width: sizeCorners[0] * 2,
+      width: (sizeCorners[0] * 2) * 1.2,
       height: sizeCorners[1] * 2,
       features: topojson.merge(world, world.objects.countries.geometries.filter(function(d) { return d.properties.continent == 'Oceania'; }))
     },
     europe: {
-      x: (width-((sizeCorners[0]*2) * 1.5) - 5),
+      x: (width-((sizeCorners[0]*2) * 1.6) - 10),
       dx: -10,
-      y: (sizeCorners[1] * 2) - ((sizeCorners[1] * 2) * 1.2),
-      width: (sizeCorners[0] * 2) * 1.5,
-      height: (sizeCorners[1] * 2) * 1.2,
+      y: (sizeCorners[1] * 2) - ((sizeCorners[1] * 2) * 1.3),
+      width: (sizeCorners[0] * 2) * 1.6,
+      height: (sizeCorners[1] * 2) * 1.4,
       features: topojson.merge(world, world.objects.countries.geometries.filter(function(d) { return d.properties.continent == 'Europe'; }))
     },
     africa: {
-      x: (width-(sizeCorners[0]*2)-5),
+      x: (width-(sizeCorners[0]*2)-15),
       y: height-(sizeCorners[1]*2),
       width: sizeCorners[0] * 2,
       height: sizeCorners[1] * 2,
@@ -191,16 +191,16 @@ function drawWorld(world) {
     },
     southamerica: {
       x: center[0],
-      y: (height - ((sizeMiddle[1]*2) * 1.3) ),
+      y: (height - ((sizeMiddle[1]*2) * 1.15) ),
       width: sizeMiddle[0] * 2,
-      height: ((sizeMiddle[1] * 2) * 1.3),
+      height: ((sizeMiddle[1] * 2) * 1.15),
       features: topojson.merge(world, world.objects.countries.geometries.filter(function(d) { return d.properties.continent == 'South America'; }))
     },
     centralamerica: {
       x: sizeCorners[0] * 2,
       y: height - ((sizeMiddle[1]*2)),
       width: sizeMiddle[0] * 2,
-      height: (sizeMiddle[1] * 2) * .5,
+      height: (sizeMiddle[1] * 2) * .7,
       features: topojson.merge(world, world.objects.countries.geometries.filter(function(d) { return d.properties.subregion == 'Central America'; }))
     },
     usa: {
@@ -229,8 +229,9 @@ function drawWorld(world) {
   }
 
   // show layout grid
-  var showGrid = false;
+  var showGrid = 0;
   if (showGrid) {
+    d3.select('.disjointed-world-layout').classed('layout-assist-on', true)
     var grid = svg.append('g');
     grid.selectAll('.layout-assist-box')
       .data(rectsArr)
