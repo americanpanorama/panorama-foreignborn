@@ -24,6 +24,7 @@ var countryLocations = {};
 
 var color;
 var opacity;
+var minRadius = 2.5;
 
 
 var radius;
@@ -371,18 +372,23 @@ function filterCountries(filterBy) {
       });
 
       // make sure radius is above 0
-      var r = Math.max(radius(ct),1);
+      var r = getCountryRadius(ct);
 
       elm.style('display', display)
         .attr('r', r);
   });
 }
 
+function getCountryRadius(val) {
+  if (!val) return minRadius;
+  return Math.max(radius(val), minRadius);
+}
+
 function resetCountries() {
   countriesGroup.selectAll(".country")
     .style('display', 'block')
     .attr('r', function(d){
-      return Math.max(radius(d.value),1);
+      return getCountryRadius(d.value);
     });
 }
 
@@ -453,7 +459,7 @@ function generateCountryNodes(countries) {
       x0: point[0],
       y: point[1]+0.0001*Math.random(),
       y0: point[1],
-      r: Math.max(radius(d.count),1),
+      r: getCountryRadius(d.count),
       value: d.count,
       selected: false
     }
@@ -504,7 +510,7 @@ function drawCountries(countries, selected) {
 
   node.enter().append("circle")
     .attr("class", "country")
-    .attr("r", function(d) { return Math.max(radius(d.value), 1); })
+    .attr("r", function(d) { return getCountryRadius(d.value); })
     .attr("cx", function(d) { return d.x; })
     .attr("cy", function(d) { return d.y; })
     .classed('selected', function(d){ return d.selected; })

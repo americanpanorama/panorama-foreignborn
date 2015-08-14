@@ -44,6 +44,17 @@ button.link.full {
   width: 100%;
 }
 
+button.link.intro {
+  position: absolute;
+  line-height: 1;
+  font-size: 0;
+  z-index: 2;
+}
+
+button.close {
+  background: transparent;
+}
+
 header, section {
   position: relative;
 }
@@ -54,6 +65,15 @@ header {
   margin-right: $default-padding;
   text-align: center;
   background: url('static/images/header-banner.svg') 0 0 repeat-x;
+
+  button.link {
+    position: absolute;
+    top: 102%;
+    left: 1px;
+    color: $green;
+    font-size: $font-size-small;
+    font-family: $font-family-sans-alt;
+  }
 
   .table {
     width: 100%;
@@ -95,9 +115,33 @@ header {
   height: 100%;
 }
 
+#timeline-container {
+  .wrapper {
+    text-align: right;
+
+    .title {
+      h3 {
+        text-align: left;
+      }
+      button {
+        margin-top: 6px;
+        position: relative;
+      }
+    }
+  }
+}
+
 #bar-chart {
+  position: relative;
+
+  .intro {
+    top: 50%;
+    left: 10px;
+    margin-top: -8px;
+  }
 
   h3 {
+    position: relative;
     margin: 0;
     padding: 0;
     background: $medium-dark-grey-lightest;
@@ -126,8 +170,6 @@ header {
       }
     }
   }
-
-
 }
 
 #loupe {
@@ -156,6 +198,11 @@ header {
 
   .circle-legend-cell {
     padding-right: 20px;
+
+    .intro {
+      bottom: 105%;
+      left: -8px;
+    }
   }
 
   .grid-legend-cell {
@@ -163,12 +210,9 @@ header {
     padding-right: 45px;
   }
 
-  .timeline-cell {
+  .timeline-cell {}
 
-  }
 }
-
-
 
 
 //
@@ -286,4 +330,21 @@ header {
     background: $medium-dark-grey;
     line-height: 1.4;
   }
+}
+
+//
+// icons
+//
+.icon {
+  display: inline-block;
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
+  background-color: transparent;
+  background-size: contain;
+}
+
+.icon.info {
+  width: 16px;
+  height: 16px;
+  background-image: url('static/images/icon-info@2x.png');
 }

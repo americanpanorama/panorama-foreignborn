@@ -58,9 +58,11 @@ $medium-grey: white !default;
     cursor:pointer;
   }
 
+  /*
   .mix-blend-mode & .country {
     @include vp-mbm(screen);
   }
+  */
 
   .country.selected {
     stroke: $white;

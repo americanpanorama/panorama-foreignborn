@@ -1,0 +1,60 @@
+$padding: 20px;
+
+.ReactModal__Overlay {
+  box-sizing: content-box;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background-color: black;
+  background-color: rgba(0, 0, 0, 0.8);
+  overflow: auto;
+  color: #272b34;
+  font-size: .9rem;
+  z-index: 9999999;
+
+  .ReactModal__Overlay.hidden {
+    display: none;
+  }
+
+  .overlay {
+    background-color:white;
+    margin: 6% auto;
+    height: 80%;
+    width: 74vw;
+    box-sizing: border-box;
+    min-width:800px;
+    min-height:600px;
+    padding:$padding;
+    position:relative;
+    overflow:auto;
+
+
+    button.close {
+      position:absolute;
+      top:0;
+      right:0;
+      border: none;
+      font-weight: lighter;
+      padding: 0;
+      line-height: 1;
+      height: 48px;
+      width: 48px;
+      cursor: pointer;
+    }
+
+    button.close span {
+      font-size: 48px;
+      font-weight: 100;
+      display: block;
+      position: relative;
+      line-height: 1;
+      font-family: monospace;
+    }
+
+    p {
+      line-height: 1.3;
+    }
+  }
+}

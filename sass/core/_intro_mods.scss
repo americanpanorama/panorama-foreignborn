@@ -1,0 +1,151 @@
+$intro-background-color: #f0f0f0;
+$intro-padding: 40px;
+$intro-color: #7C7F7C;
+$intro-hover-color: #000;
+$intro-disabled-color: #ddd;
+
+.introjs-helperLayer {
+  background-color: #2F3336;
+  background-color: rgba(47, 51, 54, 0.9);
+  border: 1px solid rgba(108, 110, 112, 0.5);
+  box-shadow: 0 2px 15px rgba(255, 255, 255, 0.4);
+}
+
+.introjs-tooltip {
+  padding: $intro-padding;
+  background-color: $intro-background-color;
+  max-width: 400px;
+}
+
+.introjs-bullets {
+  text-align: left;
+  position: absolute;
+  top: 0;
+  width: 100%;
+}
+
+.introjs-tooltiptext {
+  font-size: 12px;
+  margin-top: 0px;
+  line-height: 1.3;
+  min-width: 300px;
+  max-width: 400px;
+  color: $intro-color;
+}
+
+.introjs-tooltipbuttons {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.introjs-button {
+  position: absolute;
+  padding: 0;
+  margin: 0;
+  background: $intro-background-color;
+  border: 0;
+  font-weight: 100;
+  color: $intro-color;
+  text-align: center;
+  vertical-align: middle;
+  font-size: 20px;
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+  margin-top: -15px;
+  border-radius: 0;
+  display: block;
+  overflow: hidden;
+}
+
+.introjs-button:hover {
+  border-color: none;
+  text-decoration: none;
+  box-shadow: none;
+  color: $intro-hover-color;
+}
+
+.introjs-skipbutton {
+  top: 0;
+  right: 0;
+  margin-top: 2px;
+}
+
+.introjs-prevbutton,
+.introjs-nextbutton {
+  height: 40px;
+  font-size: 30px;
+  line-height: 38px;
+  margin-top: -20px;
+}
+
+.introjs-prevbutton {
+  left: 0;
+  top: 50%;
+}
+
+.introjs-nextbutton {
+  right: 0;
+  top: 50%;
+}
+
+.introjs-bullets ul li a {
+  background: $intro-background-color;
+  border: 1px solid $intro-color;
+}
+
+.introjs-bullets ul li a.active {
+  background: $intro-color;
+}
+
+.introjs-button:focus,
+.introjs-button:active {
+  background-image: none;
+}
+
+.introjs-disabled,
+.introjs-disabled:hover,
+.introjs-disabled:focus {
+  color: $intro-disabled-color;
+  border: none;
+  box-shadow: none;
+  cursor: default;
+  background-color: $intro-background-color;
+  background-image: none;
+  text-decoration: none;
+}
+
+.introjs-arrow.bottom {
+  border-top-color: $intro-background-color;
+}
+.introjs-arrow.top {
+  border-bottom-color: $intro-background-color;
+}
+
+.introjs-arrow.right {
+  border-left-color: $intro-background-color;
+}
+
+.introjs-arrow.left {
+  border-right-color: $intro-background-color;
+}
+
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  .introjs-fixParent {
+    position: absolute !important;
+  }
+}
+.introjs-fixParent {
+  z-index: auto !important;
+  opacity: 1.0 !important;
+  -webkit-transform: none !important;
+     -moz-transform: none !important;
+      -ms-transform: none !important;
+       -o-transform: none !important;
+          transform: none !important;
+}

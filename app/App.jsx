@@ -5,6 +5,7 @@ require('es6-promise').polyfill();
 // NPM Modules
 var React = require('react');
 var Typeahead = require('react-typeahead').Typeahead;
+var Modal = require('react-modal');
 
 // Constants
 var Constants = require('./constants/Constants.js');
@@ -18,6 +19,7 @@ var GeographyStore = require('./stores/geography.js');
 var LayoutStore = require('./stores/layout.js').initialize();
 var Scales = require('./stores/scales.js');
 var ForeignBornCopy = require('./stores/foreignbornCopy.js');
+var Intro = require("./stores/introStore.js");
 
 // Components
 var DisjointedWorldLayout = require('./components/DisjointedWorldLayout.jsx');
@@ -104,6 +106,7 @@ var App = React.createClass({
       country: merged.country.value,
       county: merged.county.value,
       geographyData: GeographyStore.getDataByDecade(merged.decade.value),
+      about: false
     };
   },
 
@@ -120,6 +123,8 @@ var App = React.createClass({
 
     this.toggleCountyClass(this.state.county);
     this.toggleCountryClass(this.state.country);
+
+    Modal.setAppElement(document.querySelector("body"));
   },
 
   componentDidMount: function() {
@@ -131,10 +136,13 @@ var App = React.createClass({
 
     // set change listener for geography store
     GeographyStore.addChangeListener(this.onChange);
+
+    Intro.init();
   },
 
   componentWillUnmount: function() {
     GeographyStore.removeChangeListener(this.onChange);
+    Intro.destroy();
   },
 
   componentDidUpdate: function() {
@@ -189,6 +197,17 @@ var App = React.createClass({
         Actions.getDataForDecade(val, GeographyStore.getBackFill(val), this.state.county)
       }
     }
+  },
+
+  openIntro: function(e) {
+    if (this.state.showAbout) this.toggleAbout();
+    Intro.open(e);
+  },
+
+  toggleAbout: function() {
+    if (Intro.state) Intro.exit();
+    console.log(this.state.about)
+    this.centralStateSetter({"about":!this.state.about});
   },
 
   toggleCountyClass: function(b) {
@@ -410,6 +429,7 @@ var App = React.createClass({
                 </div>
                 <p className="tagline">A Nation of Overlapping Diasporas</p>
               </div>
+              <button className="link" onClick={this.toggleAbout}>About this map</button>
             </header>
             <div style={{height: mapHeight + 'px'}}>
               <DisjointedWorldLayout
@@ -429,7 +449,7 @@ var App = React.createClass({
           </div>
           <div className="columns three stacked" style={{height: middleHeight + 'px'}}>
             <div id="bar-chart">
-              <h3>{this.state.decade + " Foreign Born"}</h3>
+              <h3><button className="link intro" data-step="0" onClick={this.openIntro}><span className="icon info"></span></button><span>{this.state.decade + " Foreign Born"}</span></h3>
               {placeName &&
               <div id="barchart-county-close"><button onClick={this.closeSelectedPlace} className='link'>{placeName}<span className="close">[<span className="close-x">×</span>]</span></button></div>
               }
@@ -476,6 +496,7 @@ var App = React.createClass({
                 <div className="table footer">
 
                   <div className="td circle-legend-cell shrink">
+                    <button className="link intro" data-step="1" onClick={this.openIntro}><span className="icon info"></span></button>
                     <LegendNestedCircles values={radiusLegend}/>
                   </div>
 
@@ -494,6 +515,7 @@ var App = React.createClass({
                           <div className="title">
                             <h3>Population</h3>
                             <h3>Over Time</h3>
+                            <button className="link intro" data-step="2" onClick={this.openIntro}><span className="icon info"></span></button>
                           </div>
                           <div>
                             <Timeline yDomain={[0,.4]} overlay={overallOverlay} secondaryOverlay={secondaryOverlay} decade={this.state.decade} startDate={new Date('1/1/1850')} endDate={new Date('12/31/2010')} onSliderChange={this.decadeUpdate} />
@@ -518,6 +540,40 @@ var App = React.createClass({
             </div>
           </div>
         </section>
+
+        <Modal isOpen={this.state.about} onRequestClose={this.toggleAbout} className="overlay">
+          <button className="close" onClick={this.toggleAbout}><span>×</span></button>
+          <p>The Oregon and California Trails stretched nearly 2,000 miles from jumping-off points near the Missouri River to the Willamette Valley in Oregon and the Sacramento Valley in California; the Mormon Trail 1,300 miles from Nauvoo, Illinois, to Salt Lake City. While dozens of alternate cutoffs were developed to shorten journeys, the course of rivers—the Platte, Sweetwater, Snake, and Humboldt—that provided emigrants and their animals with water dictated the majority of the routes.</p>
+
+          <h2>A Note on Sources and Methods</h2>
+
+          <p>The most significant evidence for this map comes from 2000 individual entries from about two dozen Overland Trails diaries that we have plotted in time and space. Most diarist carefully noted the distance they had traveled that day and where they camped. Still, in many cases a location can only be estimated but not precisely identified. Citations for each journal are provided in the narratives column.</p>
+
+          <p>Merrill J. Mattes's Platte River Road Narratives (Urbana: University of Illinois Press, 1988) was indispensible in helping us select diaries to transcribe and georeference. The National Park Services's national historic trails data was enormously helpful in helping us georeference diary entries.</p>
+
+          <p>For the flow map, we use John D. Unruh's estimates of annual emigrants to Oregon, California, and Utah from The Plain's Across: The Overland Emigrants and the Trans-Mississippi West, 1840-60 ([Urbana: University of Illinois Press, 1979], 119-120, tables 1 and 2). While Unruh's estimates are generally accepted as the best that have been offered to day, his caution should be kept in mind: "no one attempting to provide statistics for the overland emigrations can offer more than educated estimates for most years, especially for the later 1850s, when the estimates of necessity become almost pure guesswork" (442).</p>
+          <p>The location of Indian tribes is adapted from maps from Francis Paul Prucha, Atlas of American Indian Affairs(Lincoln: University of Nebraska Press, 1990), 5, map 2. State boundaries are from the Newberry Library's <a href="http://publications.newberry.org/ahcbp/">Atlas of Historical County Boundaries</a>.</p>
+
+          <h2>Suggested Reading</h2>
+          <ul>
+              <li>Will Bagley, So Rugged and Mountainous: Blazing the Trails to Oregon and California, 1812–1848 (Norman: University of Oklahoma Press, 2010).</li>
+              <li>Will Bagley, With Golden Visions Bright Before Them: Trails to the Mining West, 1849–1852 (Norman: University of Oklahoma Press, 2012).</li>
+              <li>John Mack Faragher, Women and Men on the Overland Trail, 2nd edition (New Haven: Yale University Press, 2001).</li>
+              <li>Merrill Mattes, Platte River Road Narratives: A Descriptive Bibliography of Travel Over the Great Centeral Overland Route to Oregon, California, Utah, Colorado, Montana, and Other Western States and Territories, 1812-1866 (Urbana: University of Illinois Press, 1988).</li>
+              <li>John D. Unruh, The Plains Across: The Overland Emigrants and the Trans-Mississippi West, 1840-60 (Urbana: University of Illinois Press, 1979).</li>
+              <li>Michael L. Tate, Indians and Emigrants: Encounters on the Overland Trails (University of Oklahoma Press, 2006).</li>
+              <li>John G. Turner, Brigham Young: Pioneer Prophet (Cambridge: Belknap Press, 2012).</li>
+          </ul>
+
+          <h2>Acknowledgments</h2>
+
+          <p>This map is authored by the staff of the Digital Scholarship Lab: Robert K. Nelson, Edward L. Ayers, Justin Madron, and Nathaniel Ayers. Scott Nesbit contributed substantially to the preliminary drafts.</p>
+
+          <p>Katie Burke, Lily Calaycay, Anna Ellison, Erica Havens, Erica Ott, Barbie Savani, Beaumont Smith, and Shayna Webb transcribed and georeferenced journals.</p>
+
+          <p>The developers, designers, and staff at Stamen Design Studio have been exceptional partners on this project. Our thanks to Sean Connelley, Kai Chang, Jon Christensen, Seth Fitzsimmons, Heather Grates, Alan McConchie, Michael Neuman, Dan Rademacher, and Eric Rodenbeck.</p>
+        </Modal>
+
       </div>
     );
   }

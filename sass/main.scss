@@ -1,10 +1,13 @@
 @import "vendor/normalize";
+@import "vendor/intro";
+@import "vendor/modal";
 
 @import "core/variables";
 @import "core/mixins";
 @import "core/typography";
 @import "core/grid";
 @import "core/layout";
+@import "core/intro_mods";
 
 @import "components/disjointed-world-layout";
 @import "components/barchart";
