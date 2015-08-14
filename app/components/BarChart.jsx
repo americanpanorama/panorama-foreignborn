@@ -105,8 +105,10 @@ var BarChart = React.createClass({
       var pos = wrapper.scrollTop;
       var bottom = rows.offsetHeight - wrapper.offsetHeight;
 
-      upBtn.disabled = (pos === 0);
-      dwnBtn.disabled = (pos === bottom);
+      var contained = (rows.offsetHeight < wrapper.offsetHeight) ? true : false;
+
+      upBtn.disabled = (pos === 0 || contained);
+      dwnBtn.disabled = (pos === bottom || contained);
 
     },
 
