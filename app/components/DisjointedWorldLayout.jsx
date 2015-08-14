@@ -553,7 +553,7 @@ function generateCountryNodes(countries) {
       proj = 'southamerica';
       point = projections['southamerica'](lnglat);
     } else if (d.continent == 'North America') {
-      if (d.country== 'Canada' || d.country == 'French Canada') {
+      if (d.country== 'Canada' || d.country == 'French Canada' || d.country == 'British America') {
         proj = 'canada';
         point = projections['canada'](lnglat);
       } else {
