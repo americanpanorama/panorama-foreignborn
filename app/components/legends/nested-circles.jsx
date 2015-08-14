@@ -21,6 +21,8 @@ function update(data) {
   });
 
   svg.attr('height', max * 2);
+  svg.attr('width', (max * 2) + 130);
+
   svg.selectAll('circle').remove();
   svg.selectAll('text').remove();
 
@@ -80,8 +82,6 @@ var LegendNestedCircles = React.createClass({
     supported();
     root = d3.select(React.findDOMNode(this.refs.legend));
     svg = d3.select(React.findDOMNode(this.refs.svg));
-
-    svg.attr('width', root.node().offsetWidth);
   },
 
   componentWillUnmount: function() {

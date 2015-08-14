@@ -472,33 +472,39 @@ var App = React.createClass({
         <section className="row">
           <div className="columns nine">
             <div className="row">
-              <div className="columns five">
-                <div id="legends-container" className="table">
-                  <div className="td">
+              <div className="columns twelve">
+                <div className="table footer">
+
+                  <div className="td circle-legend-cell shrink">
                     <LegendNestedCircles values={radiusLegend}/>
                   </div>
-                  <div className="td">
+
+                  <div className="td grid-legend-cell shrink">
                     <LegendGrid steps={6}
                       xValues={this.props.valuesForGrid.xvals}
                       yValues={this.props.valuesForGrid.yvals}
                       axisLabels={this.props.valuesForGrid.axis}
                       labels={this.props.valuesForGrid.labels}/>
                   </div>
-                </div>
-              </div>
-              <div id="timeline-container" className="columns seven">
-                <div className="outer-wrap">
-                  <div className="wrapper">
-                    <div className="title">
-                      <h3>Population</h3>
-                      <h3>Over Time</h3>
-                    </div>
-                    <div>
-                      <Timeline yDomain={[0,.4]} overlay={overallOverlay} secondaryOverlay={secondaryOverlay} decade={this.state.decade} startDate={new Date('1/1/1850')} endDate={new Date('12/31/2010')} onSliderChange={this.decadeUpdate} />
-                      <div className="timeline-legend left">Total Foreign-Born</div>
-                      <div className="timeline-legend right">{placeNameShort} Foreign-Born</div>
+
+                  <div className="td timeline-cell expand">
+                    <div id="timeline-container">
+                      <div className="outer-wrap">
+                        <div className="wrapper">
+                          <div className="title">
+                            <h3>Population</h3>
+                            <h3>Over Time</h3>
+                          </div>
+                          <div>
+                            <Timeline yDomain={[0,.4]} overlay={overallOverlay} secondaryOverlay={secondaryOverlay} decade={this.state.decade} startDate={new Date('1/1/1850')} endDate={new Date('12/31/2010')} onSliderChange={this.decadeUpdate} />
+                            <div className="timeline-legend left">Total Foreign-Born</div>
+                            <div className="timeline-legend right">{placeNameShort} Foreign-Born</div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
+
                 </div>
               </div>
             </div>

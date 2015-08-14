@@ -130,7 +130,6 @@ header {
 
 }
 
-
 #loupe {
   display: none;
 }
@@ -139,25 +138,37 @@ header {
   display: block;
 }
 
+/*
 #color-key {
   height: 90px;
-}
+}*/
 
-#legends-container {
-  table-layout: fixed;
+.footer {
+  border-collapse: collapse;
   width: 100%;
   height: 100px;
+
   .td {
     height: 100px;
-  }
-  .td:first-child {
-    width: 100%;
+    text-align: left;
+    vertical-align: top;
   }
 
-  .td:last-child {
-    width: 120px;
+  .circle-legend-cell {
+    padding-right: 20px;
+  }
+
+  .grid-legend-cell {
+    padding-top: 1px;
+    padding-right: 45px;
+  }
+
+  .timeline-cell {
+
   }
 }
+
+
 
 
 //
@@ -178,6 +189,12 @@ header {
 .td {
   display: table-cell;
   vertical-align: top;
+}
+.td.shrink {
+  white-space:nowrap
+}
+.td.expand {
+  width: 99%;
 }
 
 

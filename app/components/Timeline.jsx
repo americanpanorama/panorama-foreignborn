@@ -264,6 +264,8 @@ var Timeline = React.createClass({
 
     this.hasData = true;
 
+    this.updateDisplay(true);
+
     this.beginDate = this.props.startDate;
     this.endDate = this.props.endDate;
 
