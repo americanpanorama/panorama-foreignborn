@@ -17,7 +17,9 @@ var radius = d3.scale.sqrt()
   .range([12, 24, 36, 48]);
 
 function round(n) {
-  if (n < 100) {
+  if (n < 10) {
+    return Math.round(n);
+  } else if (n < 100) {
     n = Math.round(n/10)*10;
   } else if (n < 1000) {
     n = Math.round(n/100)*100;
@@ -92,6 +94,7 @@ Scales.getLegendForCounty = function(scale){
   var domain = scale.domain().slice(0);
   var out = [];
 
+
   domain.forEach(function(d,i){
     var n = d;
     var v = Math.max(scale(n),1);
@@ -117,12 +120,16 @@ Scales.makeCountyRadiusScale = function(data) {
     return d.count;
   });
 
+
+
   if (max < 20) {
     var range = rad.range().slice(0);
     return rad.domain([1,max]).range([range[0], range[3]])
   }
 
   var len = round(max / 5);
+
+  console.log("MAX: ", max, len)
 
   rad.domain([len * 1, len * 2, len * 3, len * 4]);
 

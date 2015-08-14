@@ -49,7 +49,7 @@ var percentFormatter = function(v){
 }
 
 var clearMe = 0;
-
+var viewportDirty = false;
 // Set default hash state
 hashManager.set({
   decade: {
@@ -82,6 +82,16 @@ LayoutStore.block({
   measure: ['height']
 });
 
+function debounce(fn, delay) {
+  var timeout;
+  return function() {
+    clearTimeout(timeout);
+    var that = this, args = arguments;
+    timeout = setTimeout(function() {
+      fn.apply(that, args);
+    }, delay);
+  };
+}
 
 
 var App = React.createClass({
@@ -106,7 +116,8 @@ var App = React.createClass({
       country: merged.country.value,
       county: merged.county.value,
       geographyData: GeographyStore.getDataByDecade(merged.decade.value),
-      about: false
+      about: false,
+      width: window.innerWidth
     };
   },
 
@@ -118,8 +129,7 @@ var App = React.createClass({
     GeographyStore.decadeBounds(decadeBounds);
 
     // Layout
-    LayoutStore.force();
-    //console.log('Width: ', LayoutStore.get())
+    LayoutStore.initialize();
 
     this.toggleCountyClass(this.state.county);
     this.toggleCountryClass(this.state.country);
@@ -136,6 +146,8 @@ var App = React.createClass({
 
     // set change listener for geography store
     GeographyStore.addChangeListener(this.onChange);
+    LayoutStore.addChangeListener(this.onResize);
+
 
     Intro.init();
   },
@@ -143,6 +155,7 @@ var App = React.createClass({
   componentWillUnmount: function() {
     GeographyStore.removeChangeListener(this.onChange);
     Intro.destroy();
+    LayoutStore.destroy();
   },
 
   componentDidUpdate: function() {
@@ -199,6 +212,16 @@ var App = React.createClass({
     }
   },
 
+  onResize: function(e) {
+    var w = LayoutStore.get('window','width');
+    console.log('Resize: ', w)
+    if (w !== this.state.width) {
+      viewportDirty = true;
+      this.centralStateSetter({"width":w});
+    }
+  },
+
+
   openIntro: function(e) {
     if (this.state.showAbout) this.toggleAbout();
     Intro.open(e);
@@ -213,6 +236,7 @@ var App = React.createClass({
   toggleCountyClass: function(b) {
     d3.select('body').classed('has-county', b);
   },
+
   toggleCountryClass: function(b) {
     d3.select('body').classed('has-country', b);
   },
@@ -415,7 +439,10 @@ var App = React.createClass({
     if(clearMe === 1) {
       shouldClearInput = true;
     }
+
     clearMe = 0;
+    var redrawMap = (viewportDirty) ? true : false;
+    viewportDirty = false
 
     // render DOM-ish
     return (
@@ -444,6 +471,7 @@ var App = React.createClass({
                 radiusScale={radiusScale}
                 colorScale={this.props.colorScale}
                 opacityScale={this.props.opacityScale}
+                redraw={redrawMap}
               />
             </div>
           </div>
@@ -486,7 +514,8 @@ var App = React.createClass({
               decade={this.state.decade}
               colorScale={this.props.colorScale}
               opacityScale={this.props.opacityScale}
-              height={loupHeight-20} />
+              height={loupHeight-20}
+              redraw={redrawMap} />
           </div>
         </section>
         <section className="row">
@@ -518,7 +547,7 @@ var App = React.createClass({
                             <button className="link intro" data-step="2" onClick={this.openIntro}><span className="icon info"></span></button>
                           </div>
                           <div>
-                            <Timeline yDomain={[0,.4]} overlay={overallOverlay} secondaryOverlay={secondaryOverlay} decade={this.state.decade} startDate={new Date('1/1/1850')} endDate={new Date('12/31/2010')} onSliderChange={this.decadeUpdate} />
+                            <Timeline yDomain={[0,.4]} redraw={redrawMap} overlay={overallOverlay} secondaryOverlay={secondaryOverlay} decade={this.state.decade} startDate={new Date('1/1/1850')} endDate={new Date('12/31/2010')} onSliderChange={this.decadeUpdate} />
                             <div className="timeline-legend left">Total Foreign-Born</div>
                             <div className="timeline-legend right">{placeNameShort} Foreign-Born</div>
                           </div>
@@ -533,10 +562,7 @@ var App = React.createClass({
           </div>
           <div className="columns three">
             <div id="about-time-period" className="row">
-
-                <p className="columns twelve description">
-                  A county is a political and geographic subdivision of a state, usually assigned some governmental authority. The term "county" is used in 48 of the 50 U.S. states. The exceptions are Louisiana and Alaska.
-                </p>
+                <p className="columns twelve description">{ForeignBornCopy.years[this.state.decade] || ''}</p>
             </div>
           </div>
         </section>

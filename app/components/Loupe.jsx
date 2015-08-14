@@ -83,6 +83,8 @@ var Loupe = React.createClass({
     if (this.props.colorScale) color = this.props.colorScale;
     if (this.props.opacityScale) opacity = this.props.opacityScale;
 
+
+
     if (this.props.data.length) {
       if ((this.props.filterOn && filterOn !== this.props.filterOn) || this.props.decade !== decade) {
 
@@ -91,6 +93,10 @@ var Loupe = React.createClass({
         var loader = d3.select(React.findDOMNode(this.refs.loader));
         loader.classed('active', true);
         this.update();
+      } else {
+        if (this.props.redraw) {
+          this.update();
+        }
       }
     }
   },

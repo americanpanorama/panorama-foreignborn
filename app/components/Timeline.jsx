@@ -166,12 +166,13 @@ var Timeline = React.createClass({
     if (this.props.onSliderChange) this.props.onSliderChange(value);
   },
 
-  updateDisplay: function(justContainer) {
+  updateDisplay: function(justContainer, resized) {
     var container = this.getDOMNode();
+    var svg = d3.select(container).select('svg');
+    svg.attr('width', 0);
     this.setWidth(container.offsetWidth);
     this.setHeight(72);
 
-    var svg = d3.select(container).select('svg');
 
     svg
       .attr("width", this.width + this.margin.left + this.margin.right)
@@ -198,7 +199,7 @@ var Timeline = React.createClass({
   componentDidMount: function() {
     var container = this.getDOMNode();
     var that = this;
-    lastWindowWidth = window.innerWidth;
+
     this.setWidth(container.offsetWidth);
     this.setHeight(72);
 
@@ -229,6 +230,7 @@ var Timeline = React.createClass({
     if (this.props.decade !== nextProps.decade) return true;
     if (!overlayDrawn) return true;
     if (this.props.secondaryOverlay !== nextProps.secondaryOverlay) return true;
+    if (nextProps.redraw) return true;
     return false;
   },
 
@@ -243,16 +245,22 @@ var Timeline = React.createClass({
       if (this.props.secondaryOverlay && this.props.secondaryOverlay.length) {
         if (!hasSecondaryOverlay) {
           this.margin.right = 30;
-          this.updateDisplay();
+          //this.updateDisplay();
         } else {
           this.drawSecondaryOverlay();
         }
       } else {
         if (hasSecondaryOverlay) {
           this.margin.right = 15;
-          this.updateDisplay();
+          //this.updateDisplay();
         }
       }
+
+      if (this.props.redraw) {
+        //this.updateDisplay(false, true);
+      }
+
+      this.updateDisplay();
 
       return;
     }

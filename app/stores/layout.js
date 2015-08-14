@@ -41,19 +41,18 @@ function calculateDimensions() {
     document.documentElement.clientHeight ||
     document.body.clientHeight;
 
+    if(_initialized) LayoutStore.emitChange();
 }
-
-
 
 
 var LayoutStore = assign({}, EventEmitter.prototype, {
 
   initialize: function() {
     if (_initialized) return this;
+    calculateDimensions();
     _initialized = true;
 
     window.addEventListener('resize', calculateDimensionsDebounce);
-    calculateDimensions();
 
     return this;
   },
@@ -69,6 +68,10 @@ var LayoutStore = assign({}, EventEmitter.prototype, {
 
   block: function(obj) {
 
+  },
+
+  destroy: function() {
+    window.removeEventListener('resize', calculateDimensionsDebounce);
   },
 
   emitChange: function(_caller) {
