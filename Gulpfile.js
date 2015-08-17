@@ -167,6 +167,11 @@ function staticFolder() {
   .pipe(copy("build/"));
 }
 
+function staticDistFolder() {
+  return gulp.src("static/**")
+  .pipe(copy("./dist"));
+}
+
 // Starts our development workflow
 gulp.task('default', function () {
 
@@ -199,16 +204,27 @@ gulp.task('default', function () {
 
 gulp.task('dist', function () {
 
-  browserifyTask({
-    development: false,
-    src: './app/main.js',
-    dest: './dist'
-  });
+  rimraf("./dist/**", function() {
 
-  cssTask({
-    development: false,
-    src: './sass/**/*.scss',
-    dest: './dist'
+    copyTask({
+      "src"  : "./app/**/*.html",
+      "dest" : "./dist"
+    });
+
+    browserifyTask({
+      "development" : false,
+      "src"         : './app/main.jsx',
+      "dest"        : './dist'
+    });
+
+    cssTask({
+      "development" : false,
+      "src"         : './sass/**/*.scss',
+      "dest"        : './dist'
+    });
+
+    staticDistFolder()
+
   });
 
 });

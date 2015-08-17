@@ -157,7 +157,6 @@ var Loupe = React.createClass({
     var bbox = "ST_INTERSECTS(ST_MakeEnvelope("+([leftTop[0],rightBottom[1],rightBottom[0],leftTop[1]].join(','))+", 4326), the_geom)";
     var sql = QUERY.replace(/{year}/g, decade).replace(/{bbox}/g, bbox);
 
-    console.log(sql)
     var q = {
       key: 'hires',
       sql: sql,

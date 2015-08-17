@@ -46,7 +46,14 @@ npm run build
 ```
 
 ##Deploy
-Copy code from [build directory](./build) to server.  It's all **static files**, so no special server requirements needed.
+**To use development code**: Copy the [build directory](./build) to your server, but for **production** you will want to run:
+```
+npm run dist
+```
+
+This will create a `dist` directory. Move this directory to your server.
+
+Both directories are all **static files**, so no special server requirements needed.
 
 ##Deploy(Stamen Only)
 ```bash

@@ -4,7 +4,8 @@
   "description": "Foreign born migration to the United States",
   "main": "",
   "scripts": {
-    "start": "gulp"
+    "start": "gulp",
+    "dist": "gulp dist"
   },
   "repository": {
     "type": "git",
