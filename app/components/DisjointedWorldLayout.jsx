@@ -13,7 +13,6 @@ var mapParentContainer, mapContainer, svg, background, countiesGroup, countriesG
 var selectedCounty, selectedCountry;
 var countyLookup = {};
 var countryLookup = {};
-var projections = {};
 var worldDirty = true;
 var decade;
 var countryNodes = {};
@@ -29,55 +28,11 @@ var minRadius = 2.5;
 
 var radius;
 
-var projectionParams = {
-  asia: {
-    centerCoords: [110,20],
-    translate: [130, 110],
-    scale: 100
-  },
-  oceania: {
-    centerCoords: [150,-30],
-    translate: [100, 300],
-    scale: 100
-  },
-  southamerica: {
-    centerCoords: [-70,-30],
-    translate: [400, 300],
-    scale: 100
-  },
-  centralamerica: {
-    centerCoords: [-100,20],
-    translate: [250, 300],
-    scale: 100
-  },
-  usa: {
-    centerCoords: [-100,35],
-    translate: [320, 110],
-    scale: 300
-  },
-  canada: {
-    centerCoords: [-100,50],
-    translate: [500, 75],
-    scale: 100
-  },
-  africa: {
-    centerCoords: [20,0],
-    translate: [600, 300],
-    scale: 100
-  },
-  europe: {
-    centerCoords: [20,50],
-    translate: [600, 100],
-    scale: 100
-  },
-  nullisland: {
-    centerCoords: [0,0],
-    translate: [700, 100],
-    scale: 100
-  }
-};
-
-
+var nullisland = {
+  centerCoords: [0,0],
+  translate: [700, 100],
+  scale: 100
+}
 
 var worldrects = {
     asia: {
@@ -85,14 +40,20 @@ var worldrects = {
       y: 0,
       width: 0,
       height: 0,
-      features: {}
+      features: {},
+      centerCoords: [110,20],
+      translate: [130, 110],
+      scale: 100
     },
     oceania: {
       x: 40,
       y: 0,
       width: 0,
       height: 0,
-      features: {}
+      features: {},
+      centerCoords: [150,-30],
+      translate: [100, 300],
+      scale: 100
     },
     europe: {
       x: 0,
@@ -100,61 +61,79 @@ var worldrects = {
       y: 0,
       width: 0,
       height: 0,
-      features: {}
+      features: {},
+      centerCoords: [20,50],
+      translate: [600, 100],
+      scale: 100
     },
     africa: {
       x: 0,
       y: 0,
       width: 0,
       height: 0,
-      features: {}
+      features: {},
+      centerCoords: [20,0],
+      translate: [600, 300],
+      scale: 100
     },
     canada: {
       x: 0,
       y: 0,
       width: 0,
       height: 0,
-      features: {}
+      features: {},
+      centerCoords: [-100,50],
+      translate: [500, 75],
+      scale: 100
     },
     southamerica: {
       x: 0,
       y: 0,
       width: 0,
       height: 0,
-      features: {}
+      features: {},
+      centerCoords: [-70,-30],
+      translate: [400, 300],
+      scale: 100
     },
     centralamerica: {
       x: 0,
       y: 0,
       width: 0,
       height: 0,
-      features: {}
+      features: {},
+      centerCoords: [-100,20],
+      translate: [250, 300],
+      scale: 100
     },
     usa: {
       x: 0,
       y: 0,
       width: 0,
       height: 0,
-      features: {}
+      features: {},
+      centerCoords: [-100,35],
+      translate: [320, 110],
+      scale: 300
     }
   }
 
 
 function createProjections() {
-  //projectionParams.usa.translate = [width/2, height/2];
   // Create a bunch of projections for different continents
-  d3.keys(projectionParams).forEach(function(key) {
-    var params = projectionParams[key];
+  d3.keys(worldrects).forEach(function(key) {
+    var params = worldrects[key];
     if (key == 'usa') {
-      projections[key] = d3.geo.albersUsa()
+      worldrects[key].projection = d3.geo.albersUsa()
         .translate(params.translate)
         .scale(params.scale);
     } else {
-      projections[key] = d3.geo.azimuthalEqualArea()
+      worldrects[key].projection = d3.geo.azimuthalEqualArea()
         .rotate([-params.centerCoords[0],-params.centerCoords[1]])  //negative numbers to rotate correctly
         .translate(params.translate)
         .scale(params.scale);
     }
+    worldrects[key].path = d3.geo.path().projection(worldrects[key].projection);
   });
 }
 
@@ -165,11 +144,10 @@ function fitIn(projection, obj, key) {
     .scale(1)
     .translate([0, 0]);
 
-
   var multiplier = 1;
   if (key) {
     try {
-      var c = projectionParams[key].centerCoords;
+      var c = worldrects[key].centerCoords;
       if (c) {
         projection.rotate([-c[0],-c[1]])
       }
@@ -184,11 +162,7 @@ function fitIn(projection, obj, key) {
       right = -Infinity,
       top = Infinity;
 
-  var bounds;
-
-
-
-  bounds = path.bounds(obj.features);
+  var bounds = path.bounds(obj.features);
 
   var dx = bounds[1][0] - bounds[0][0],
     dy = bounds[1][1] - bounds[0][1],
@@ -257,13 +231,13 @@ function drawWorld(world) {
   var sizeMiddle = [(width * .25)/2, (height * .25)/2];
 
   // building blocks
-  // Tinker with x, y, width and height to adjust layout
   var rects = worldrects;
 
   var rectsArr = [];
   for (var rect in rects) {
     rects[rect].features = parseWorldGeometry(world, rect);
 
+    // Tinker with x, y, width and height to adjust layout
     switch (rect) {
       case 'asia':
         rects[rect].x = 0;
@@ -314,6 +288,8 @@ function drawWorld(world) {
         rects[rect].width = sizeUSA[0] * 2;
         rects[rect].height = sizeUSA[1] * 2;
       break;
+      default:
+        break;
     }
 
     rects[rect].key = rect;
@@ -326,8 +302,8 @@ function drawWorld(world) {
       st = fitIn(d3.geo.azimuthalEqualArea(), rects[rect], rect)
     }
 
-    projectionParams[rect].scale = st[0];
-    projectionParams[rect].translate = st[1];
+    rects[rect].scale = st[0];
+    rects[rect].translate = st[1];
   }
 
   // show layout grid
@@ -363,7 +339,7 @@ function drawWorld(world) {
       return "land"
     })
     .attr("d", function(d) {
-      return d3.geo.path().projection(projections[d.key])(d.features);
+      return worldrects[d.key].path(d.features);
     });
 }
 
@@ -373,12 +349,11 @@ function drawCounties(data) {
 
   var counties = countiesGroup.selectAll(".county")
     .data(data, function(d){ return d.properties.id; });
-  var path = d3.geo.path().projection(projections['usa']);
 
   counties.enter().append('path')
     .attr('class', 'county')
     .attr('d', function(d,i){
-      return path(d.geometry);
+      return worldrects['usa'].path(d.geometry);
     })
     .style('fill', function(d) {
       return color(d.properties.fbPct);
@@ -426,7 +401,7 @@ function drawCountryConnections(countries) {
       .interpolate("cardinal");
 
     var pathData = d3.select(filtered[0][0]).datum();
-    var start = d3.geo.path().projection(projections['usa']).centroid(pathData);
+    var start = worldrects['usa'].path.centroid(pathData);
 
     countries.forEach(function(d){
 
@@ -539,26 +514,26 @@ function generateCountryNodes(countries) {
 
     if (d.continent == 'Europe') {
       proj = 'europe';
-      point = projections['europe'](lnglat);
+      point = worldrects['europe'].projection(lnglat);
     } else if (d.continent == 'Africa') {
       proj = 'africa';
-      point = projections['africa'](lnglat);
+      point = worldrects['africa'].projection(lnglat);
     } else if (d.continent == 'Asia') {
       proj = 'asia';
-      point = projections['asia'](lnglat);
+      point = worldrects['asia'].projection(lnglat);
     } else if (d.continent == 'Oceania') {
       proj = 'oceania';
-      point = projections['oceania'](lnglat);
+      point = worldrects['oceania'].projection(lnglat);
     } else if (d.continent == 'South America') {
       proj = 'southamerica';
-      point = projections['southamerica'](lnglat);
+      point = worldrects['southamerica'].projection(lnglat);
     } else if (d.continent == 'North America') {
       if (d.country== 'Canada' || d.country == 'French Canada') {
         proj = 'canada';
-        point = projections['canada'](lnglat);
+        point = worldrects['canada'].projection(lnglat);
       } else {
         proj = 'centralamerica';
-        point = projections['centralamerica'](lnglat);
+        point = worldrects['centralamerica'].projection(lnglat);
       }
     } else {
       // Null Island
@@ -606,7 +581,7 @@ function updateCountryNodes() {
   for(var decade in countryNodes) {
     var nodes = countryNodes[decade].nodes;
     nodes.forEach(function(d){
-      var point = projections[d.proj]([d.lng, d.lat])
+      var point = worldrects[d.proj].projection([d.lng, d.lat])
       d.x = point[0]+0.0001*Math.random();
       d.y = point[1]+0.0001*Math.random();
 
