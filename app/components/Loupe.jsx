@@ -10,7 +10,7 @@ var client = new CartoDBClient(config.cartodbAccountName);
 var QUERY = 'SELECT the_geom, gisjoin as nhgis_join FROM us_county_mapshaper_materialized WHERE year = {year} and ({bbox})';
 var filterOn = null
 var decade;
-var projection, path, extent;
+var projection, path, extent, queryProjection;
 var lookup;
 var width, height;
 var halt = false;
@@ -67,6 +67,7 @@ var Loupe = React.createClass({
     var elm = React.findDOMNode(this.refs.loupe);
     width = this.props.width || elm.offsetWidth;
     height = this.props.height || elm.offsetHeight;
+
   },
 
   componentDidMount: function() {
@@ -101,20 +102,7 @@ var Loupe = React.createClass({
     }
   },
 
-  /**
-   * Set projection and path
-   * based on a geojson feature
-   * @param object feature Geojson feature
-   */
-  setProjection: function(feature) {
-
-    projection = d3.geo.albersUsa()
-      .scale(1)
-      .translate([0,0]);
-
-    path = d3.geo.path()
-      .projection(projection);
-
+  getScaleAndTranslate: function(path, feature) {
     var bounds = path.bounds(feature),
         dx = bounds[1][0] - bounds[0][0],
         dy = bounds[1][1] - bounds[0][1],
@@ -123,7 +111,33 @@ var Loupe = React.createClass({
         s = .7 / Math.max(dx / width, dy / height),
         t = [width / 2 - s * x, height / 2 - s * y];
 
-    projection.scale(s).translate(t);
+    return [s,t];
+  },
+
+  /**
+   * Set projection and path
+   * based on a geojson feature
+   * @param object feature Geojson feature
+   */
+  setProjection: function(feature) {
+
+    queryProjection = d3.geo.mercator()
+      .scale(1)
+      .translate([0,0]);
+
+    projection = d3.geo.albersUsa()
+      .scale(1)
+      .translate([0,0]);
+
+    path = d3.geo.path()
+      .projection(projection);
+
+
+    var st = this.getScaleAndTranslate(path, feature)
+    projection.scale(st[0]).translate(st[1]);
+
+    st = this.getScaleAndTranslate(d3.geo.path().projection(queryProjection), feature);
+    queryProjection.scale(st[0]).translate(st[1]);
 
     var w2 = width/2,
         h2 = height/2,
@@ -131,16 +145,19 @@ var Loupe = React.createClass({
         dblH = height*2;
 
     extent = [[w2 - dblW , h2 - dblH], [w2 + dblW , h2 + dblH]];
+
     //var centroid = path.centroid(filtered[0]);
   },
 
   load: function() {
     var that = this;
     var decade = this.props.decade;
-    var leftTop = projection.invert(extent[0]);
-    var rightBottom = projection.invert(extent[1]);
+    var leftTop = queryProjection.invert(extent[0]);
+    var rightBottom = queryProjection.invert(extent[1]);
     var bbox = "ST_INTERSECTS(ST_MakeEnvelope("+([leftTop[0],rightBottom[1],rightBottom[0],leftTop[1]].join(','))+", 4326), the_geom)";
     var sql = QUERY.replace(/{year}/g, decade).replace(/{bbox}/g, bbox);
+
+    console.log(sql)
     var q = {
       key: 'hires',
       sql: sql,

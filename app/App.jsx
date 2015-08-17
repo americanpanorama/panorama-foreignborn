@@ -334,7 +334,7 @@ var App = React.createClass({
 
     var barChartHeight = middleHeight - (popTotalHeight + searchHeight + 20);
 
-    barChartHeight += 24;
+    barChartHeight += 24; // add difference between bottomHeight & actual height of About text block
 
     if (this.state.county) {
       barChartHeight -= (loupHeight + barchartCountyClose);
