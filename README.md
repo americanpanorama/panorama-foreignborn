@@ -39,11 +39,6 @@ npm start
 ```
 Open browser to http://localhost:8888/
 
-##Build
-To update the build directory
-```bash
-npm run build
-```
 
 ##Deploy
 **To use development code**: Copy the [build directory](./build) to your server, but for **production** you will want to run:
