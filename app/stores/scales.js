@@ -121,15 +121,12 @@ Scales.makeCountyRadiusScale = function(data) {
   });
 
 
-
   if (max < 20) {
     var range = rad.range().slice(0);
     return rad.domain([1,max]).range([range[0], range[3]])
   }
 
   var len = round(max / 5);
-
-  console.log("MAX: ", max, len)
 
   rad.domain([len * 1, len * 2, len * 3, len * 4]);
 

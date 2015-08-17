@@ -12,7 +12,7 @@ var IntroManager = {
   buttonClass: '.intro',
   steps: {
     legend: {
-      element: ".circle-legend-cell",
+      element: ".legends-cell",
       intro: legendText,
       position: "top"
     },
@@ -26,7 +26,6 @@ var IntroManager = {
       intro: timelineText,
       position: "top"
     }
-
   },
 
   init: function() {
@@ -39,7 +38,7 @@ var IntroManager = {
       'prevLabel': '⟨',
       'doneLabel': '×',
       'widthHeightPadding': 0,
-      'steps': [this.steps.barchart,this.steps.legend, this.steps.timeline]
+      'steps': [this.steps.barchart, this.steps.legend, this.steps.timeline]
     });
 
     this.intro.refresh();

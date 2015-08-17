@@ -2,12 +2,17 @@ var React   = require('react');
 var d3      = require('d3');
 
 
-var root, size = 0;
+var root,
+    size = 0,
+    width = 100,
+    height = 100;
+
 var LegendGrid = React.createClass({
 
   getDefaultProps: function () {
     return {
-      steps: 5
+      steps: 5,
+      margin: {top: 20, right: 20, bottom: 20, left: 20}
     };
   },
 
@@ -21,14 +26,14 @@ var LegendGrid = React.createClass({
 
   componentDidMount: function() {
     root = d3.select(React.findDOMNode(this.refs.legend));
-
+    this.getDimensions();
   },
 
   componentWillUnmount: function() {
   },
 
   componentDidUpdate: function() {
-    size = Math.min(Math.floor((root.node().offsetWidth - 2) / this.props.steps), Math.floor((root.node().offsetHeight - 2) / this.props.steps));
+    this.getDimensions();
     this.renderGrid(size);
   },
 
@@ -117,12 +122,28 @@ var LegendGrid = React.createClass({
 
   },
 
+  getDimensions: function() {
+
+    if (root) {
+      width = root.node().offsetWidth - this.props.margin.left - this.props.margin.right;
+      height = root.node().offsetHeight - this.props.margin.top - this.props.margin.bottom;
+    }
+
+    size = Math.min(Math.floor(width / this.props.steps), Math.floor(height / this.props.steps));
+
+    return [width, height];
+  },
+
   render: function() {
-    var wh = size * this.props.steps;
+    this.getDimensions();
+
+    var w = width + this.props.margin.left + this.props.margin.right;
+    var h = height + this.props.margin.top + this.props.margin.bottom;
+
     return (
         <div className="component legend grid" ref="legend">
-          <svg ref="svg" width={wh + 2} height={wh + 2}>
-          <g ref="grid" transform="translate(1,1)">
+          <svg ref="svg" width={w} height={h}>
+          <g ref="grid" transform={"translate(" + this.props.margin.left +  "," + this.props.margin.top + ")"}>
             <g ref="blocks"></g>
             <g ref="labels"></g>
           </g>

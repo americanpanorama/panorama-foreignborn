@@ -188,26 +188,40 @@ header {
 .footer {
   border-collapse: collapse;
   width: 100%;
-  height: 100px;
+  height: 124px;
 
   .td {
-    height: 100px;
+    height: 124px;
     text-align: left;
-    vertical-align: top;
+    vertical-align: bottom;
   }
 
-  .circle-legend-cell {
-    padding-right: 20px;
+  .legends-cell {
+    padding-right: 45px;
 
     .intro {
       bottom: 105%;
       left: -8px;
     }
-  }
 
-  .grid-legend-cell {
-    padding-top: 1px;
-    padding-right: 45px;
+    .nested-circle,
+    .grid {
+      display: inline-block;
+      vertical-align: top;
+      font-size: 0;
+    }
+
+    .grid {
+      position: relative;
+      top: 5px;
+    }
+
+    .nested-circle {
+      position: relative;
+      top: 2px;
+      height: 100px;
+      vertical-align: bottom ;
+    }
   }
 
   .timeline-cell {}
@@ -287,6 +301,8 @@ header {
 
 
 #about-time-period {
+  position: relative;
+  top: 24px;
   height: 100px;
 
   .title, .description {

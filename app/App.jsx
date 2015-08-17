@@ -323,7 +323,7 @@ var App = React.createClass({
     windowHeight -= windowPadding * 2;
 
     var headerHeight = 48;
-    var bottomHeight = 100;
+    var bottomHeight = 124;
     var middleHeight = windowHeight - bottomHeight;
     var mapHeight = middleHeight - headerHeight;
 
@@ -333,6 +333,8 @@ var App = React.createClass({
     var barchartCountyClose = 30;
 
     var barChartHeight = middleHeight - (popTotalHeight + searchHeight + 20);
+
+    barChartHeight += 24;
 
     if (this.state.county) {
       barChartHeight -= (loupHeight + barchartCountyClose);
@@ -524,12 +526,10 @@ var App = React.createClass({
               <div className="columns twelve">
                 <div className="table footer">
 
-                  <div className="td circle-legend-cell shrink">
+                  <div className="td legends-cell shrink">
                     <button className="link intro" data-step="1" onClick={this.openIntro}><span className="icon info"></span></button>
                     <LegendNestedCircles values={radiusLegend}/>
-                  </div>
 
-                  <div className="td grid-legend-cell shrink">
                     <LegendGrid steps={6}
                       xValues={this.props.valuesForGrid.xvals}
                       yValues={this.props.valuesForGrid.yvals}
