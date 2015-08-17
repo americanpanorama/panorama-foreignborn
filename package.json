@@ -44,6 +44,7 @@
     "vinyl-source-stream": "^1.1.0",
     "watchify": "^3.1.0",
     "main-bower-files": "~2.5.0",
+    "classnames": "^1.2.0",
     "react": "^0.13.1",
     "react-addons": "^0.9.1-deprecated",
     "flux": "^2.0.1",
