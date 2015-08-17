@@ -1,9 +1,9 @@
 var intro = require("intro.js").introJs;
 var d3    = require("d3");
 
-var barchartText = "The map shows where nearly a million enslaved people were moved from and where they were moved to through the American slave trade and the migration of planters from 1810 to 1860. Over time, the places where people were bought and the places where they were sold moved progressively westward.  The domestic slave trade changed continually, shifting shape in response to markets for cotton and sugar as well as to the seizing of land from the American Indians of the southeastern United States.";
-var legendText = "";
-var timelineText = "";
+var barchartText = "The regions where migrants came from shifted substantially over time. From 1820 to around 1880, immigrants from Germany, Ireland, and Scandinavia predominated; from 1880 to 1920, those from southern and eastern Europe; after 1965, those from Mexico, Central America, and Asia. Select a country to see and explore where immigrants from there settled in the US.";
+var legendText = "Migrants from some countries and regions like Scandinavia and Japan tended to settle in rural areas, while others like Italians and Irish mostly settled in cities. Greener areas mark areas where the percentage of foreign-born was higher; brighter areas where population density was greater, like cities.";
+var timelineText = "Text TK";
 
 var IntroManager = {
   state: false,

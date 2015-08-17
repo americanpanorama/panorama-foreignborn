@@ -11,11 +11,6 @@ ForeignBornCopy.errors['NO_COUNTRY_DATA_FOR_COUNTY'] = "Specific country data do
 ForeignBornCopy.errors['NO_COUNTY_DATA'] = "This county had no foreign-born population in the selected year"
 ForeignBornCopy.errors['NO_COUNTY'] = "This county did not exist in the selected year";
 
-//intro.js copy blocks
-ForeignBornCopy.barchart = "";
-ForeignBornCopy.timeline = "";
-ForeignBornCopy.bubblelegend = "";
-
 //copy for lower right decade descriptions
 ForeignBornCopy.years = {};
 ForeignBornCopy.years['1850'] = "In 1850, more than 2 of every 5 immigrants had been born in Ireland. Many had left fleeing growing poverty and later the potato famine. They mainly settled in urban areas of the northeast.";

@@ -61,7 +61,7 @@ Scales.radius = radius;
 Scales.getValuesForGridKey = function() {
   return {
     xvals: [0.04, 0.2, 0.35, 0.5, 0.7, 1].reverse(),
-    yvals: colors.range().reverse(),
+    yvals: Array.prototype.slice.call(colors.range()).reverse(), // shallow copy to avoid reversing original array
     axis: {
       xMin: '0',
       xMax: '50+',
