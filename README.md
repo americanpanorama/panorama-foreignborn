@@ -5,12 +5,7 @@ Latest build can be viewed at [http://studio.stamen.com/richmond/show/foreignbor
 
 
 ##Data Sets
-A list of all base datasets for this project in CartoDB.  Each one these should have a public `materialized` view as well.
-
-Dataset Name | Description
------------- | -----------
-site_foreignborn_counties_prod | US County shapes with counts
-site_foreignborn_rolled_country_counts | Country points with counts rolled up
+A list of all base datasets for this project in CartoDB can be found in [DATA.md](DATA.md)
 
 ##Dependencies
 * [NPM](https://www.npmjs.com/)
