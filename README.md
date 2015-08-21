@@ -12,7 +12,7 @@ A list of all base datasets for this project in CartoDB can be found in [DATA.md
 * [CartoDB](https://cartodb.com/) account
 
 ##Setup
-Make sure you have [NPM](https://www.npmjs.com/) installed.
+Make sure you have [NPM](https://www.npmjs.com/) installed. If it's been a while since you last installed or updated, you may want to reinstall. This install is tested successfully against `0.12.7`
 
 Load required **NPM** modules.
 ```bash
