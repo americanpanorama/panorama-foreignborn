@@ -350,8 +350,9 @@ function drawCounties(data) {
   var counties = countiesGroup.selectAll(".county")
     .data(data, function(d){ return d.properties.id; });
 
-  counties.enter().append('path')
-    .attr('class', 'county')
+  counties.enter().append('path');
+
+  counties.attr('class', 'county')
     .attr('d', function(d,i){
       return worldrects['usa'].path(d.geometry);
     })
@@ -560,12 +561,19 @@ function generateCountryNodes(countries) {
     }
   });
 
+  nodes = nodes.filter(function(d){
+    return d && d.country;
+  });
+
   // put smaller countries on top
   nodes.sort(function(a,b){
     return b.value - a.value;
   });
 
   nodes.forEach(function(d,i) {
+    if (!d) {
+      console.log(d);
+    }
     d.zIndex = i;
   });
 
@@ -711,7 +719,7 @@ var DisjointedWorldLayout = React.createClass({
     if (decade !== this.props.decade) {
       if (props.countries && props.countries.length && props.counties && props.counties.length) {
         decade = this.props.decade;
-
+        selectedCountry = props.selectedCountry;
         drawCountries(props.countries, props.selectedCountry);
         drawCounties(props.counties);
       }

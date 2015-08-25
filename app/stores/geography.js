@@ -6,6 +6,7 @@ var Constants     = require('../constants/Constants.js');
 
 var d3            = require('d3');
 var topojson      = require('topojson');
+var Immutable     = require('immutable');
 
 var CHANGE_EVENT  = "change";
 
@@ -196,7 +197,7 @@ function filterCountyGeometriesByDecade(decade) {
   var now = decade * 10000 + 101;
 
   var filtered = data['countyGeometries'].filter(function(d){
-    return d.properties['start_n'] <= now && d.properties['end_n'] >= now;
+    return d.properties['start_n'] <= now && d.properties['end_n'] >= now && d.properties['nhgis_join'] !== null;
   });
 
   filtered.forEach(function(d,i){
@@ -332,9 +333,10 @@ var GeographyStore = assign({}, EventEmitter.prototype, {
     return data;
   },
 
+  // TODO: refactor make immutable
   getDataByDecade: function(decade) {
 
-    if (decadeData[decade]) return decadeData[decade];
+    //if (decadeData[decade]) return Immutable.Map(decadeData[decade]).toObject();
 
     var country = data['countryByYear'][decade] || [],
         world = data['world'] || [],
@@ -348,7 +350,10 @@ var GeographyStore = assign({}, EventEmitter.prototype, {
       countyGeo: countyGeo
     };
 
-    if (!decadeData[decade] && state.loaded) decadeData[decade] = o;
+    return o;
+    //o = Immutable.Map(o).toObject();
+
+    //if (!decadeData[decade] && state.loaded) decadeData[decade] = o;
 
     return o;
   },
