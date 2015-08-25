@@ -454,7 +454,7 @@ var App = React.createClass({
             <header className="header">
               <div className="table">
                 <div className="td">
-                  <span className="decorative-decade">1810</span><h1>Foreign-Born<br/>Population</h1><span className="decorative-decade">2010</span>
+                  <span className="decorative-decade">1850</span><h1>Foreign-Born<br/>Population</h1><span className="decorative-decade">2010</span>
                 </div>
                 <p className="tagline">A Nation of Overlapping Diasporas</p>
               </div>
