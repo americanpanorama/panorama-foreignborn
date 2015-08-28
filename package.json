@@ -59,10 +59,10 @@
     "seamless-immutable": "",
     "topojson": "^1.6.19",
     "vinyl-source-stream": "^1.1.0",
-    "watchify": "^3.1.0"
+    "watchify": "^3.1.0",
     "react-modal": "^0.2.0",
     "proj4": "",
     "intro.js": "stamen/intro.js.git",
-    "react-typeahead": "stamen/react-typeahead.git",
+    "react-typeahead": "stamen/react-typeahead.git"
   }
 }

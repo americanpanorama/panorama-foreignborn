@@ -48,5 +48,18 @@ SELECT year, SUM(count) as pop FROM population_data2 WHERE population_category_i
 SELECT a.country, a.nhgis_join, a.count, a.year, b.count as place_total FROM (SELECT fbcp.country, RTRIM(fb.nhgis_join) as nhgis_join, SUM(fb.count) as count, fb.year from foreign_born2 fb join foreign_born_country_points fbcp on fbcp.category_id = fb.category group by RTRIM(fb.nhgis_join), fbcp.country, fb.year) a JOIN (SELECT year, SUM(count) as count, RTRIM(nhgis_join) as nhgis_join FROM population_data2 WHERE population_category_id = 64 GROUP BY year, RTRIM(nhgis_join)) b on a.nhgis_join = b.nhgis_join and a.year = b.year
 ```
 
+####site_foreignborn_country_to_county_counts_materialized
+**Parent:** `site_foreignborn_country_to_county_counts`
+
+**Tables:**
+* foreign_born2
+* foreign_born_country_points
+
+**SQL**
+```sql
+select fb.category, fbcp.country, fb.count, fb.nhgis_join, fb.year from foreign_born2 fb join foreign_born_country_points fbcp on fb.category = fbcp.category_id
+
+```
+
 ####us_county_mapshaper_materialized
 **Parent:** `us_county_mapshaper`

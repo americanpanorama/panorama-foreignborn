@@ -36,6 +36,7 @@ var hashManager = require('./lib/hashManager.js');
 var decadeBounds = [1850,2010];
 var numberFormatter = d3.format('0,');
 var percentFormatter = function(v){
+  if (v === 0) return "";
 
   // above 1%
   if (v >= 0.01) return d3.format('.1%')(v);
@@ -174,6 +175,8 @@ var App = React.createClass({
             this.setState({'decade': GeographyStore.decade(), 'geographyData': GeographyStore.getDataByDecade(GeographyStore.decade()) });
           } else if(obj.type === Constants.GET_COUNTY_BREAKDOWN_DATA) {
             this.setState({county: GeographyStore.county(), country:null});
+          } else if(obj.type === Constants.GET_COUNTRY_BREAKDOWN_DATA) {
+            this.setState({county: null, country:GeographyStore.country()});
           } else {
             this.setState({'geographyData': GeographyStore.getDataByDecade(this.state.decade)});
           }
@@ -207,8 +210,9 @@ var App = React.createClass({
         GeographyStore.decade(val);
         GeographyStore.emitChange(Constants.GET_DECADE_DATA, 'GeographyStore');
       } else {
-        Actions.getDataForDecade(val, GeographyStore.getBackFill(val), this.state.county)
+        Actions.getDataForDecade(val, GeographyStore.getBackFill(val), this.state.county, this.state.country)
       }
+
     }
   },
 
@@ -220,7 +224,6 @@ var App = React.createClass({
       this.centralStateSetter({"width":w});
     }
   },
-
 
   openIntro: function(e) {
     if (this.state.showAbout) this.toggleAbout();
@@ -247,7 +250,14 @@ var App = React.createClass({
       hashManager.updateHash(true);
       this.toggleCountyClass(false);
       this.toggleCountryClass(true);
-      this.centralStateSetter({county: null, country:obj.country});
+
+      if(GeographyStore.countryLoaded(obj.country, this.state.decade)) {
+        this.centralStateSetter({county: null, country:obj.country});
+      } else {
+        Actions.getSelectedCountry(obj.country, this.state.decade);
+      }
+
+
     } else {
       hashManager.mergeHash({county: obj.properties.nhgis_join, country: null});
       hashManager.updateHash(true);
@@ -356,6 +366,7 @@ var App = React.createClass({
     var radiusLegend = this.props.radiusScaleValuesForLegend;
     var countriesForCounties = [];
     var countiesFiltered = [];
+    var countiesForCountry = [];
     var count = 0;
     var percent = '';
     var t;
@@ -364,7 +375,7 @@ var App = React.createClass({
     if (this.state.county) {
       secondaryOverlay = GeographyStore.getCountyPercents(this.state.county);
 
-      countriesForCounties = GeographyStore.getCountriesForCounties(this.state.county, this.state.decade);
+      countriesForCounties = GeographyStore.getCountriesForCounty(this.state.county, this.state.decade);
       radiusScale = Scales.makeCountyRadiusScale(countriesForCounties);
       radiusLegend = Scales.getLegendForCounty(radiusScale);
 
@@ -411,6 +422,8 @@ var App = React.createClass({
         percent = percentFormatter(t[0].pct);
       }
 
+      countiesForCountry = GeographyStore.getCountiesForCountry(this.state.country, this.state.decade);
+
     } else {
       count = d3.sum(this.state.geographyData.country, function(d){ return d.count; });
       count = numberFormatter(count);
@@ -444,7 +457,9 @@ var App = React.createClass({
 
     clearMe = 0;
     var redrawMap = (viewportDirty) ? true : false;
-    viewportDirty = false
+    viewportDirty = false;
+
+    console.log(secondaryOverlay)
 
     // render DOM-ish
     return (
@@ -473,6 +488,7 @@ var App = React.createClass({
                 radiusScale={radiusScale}
                 colorScale={this.props.colorScale}
                 opacityScale={this.props.opacityScale}
+                countiesForCountry={countiesForCountry}
                 redraw={redrawMap}
               />
             </div>

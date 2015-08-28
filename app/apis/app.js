@@ -6,7 +6,8 @@ var TIMEOUT = 10000;
 
 var _pendingRequests = {};
 
-var COUNTRY_QUERY = 'SELECT ST_X(the_geom) as lng,ST_Y(the_geom) as lat,category_id,count,country,continent,year FROM site_foreignborn_rolled_country_counts_materialized';
+var COUNTRY_QUERY = 'SELECT ST_X(the_geom) as lng,ST_Y(the_geom) as lat,category_id,count,country,continent,year,category_id FROM site_foreignborn_rolled_country_counts_materialized';
+var COUNTRY_POP_BREAKDOWN = "select category,count,RTRIM(nhgis_join) as nhgis_join from site_foreignborn_country_to_county_counts_materialized where country='{country}' and year={year}";
 var COUNTY_QUERY = 'SELECT SUM(count) as count, SUM(cty_pop) as cty_pop, AVG(area_sqmi) as area_sqmi, nhgis_join FROM site_foreignborn_counties_prod_materialized WHERE start_n < {startN} and end_n >= {startN} and year = {year} group by nhgis_join';
 var TOTAL_US_POP = 'SELECT year, pop FROM site_foreignborn_us_pop_totals_materialized';
 var COUNTY_BREAKDOWN = "SELECT year, country, count, place_total FROM site_foreignborn_county_breakdowns_materialized WHERE RTRIM(nhgis_join) = '{nhgis_join}'";
@@ -73,6 +74,13 @@ function countyPopulationBreakdown(nhgis_join) {
   }
 }
 
+function countryBreakdownByDecade(country, decade) {
+  return {
+    key: 'country_breakdown:' + country + ':' + decade,
+    sql: COUNTRY_POP_BREAKDOWN.replace(/{country}/g, country).replace(/{year}/g, decade),
+    options: {"format":"JSON"}
+  }
+}
 
 function makeCountyQueryObject(decade) {
   var start = decade * 10000 + 101;
@@ -124,10 +132,14 @@ var Api = {
       queue.push(countyPopulationBreakdown(county));
     }
 
+    if (country) {
+      queue.push(countryBreakdownByDecade(country, decade))
+    }
+
     makeRequest(key, params, queue);
   },
 
-  getDataForDecade: function(decade, backfill, county) {
+  getDataForDecade: function(decade, backfill, county, country) {
     var key = Constants.GET_DECADE_DATA;
     var params = {decade: decade};
 
@@ -146,6 +158,10 @@ var Api = {
       queue.push(countyPopulationBreakdown(county));
     }
 
+    if (country) {
+      queue.push(countryBreakdownByDecade(country, decade))
+    }
+
     makeRequest(key, params, queue);
   },
 
@@ -159,7 +175,14 @@ var Api = {
     ];
 
     makeRequest(key, params, queue);
-  }
+  },
+
+  getSelectedCountry: function (country, dec) {
+    var key = Constants.GET_COUNTRY_BREAKDOWN_DATA;
+    var params = {country: country, decade: dec};
+    var queue = [countryBreakdownByDecade(country, dec)];
+    makeRequest(key, params, queue);
+  },
 
 };
 

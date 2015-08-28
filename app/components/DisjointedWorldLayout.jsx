@@ -346,7 +346,6 @@ function drawWorld(world) {
 function drawCounties(data) {
   var that = this;
   var t = +new Date();
-
   var counties = countiesGroup.selectAll(".county")
     .data(data, function(d){ return d.properties.id; });
 
@@ -359,6 +358,7 @@ function drawCounties(data) {
     .style('fill', function(d) {
       return color(d.properties.fbPct);
     })
+    .style('display','block')
     .style('stroke', function(d) {
       return color(d.properties.fbPct);
     })
@@ -373,6 +373,31 @@ function drawCounties(data) {
 
   var elapsed = +new Date() - t;
   console.log("Elapsed SVG: ", (elapsed/1000));
+}
+
+function resetFilteredCounties() {
+   countiesGroup.selectAll(".county")
+    .style("opacity", function(d) {
+      return opacity(d.properties.density);
+    });
+}
+
+function filterCounties(counties) {
+  if (!counties.length) return resetFilteredCounties();
+
+  var lookup={};
+  counties.forEach(function(d){
+    lookup[d.nhgis_join] = 1;
+  });
+
+  var f = countiesGroup.selectAll(".county")
+    .style("opacity", function(d) {
+      return opacity(d.properties.density);
+    })
+    .filter(function(d){
+      return !lookup[d.properties.nhgis_join];
+    })
+    .style('opacity',0);
 }
 
 function drawCountryConnections(countries) {
@@ -550,6 +575,7 @@ function generateCountryNodes(countries) {
     return {
       country: d.country,
       key: d.country,
+      cat: d['category_id'],
       proj: proj,
       lat: d.lat,
       lng: d.lng,
@@ -730,6 +756,10 @@ var DisjointedWorldLayout = React.createClass({
         selectedCountry = props.selectedCountry;
         toggleCountries(selectedCountry);
       }
+    }
+
+    if (props.countiesForCountry) {
+      filterCounties(props.countiesForCountry);
     }
 
     if (this.props.countriesForCounties) {

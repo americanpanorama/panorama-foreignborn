@@ -20,6 +20,7 @@ var data = {
 var countyDataLookup = window.countyDataLookup =  {};
 var countyGeometriesLoaded = {};
 var countyBreakdowns = {};
+var countryBreakdowns = {};
 
 var state = {
   loaded: false,
@@ -39,6 +40,9 @@ function setData(newData, decade) {
 
     if (d.key === 'country') {
       data['countryByYear'] = rollupCountryData(d.response.rows);
+
+    } else if(d.key.indexOf('country_breakdown') === 0) {
+      processCountryBreakdown(d);
 
     } else if(d.key === 'us_counties') {
       processCountyData(d, decade);
@@ -62,6 +66,27 @@ function setData(newData, decade) {
         data[d.key] = d.response;
       }
     }
+  });
+}
+
+function processCountryBreakdown(obj) {
+  var keyParts = obj.key.split(':'),
+      country = keyParts[1],
+      decade = keyParts[2];
+
+  if (!countryBreakdowns[decade]) countryBreakdowns[decade] = {};
+  countryBreakdowns[decade][country] = [];
+
+  var total = d3.sum(obj.response.rows, function(d){return d.count;});
+
+  obj.response.rows.forEach(function(d){
+    countryBreakdowns[decade][country].push({
+      pct: d.count / total,
+      value: d.count,
+      yr: decade,
+      'nhgis_join': d.nhgis_join
+    });
+
   });
 }
 
@@ -370,7 +395,7 @@ var GeographyStore = assign({}, EventEmitter.prototype, {
     //return countyBreakdowns[county].overlay || []
   },
 
-  getCountriesForCounties: function(county, decade) {
+  getCountriesForCounty: function(county, decade) {
     if (!countyBreakdowns[county]) return [];
 
     return countyBreakdowns[county].decades[decade] || []
@@ -378,6 +403,28 @@ var GeographyStore = assign({}, EventEmitter.prototype, {
 
   getSelectedCountry: function(country) {
     var o = [];
+    if (!data['total_us_pop'] || !data['total_us_pop'].length) return [];
+
+    data['total_us_pop'].forEach(function(d){
+      var r = [];
+      if (data['countryByYear'] && data['countryByYear'][d.year]) {
+        r = data['countryByYear'][d.year].filter(function(d){
+          return d.country === country;
+        });
+      }
+
+      var count = (r.length) ? r[0].count : 0;
+      var pct = (r.length) ? count/d.pop : 0;
+
+      o.push({
+        year: d.year,
+        count: count,
+        date: new Date("1/1/" + d.year),
+        pct: pct
+      });
+
+    });
+
 
     for(var yr in data['countryByYear']) {
       var r = data['countryByYear'][yr].filter(function(d){
@@ -449,6 +496,15 @@ var GeographyStore = assign({}, EventEmitter.prototype, {
     return !!countyBreakdowns[county];
   },
 
+  countryLoaded: function(country, decade) {
+    return !!(countryBreakdowns[decade] && countryBreakdowns[decade][country]);
+  },
+
+  getCountiesForCountry: function(country, decade) {
+    if(!this.countryLoaded(country, decade)) return [];
+    return countryBreakdowns[decade][country] || [];
+  },
+
   getCountyColorScale: function(arr) {
 
   },
@@ -516,6 +572,14 @@ AppDispatcher.register(function(action) {
           setData(action.response, action.queryParams.decade);
 
           GeographyStore.emitChange(Constants.GET_COUNTY_BREAKDOWN_DATA, 'GeographyStore');
+        }
+      break;
+    case Constants.GET_COUNTRY_BREAKDOWN_DATA:
+        if (action.response instanceof Array) {
+          state.country = action.queryParams.country;
+          setData(action.response, action.queryParams.decade);
+
+          GeographyStore.emitChange(Constants.GET_COUNTRY_BREAKDOWN_DATA, 'GeographyStore');
         }
       break;
 
