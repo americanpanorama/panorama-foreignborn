@@ -420,18 +420,27 @@ var App = React.createClass({
       t = secondaryOverlay.filter(function(d){
         return d.year == that.state.decade;
       });
+
       if (t.length) {
         count = numberFormatter(t[0].count);
         percent = percentFormatter(t[0].pct);
+      } else {
+        //error = ForeignBornCopy.errors['NO_COUNTRY_DATA'];
       }
 
       countiesForCountry = GeographyStore.getCountiesForCountry(this.state.country, this.state.decade);
-      colorScale = Scales.adjustColorScale(countiesForCountry, 'pct');
+      if (countiesForCountry && countiesForCountry.length) {
+        colorScale = Scales.adjustColorScale(countiesForCountry, 'pct');
+        // opacityScale
 
-      var colorDomain = colorScale.domain();
-      var yMax = Math.floor(colorDomain[colorDomain.length-1] * 100) + '%';
-      valuesForGrid = Scales.getValuesForGridKey(null, null, null, yMax, null, null);
-      // opacityScale
+        var colorDomain = colorScale.domain();
+        var yMax = Math.floor(colorDomain[colorDomain.length-1] * 100) + '%';
+        valuesForGrid = Scales.getValuesForGridKey(null, null, null, yMax, null, null);
+      } else {
+        if (!error) {
+
+        }
+      }
 
     } else {
       count = d3.sum(this.state.geographyData.country, function(d){ return d.count; });

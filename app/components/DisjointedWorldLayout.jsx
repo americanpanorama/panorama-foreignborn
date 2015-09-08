@@ -377,6 +377,12 @@ function drawCounties(data) {
 
 function resetFilteredCounties() {
    countiesGroup.selectAll(".county")
+    .style('fill', function(d) {
+      return color(d.properties.fbPct);
+    })
+    .style('stroke', function(d) {
+      return color(d.properties.fbPct);
+    })
     .style("opacity", function(d) {
       return opacity(d.properties.density);
     });
@@ -387,12 +393,18 @@ function filterCounties(counties) {
 
   var lookup={};
   counties.forEach(function(d){
-    lookup[d.nhgis_join] = 1;
+    lookup[d.nhgis_join] = d;
   });
 
   var f = countiesGroup.selectAll(".county")
     .style("opacity", function(d) {
       return opacity(d.properties.density);
+    })
+    .style('fill', function(d) {
+      return (lookup[d.properties.nhgis_join]) ? color(lookup[d.properties.nhgis_join].pct) : color(d.properties.fbPct);
+    })
+    .style('stroke', function(d) {
+      return (lookup[d.properties.nhgis_join]) ? color(lookup[d.properties.nhgis_join].pct) : color(d.properties.fbPct);
     })
     .filter(function(d){
       return !lookup[d.properties.nhgis_join];

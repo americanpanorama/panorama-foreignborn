@@ -147,11 +147,11 @@ Scales.adjustColorScale = function(data, key) {
     return d[key];
   });
 
-  var len = (Math.floor(max * 100)) / 5;
+  var max2 = max * 100;
+  var max = Math.floor(max * 100 * .4);
+  var len =  max / 5;
   var cl = colors.copy();
   cl.domain([len * 1/100, len * 2/100, len * 3/100, len * 4/100, len * 5/100]);
-
-  //console.log(max, len, cl.domain())
 
   return cl;
 }
