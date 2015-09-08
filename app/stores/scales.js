@@ -4,10 +4,12 @@
 *
 **/
 
+// Density (people per sq/mi)
 var opacity = d3.scale.threshold()
   .domain([0.1, 1, 5, 10, 20, 50])
   .range([0.04, 0.2, 0.36, 0.52, 0.68, 0.84, 1]);
 
+// Foreign-born percentage
 var colors = d3.scale.threshold()
   .domain([0.05, 0.1, 0.20, 0.30, 0.4])
   .range(["#318cb4","#3190a8","#2e949b","#28988f","#1f9b83","#0d9f76"]);
@@ -58,19 +60,26 @@ Scales.opacity = opacity;
 Scales.colors = colors;
 Scales.radius = radius;
 
-Scales.getValuesForGridKey = function() {
+Scales.getValuesForGridKey = function(xMin, xMax, yMin, yMax, xLabel, yLabel) {
+  xMin = xMin || '0';
+  xMax = xMax || '50+';
+  yMin = yMin || '0%';
+  yMax = yMax || '40%';
+  xLabel = xLabel || 'people per sq/mi';
+  yLabel = yLabel || 'foreign-born';
+
   return {
     xvals: [0.04, 0.2, 0.35, 0.5, 0.7, 1].reverse(),
     yvals: Array.prototype.slice.call(colors.range()).reverse(), // shallow copy to avoid reversing original array
     axis: {
-      xMin: '0',
-      xMax: '50+',
-      yMin: '0%',
-      yMax: '40%'
+      xMin: xMin,
+      xMax: xMax,
+      yMin: yMin,
+      yMax: yMax
     },
     labels: {
-      x: "people per sq/mi",
-      y: "foreign-born"
+      x: xLabel,
+      y: yLabel
     }
   }
 }
@@ -131,6 +140,26 @@ Scales.makeCountyRadiusScale = function(data) {
   rad.domain([len * 1, len * 2, len * 3, len * 4]);
 
   return rad;
+}
+
+Scales.adjustColorScale = function(data, key) {
+  var max = d3.max(data, function(d){
+    return d[key];
+  });
+
+  var len = (Math.floor(max * 100)) / 5;
+  var cl = colors.copy();
+  cl.domain([len * 1/100, len * 2/100, len * 3/100, len * 4/100, len * 5/100]);
+
+  //console.log(max, len, cl.domain())
+
+  return cl;
+}
+
+Scales.makeOpacityScale = function() {
+  var op = opacity.copy();
+
+  return op;
 }
 
 module.exports = Scales;

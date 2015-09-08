@@ -364,6 +364,9 @@ var App = React.createClass({
     var secondaryOverlay = [];
     var radiusScale = this.props.radiusScale;
     var radiusLegend = this.props.radiusScaleValuesForLegend;
+    var opacityScale = this.props.opacityScale;
+    var colorScale =  this.props.colorScale;
+    var valuesForGrid = this.props.valuesForGrid;
     var countriesForCounties = [];
     var countiesFiltered = [];
     var countiesForCountry = [];
@@ -423,6 +426,12 @@ var App = React.createClass({
       }
 
       countiesForCountry = GeographyStore.getCountiesForCountry(this.state.country, this.state.decade);
+      colorScale = Scales.adjustColorScale(countiesForCountry, 'pct');
+
+      var colorDomain = colorScale.domain();
+      var yMax = Math.floor(colorDomain[colorDomain.length-1] * 100) + '%';
+      valuesForGrid = Scales.getValuesForGridKey(null, null, null, yMax, null, null);
+      // opacityScale
 
     } else {
       count = d3.sum(this.state.geographyData.country, function(d){ return d.count; });
@@ -459,7 +468,6 @@ var App = React.createClass({
     var redrawMap = (viewportDirty) ? true : false;
     viewportDirty = false;
 
-    console.log(secondaryOverlay)
 
     // render DOM-ish
     return (
@@ -486,8 +494,8 @@ var App = React.createClass({
                 counties={this.state.geographyData.countyGeo || []}
                 world={this.state.geographyData.world}
                 radiusScale={radiusScale}
-                colorScale={this.props.colorScale}
-                opacityScale={this.props.opacityScale}
+                colorScale={colorScale}
+                opacityScale={opacityScale}
                 countiesForCountry={countiesForCountry}
                 redraw={redrawMap}
               />
@@ -530,8 +538,8 @@ var App = React.createClass({
               filterOn={this.state.county}
               data={this.state.geographyData.countyGeo || []}
               decade={this.state.decade}
-              colorScale={this.props.colorScale}
-              opacityScale={this.props.opacityScale}
+              colorScale={colorScale}
+              opacityScale={opacityScale}
               height={loupHeight-20}
               redraw={redrawMap} />
           </div>
@@ -547,10 +555,10 @@ var App = React.createClass({
                     <LegendNestedCircles values={radiusLegend}/>
 
                     <LegendGrid steps={6}
-                      xValues={this.props.valuesForGrid.xvals}
-                      yValues={this.props.valuesForGrid.yvals}
-                      axisLabels={this.props.valuesForGrid.axis}
-                      labels={this.props.valuesForGrid.labels}/>
+                      xValues={valuesForGrid.xvals}
+                      yValues={valuesForGrid.yvals}
+                      axisLabels={valuesForGrid.axis}
+                      labels={valuesForGrid.labels}/>
                   </div>
 
                   <div className="td timeline-cell expand">
