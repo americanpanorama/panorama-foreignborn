@@ -3,7 +3,7 @@ var d3    = require("d3");
 
 var barchartText = "The regions where migrants came from shifted substantially over time. From 1820 to around 1880, immigrants from Germany, Ireland, and Scandinavia predominated; from 1880 to 1920, those from southern and eastern Europe; after 1965, those from Mexico, Central America, and Asia. Select a country to see and explore where immigrants from there settled in the US.";
 var legendText = "Migrants from some countries and regions like Scandinavia and Japan tended to settle in rural areas, while others like Italians and Irish mostly settled in cities. Greener areas mark areas where the percentage of foreign-born was higher; brighter areas where population density was greater, like cities.";
-var timelineText = "Text TK";
+var timelineText = "The proportion of US residents who were foreign born has varied over time, ranging around the turn of the 20th century from roughly 3 of every 20 residents to a low point of about one of every 20 at midcentury. One word of caution as you use this map: the data collected by the Census Bureau was itself a product of culture and politics, so how the foreign-born population was counted changed and evolved over time. Most importantly, from 1910 through 1950 the Census Bureau only collected data on the white foreign-born population. During this period the number of foreign born from Asia and Africa were very modest. The Chinese Exclusion Act of 1882 and the Immigration Act of 1824 greatly restricted and in some cases prohibited immigration from those continents.";
 
 var IntroManager = {
   state: false,

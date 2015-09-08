@@ -593,35 +593,29 @@ var App = React.createClass({
 
         <Modal isOpen={this.state.about} onRequestClose={this.toggleAbout} className="overlay">
           <button className="close" onClick={this.toggleAbout}><span>×</span></button>
-          <p>The Oregon and California Trails stretched nearly 2,000 miles from jumping-off points near the Missouri River to the Willamette Valley in Oregon and the Sacramento Valley in California; the Mormon Trail 1,300 miles from Nauvoo, Illinois, to Salt Lake City. While dozens of alternate cutoffs were developed to shorten journeys, the course of rivers—the Platte, Sweetwater, Snake, and Humboldt—that provided emigrants and their animals with water dictated the majority of the routes.</p>
+          <h1>About this Map</h1>
 
-          <h2>A Note on Sources and Methods</h2>
+          <p>The subtitle is borrowed from historian Robin D.G. Kelley, who begins one of his essays with the question "What is the United States, if not a nation of overlapping diasporas?" At all points in its history, a significant proportion of the population of the United States had been born in other countries and regions. This being the case, American history can never be understood by just looking within its borders. The culture and politics of the US have always been profoundly shaped by the material and emotional ties many of its residents have had to the places where they were born. This map will allow you to begin to explore those connections at the basic level of demographic statistics. </p>
 
-          <p>The most significant evidence for this map comes from 2000 individual entries from about two dozen Overland Trails diaries that we have plotted in time and space. Most diarist carefully noted the distance they had traveled that day and where they camped. Still, in many cases a location can only be estimated but not precisely identified. Citations for each journal are provided in the narratives column.</p>
+          <h2>Sources</h2>
 
-          <p>Merrill J. Mattes's Platte River Road Narratives (Urbana: University of Illinois Press, 1988) was indispensible in helping us select diaries to transcribe and georeference. The National Park Services's national historic trails data was enormously helpful in helping us georeference diary entries.</p>
-
-          <p>For the flow map, we use John D. Unruh's estimates of annual emigrants to Oregon, California, and Utah from The Plain's Across: The Overland Emigrants and the Trans-Mississippi West, 1840-60 ([Urbana: University of Illinois Press, 1979], 119-120, tables 1 and 2). While Unruh's estimates are generally accepted as the best that have been offered to day, his caution should be kept in mind: "no one attempting to provide statistics for the overland emigrations can offer more than educated estimates for most years, especially for the later 1850s, when the estimates of necessity become almost pure guesswork" (442).</p>
-          <p>The location of Indian tribes is adapted from maps from Francis Paul Prucha, Atlas of American Indian Affairs(Lincoln: University of Nebraska Press, 1990), 5, map 2. State boundaries are from the Newberry Library's <a href="http://publications.newberry.org/ahcbp/">Atlas of Historical County Boundaries</a>.</p>
+          <p>All of the data comes from <a href='https://www.nhgis.org/'>Minnesota Population Center, National Historical Geographic Information System: Version 2.0 (Minneapolis, MN: University of Minnesota, 2011)</a>. County boundaries are from the Newberry Library's <a href='http://publications.newberry.org/ahcbp/'>Atlas of Historical County Boundaries</a>.</p>
 
           <h2>Suggested Reading</h2>
+
+          <p>Much of the best scholarship on the foreign born concentrates on particular groups at specific moments in time, works like George J. Sanchez's <cite>Becoming Mexican American: Ethnicity, Culture and Identity in Chicano Los Angeles, 1900-1945</cite>. Some thoughtful works that deal with the foreign-born population and issues of migration more generally are:</p>
+
           <ul>
-              <li>Will Bagley, So Rugged and Mountainous: Blazing the Trails to Oregon and California, 1812–1848 (Norman: University of Oklahoma Press, 2010).</li>
-              <li>Will Bagley, With Golden Visions Bright Before Them: Trails to the Mining West, 1849–1852 (Norman: University of Oklahoma Press, 2012).</li>
-              <li>John Mack Faragher, Women and Men on the Overland Trail, 2nd edition (New Haven: Yale University Press, 2001).</li>
-              <li>Merrill Mattes, Platte River Road Narratives: A Descriptive Bibliography of Travel Over the Great Centeral Overland Route to Oregon, California, Utah, Colorado, Montana, and Other Western States and Territories, 1812-1866 (Urbana: University of Illinois Press, 1988).</li>
-              <li>John D. Unruh, The Plains Across: The Overland Emigrants and the Trans-Mississippi West, 1840-60 (Urbana: University of Illinois Press, 1979).</li>
-              <li>Michael L. Tate, Indians and Emigrants: Encounters on the Overland Trails (University of Oklahoma Press, 2006).</li>
-              <li>John G. Turner, Brigham Young: Pioneer Prophet (Cambridge: Belknap Press, 2012).</li>
+            <li>Roger Daniels, <cite>Coming to America: A History of Immigration and Ethnicity in American Life</cite> (New York: Harper Collins, 1990).</li>
+            <li>Thomas Bender, ed. <cite>Rethinking American History in a Global Age</cite> (Berkeley, CA: University of California Press, 2002). [Kelley's essay "How the West Was One: The African Diaspora and the Remapping of U.S. History" is in this collection.]</li>
+            <li>Henry Yu, "Los Angeles and American Studies in a Pacific World of Migrations," <cite>American Quarterly</cite> 56 (September 2004) 531-543.</li>
           </ul>
 
-          <h2>Acknowledgments</h2>
+          <h2>Acknowledgements</h2>
 
-          <p>This map is authored by the staff of the Digital Scholarship Lab: Robert K. Nelson, Edward L. Ayers, Justin Madron, and Nathaniel Ayers. Scott Nesbit contributed substantially to the preliminary drafts.</p>
+        <p>This map is authored by the staff of the Digital Scholarship Lab: Robert K. Nelson, Scott Nesbit, Edward L. Ayers, Justin Madron, and Nathaniel Ayers. Kim D'agostini and Erica Havens geolocated country locations.</p>
 
-          <p>Katie Burke, Lily Calaycay, Anna Ellison, Erica Havens, Erica Ott, Barbie Savani, Beaumont Smith, and Shayna Webb transcribed and georeferenced journals.</p>
-
-          <p>The developers, designers, and staff at Stamen Design Studio have been exceptional partners on this project. Our thanks to Sean Connelley, Kai Chang, Jon Christensen, Seth Fitzsimmons, Heather Grates, Alan McConchie, Michael Neuman, Dan Rademacher, and Eric Rodenbeck.</p>
+          <p>The developers, designers, and staff at Stamen Design Studio have been exceptional partners on this project. Our thanks to Kai Chang, Jon Christensen, Seth Fitzsimmons, Eric Gelinas, Sean Connelley, Nicolette Hayes, Alan McConchie, Michael Neuman, Dan Rademacher, and Eric Rodenbeck.</p>
         </Modal>
 
       </div>
