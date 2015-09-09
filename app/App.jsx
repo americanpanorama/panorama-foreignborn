@@ -360,6 +360,7 @@ var App = React.createClass({
       return d.properties.name + ", " + d.properties.state;
     });
 
+    var bardata = this.state.geographyData.country || [];
     var overallOverlay = GeographyStore.getCountryPercents('all');
     var secondaryOverlay = [];
     var radiusScale = this.props.radiusScale;
@@ -415,6 +416,8 @@ var App = React.createClass({
 
       totalName = "County Total";
 
+      if (countriesForCounties.length) bardata = countriesForCounties;
+
     } else if (this.state.country) {
       secondaryOverlay = GeographyStore.getSelectedCountry(this.state.country);
       t = secondaryOverlay.filter(function(d){
@@ -425,7 +428,7 @@ var App = React.createClass({
         count = numberFormatter(t[0].count);
         percent = percentFormatter(t[0].pct);
       } else {
-        //error = ForeignBornCopy.errors['NO_COUNTRY_DATA'];
+
       }
 
       countiesForCountry = GeographyStore.getCountiesForCountry(this.state.country, this.state.decade);
@@ -438,9 +441,12 @@ var App = React.createClass({
         valuesForGrid = Scales.getValuesForGridKey(null, null, null, yMax, null, null);
       } else {
         if (!error) {
-
+          error = ForeignBornCopy.errors['NO_COUNTRY_DATA'];
         }
       }
+
+      // if `error` clear bar chart data.
+      if (error) bardata = [];
 
     } else {
       count = d3.sum(this.state.geographyData.country, function(d){ return d.count; });
@@ -464,8 +470,6 @@ var App = React.createClass({
       placeNameShort = this.state.country;
     }
 
-    var bardata = this.state.geographyData.country || [];
-    if (countriesForCounties.length) bardata = countriesForCounties;
 
     // Work around to clear input value of the search input
     var shouldClearInput = false;
