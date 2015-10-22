@@ -98,13 +98,14 @@ function debounce(fn, delay) {
 var App = React.createClass({
 
   getDefaultProps: function() {
+    var overrides = (typeof RICHMOND_OVERRIDES !== 'undefined') ? RICHMOND_OVERRIDES : {};
     return {
       valuesForGrid: Scales.getValuesForGridKey(),
       radiusScaleValuesForLegend: Scales.getRadiusForLegend(),
       radiusScale: Scales.radius,
       colorScale: Scales.colors,
       opacityScale: Scales.opacity,
-      showIntroOnStart: false
+      showIntroOnStart: overrides.showIntroOnStart || false
     }
   },
 
