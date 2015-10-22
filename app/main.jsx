@@ -2,4 +2,4 @@
 var React = require('react'),
     App   = require('./App.jsx');
 
-React.render(<App showIntroOnStart={true}/>, document.getElementById('app-box'));
+React.render(<App/>, document.getElementById('app-box'));
