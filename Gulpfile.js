@@ -51,7 +51,7 @@ function rebundle() {
     appBundler.bundle()
       .on('error', gutil.log)
       .pipe(source('main.js'))
-      .pipe(gulpif(!options.development, streamify(uglify())))
+      .pipe(gulpif(!options.development, streamify(uglify().on('error', gutil.log))))
       .pipe(gulp.dest(options.dest))
       .pipe(gulpif(options.development, livereload()))
       .pipe(notify(function () {
@@ -164,7 +164,7 @@ function webserverTask(options) {
 
 function staticFolder() {
   return gulp.src("static/**")
-  .pipe(copy("build/"));
+  .pipe(copy("./build/"));
 }
 
 function staticDistFolder() {
@@ -223,7 +223,7 @@ gulp.task('dist', function () {
       "dest"        : './dist'
     });
 
-    staticDistFolder()
+    staticDistFolder();
 
   });
 
