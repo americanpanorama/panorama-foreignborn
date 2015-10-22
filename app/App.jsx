@@ -103,7 +103,8 @@ var App = React.createClass({
       radiusScaleValuesForLegend: Scales.getRadiusForLegend(),
       radiusScale: Scales.radius,
       colorScale: Scales.colors,
-      opacityScale: Scales.opacity
+      opacityScale: Scales.opacity,
+      showIntroOnStart: false
     }
   },
 
@@ -139,6 +140,7 @@ var App = React.createClass({
   },
 
   componentDidMount: function() {
+    console.log(this.props);
     // set the hash
     hashManager.updateHash(true);
 
@@ -151,6 +153,8 @@ var App = React.createClass({
 
 
     Intro.init();
+
+    if (this.props.showIntroOnStart) Intro.open();
   },
 
   componentWillUnmount: function() {
