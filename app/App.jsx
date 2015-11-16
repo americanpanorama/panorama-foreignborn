@@ -141,7 +141,6 @@ var App = React.createClass({
   },
 
   componentDidMount: function() {
-    console.log(this.props);
     // set the hash
     hashManager.updateHash(true);
 

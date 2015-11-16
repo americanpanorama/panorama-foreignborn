@@ -327,7 +327,7 @@ var Loupe = React.createClass({
     });
 
     if (!filtered.length) {
-      console.warn("Could not find matching county.")
+      if (selectedCounty) console.warn("Could not find matching county.")
       var loader = d3.select(React.findDOMNode(this.refs.loader));
       var geo = d3.select(React.findDOMNode(this.refs.geo));
       loader.classed('active', false);

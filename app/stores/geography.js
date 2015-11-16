@@ -37,6 +37,7 @@ function setData(newData, decade) {
   state.loaded = true;
 
   newData.forEach(function(d){
+    if (typeof d.key === 'undefined') return;
 
     if (d.key === 'country') {
       data['countryByYear'] = rollupCountryData(d.response.rows);
@@ -546,7 +547,6 @@ AppDispatcher.register(function(action) {
   switch(action.actionType) {
 
     case Constants.GET_INITIAL_DATA:
-
       if (action.response instanceof Array) {
         state.decade = action.queryParams.decade;
         setData(action.response, action.queryParams.decade);

@@ -17,14 +17,14 @@ var hashManager = {
       hash = hash.substr(1);
     }
 
-    hash = this.decode(hash);
+    // hash = this.decode(hash);
 
     var that = this;
     var things = hash.split('&').map(function(d){return d.split('=');});
 
     things.forEach(function(thing){
       if (thing[0] in that.hashParams && thing[1] != '') {
-        out[thing[0]] = thing[1];
+        out[thing[0]] = that.decode(thing[1]);
       }
     });
 
@@ -49,25 +49,27 @@ var hashManager = {
   },
 
   encode: function(item) {
-    return item.replace(/ /g, '+');
+    return encodeURIComponent(item);
+    // return item.replace(/ /g, '+').replace(/&/g, 'and');
   },
 
   decode: function(item) {
-    return item.replace(/\+/g, ' ');
+    return decodeURIComponent(item);
+    // return item.replace(/\+/g, ' ').replace(/ and /g, ' & ');
   },
 
   updateHash: function(silent) {
     var out = [];
-
+    var that = this;
     for (var k in this.hashParams) {
       var v = this.hashParams[k].value;
 
       if (v !== null) {
-        out.push(k + '=' + v);
+        out.push(k + '=' + that.encode(v));
       }
     }
 
-    var hash =  this.encode("#" + out.join('&'));
+    var hash = "#" + out.join('&');
 
     if (document.location.hash !== hash) document.location.replace(hash);
   }

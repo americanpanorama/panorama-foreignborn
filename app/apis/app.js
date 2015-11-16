@@ -77,7 +77,7 @@ function countyPopulationBreakdown(nhgis_join) {
 function countryBreakdownByDecade(country, decade) {
   return {
     key: 'country_breakdown:' + country + ':' + decade,
-    sql: COUNTRY_POP_BREAKDOWN.replace(/{country}/g, country).replace(/{year}/g, decade),
+    sql: COUNTRY_POP_BREAKDOWN.replace(/{country}/g, encodeURIComponent(country)).replace(/{year}/g, decade),
     options: {"format":"JSON"}
   }
 }
