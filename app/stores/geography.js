@@ -77,17 +77,13 @@ function processCountryBreakdown(obj) {
 
   if (!countryBreakdowns[decade]) countryBreakdowns[decade] = {};
   countryBreakdowns[decade][country] = [];
-
-  var total = d3.sum(obj.response.rows, function(d){return d.count;});
-
   obj.response.rows.forEach(function(d){
     countryBreakdowns[decade][country].push({
-      pct: d.count / total,
+      pct: d.count / d.place_total,
       value: d.count,
       yr: decade,
       'nhgis_join': d.nhgis_join
     });
-
   });
 }
 
@@ -427,6 +423,7 @@ var GeographyStore = assign({}, EventEmitter.prototype, {
     });
 
 
+    /*
     for(var yr in data['countryByYear']) {
       var r = data['countryByYear'][yr].filter(function(d){
         return d.country === country;
@@ -445,6 +442,7 @@ var GeographyStore = assign({}, EventEmitter.prototype, {
         });
       }
     }
+    */
 
     return o;
   },

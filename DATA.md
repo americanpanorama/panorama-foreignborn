@@ -54,10 +54,12 @@ SELECT a.country, a.nhgis_join, a.count, a.year, b.count as place_total FROM (SE
 **Tables:**
 * foreign_born2
 * foreign_born_country_points
+* population_data2
 
 **SQL**
 ```sql
-select fb.category, fbcp.country, fb.count, fb.nhgis_join, fb.year from foreign_born2 fb join foreign_born_country_points fbcp on fb.category = fbcp.category_id
+SELECT a.count, a.country, a.category, a.year, a.nhgis_join, b.place_total FROM (select fb.category, fbcp.country, fb.count, fb.nhgis_join, fb.year from foreign_born2 fb join foreign_born_country_points fbcp on fb.category = fbcp.category_id) a
+JOIN (SELECT population_data2.count as place_total, population_data2.year, RTRIM(population_data2.nhgis_join) as nhgis_join from population_data2 where population_data2.population_category_id = 68) b on a.nhgis_join = b.nhgis_join and a.year = b.year
 
 ```
 
