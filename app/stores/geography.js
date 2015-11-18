@@ -76,8 +76,11 @@ function processCountryBreakdown(obj) {
       decade = keyParts[2];
 
   if (!countryBreakdowns[decade]) countryBreakdowns[decade] = {};
+
   countryBreakdowns[decade][country] = [];
   obj.response.rows.forEach(function(d){
+    if (d.place_total === 0 || isNaN(d.place_total)) return;
+
     countryBreakdowns[decade][country].push({
       pct: d.count / d.place_total,
       value: d.count,

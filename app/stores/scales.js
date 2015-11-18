@@ -144,7 +144,7 @@ Scales.makeCountyRadiusScale = function(data) {
 
 Scales.adjustColorScale = function(data, key) {
   var max = d3.max(data, function(d){
-    return d[key];
+    return (!isNaN(d[key]) && isFinite(d[key])) ? d[key] : 0;
   });
 
   var max2 = max * 100;
