@@ -5,7 +5,7 @@ Latest build can be viewed at [http://studio.stamen.com/richmond/show/foreignbor
 
 
 ##Data Sets
-A list of all base datasets for this project in CartoDB can be found in [DATA.md](DATA.md)
+A list of all base datasets for this project in CartoDB can be found in [data/README.md](data/README.md)
 
 ##Dependencies
 * [NPM](https://www.npmjs.com/)
