@@ -3,6 +3,7 @@
 **This file contains the queries used to generate each of the derived tables used by the application.** We call these tables "materialized", even though they are not technically [Materialized Views](http://www.postgresql.org/docs/9.3/static/sql-creatematerializedview.html) in the PostgreSQL sense. They are simply copies.
 
 **Why do we do this?**
+
 1. Using these copied tables is more efficient, because the query doesn't have to be run every time a new user loads the application.
 2. They allow us to make the derived table public (so the application does not require API keys) while keeping the source data private.
 3. They make the application more resilient in case the source data tables are undergoing modification or development. Using materialized tables means that the application will always be using a version of the data that is known to work.
