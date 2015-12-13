@@ -29,6 +29,10 @@ var Timeline = require('./components/Timeline.jsx');
 var LegendNestedCircles = require('./components/legends/nested-circles.jsx');
 var LegendGrid = require('./components/legends/grid.jsx');
 var Loupe = require('./components/Loupe.jsx');
+var Navigation = require('./components/PanoramaNavigation.jsx');
+
+// config
+var PanoramaNavData = require("../data/panorama_nav.json");
 
 // Misc libraries
 var hashManager = require('./lib/hashManager.js');
@@ -121,7 +125,8 @@ var App = React.createClass({
       county: merged.county.value,
       geographyData: GeographyStore.getDataByDecade(merged.decade.value),
       about: false,
-      width: window.innerWidth
+      width: window.innerWidth,
+      show_menu: false
     };
   },
 
@@ -328,6 +333,21 @@ var App = React.createClass({
 
   },
 
+  onPanoramaMenuClick: function() {
+    this.setState({show_menu: !this.state.show_menu});
+  },
+
+  getNavData: function() {
+    // remove the current map from the list
+    PanoramaNavData.map((item, i) => {
+      if (item.url.indexOf('foreignborn') > -1) {
+          PanoramaNavData.splice(i, 1);
+      }
+    }); 
+
+    return PanoramaNavData;
+  },
+
   render: function() {
     var that = this;
 
@@ -490,6 +510,9 @@ var App = React.createClass({
     // render DOM-ish
     return (
       <div className='container full-height' style={{paddingTop: windowPadding + 'px'}}>
+
+        <Navigation show_panorama_menu={ this.state.show_menu } on_hamburger_click={ this.onPanoramaMenuClick } nav_data={ this.getNavData() }  />
+
         <section className="row">
           <div className="columns nine" style={{height: middleHeight + 'px'}}>
             <header className="header">
