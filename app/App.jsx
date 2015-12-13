@@ -6,6 +6,7 @@ require('es6-promise').polyfill();
 var React = require('react');
 var Typeahead = require('react-typeahead').Typeahead;
 var Modal = require('react-modal');
+var d3 = require('d3');
 
 // Constants
 var Constants = require('./constants/Constants.js');
@@ -633,6 +634,8 @@ var App = React.createClass({
         <p>This map is authored by the staff of the Digital Scholarship Lab: Robert K. Nelson, Scott Nesbit, Edward L. Ayers, Justin Madron, and Nathaniel Ayers. Kim D'agostini and Erica Havens geolocated country locations.</p>
 
           <p>The developers, designers, and staff at <a href='http://stamen.com'>Stamen Design</a> have been exceptional partners on this project. Our thanks to Kai Chang, Jon Christensen, Sean Connelley, Seth Fitzsimmons, Eric Gelinas, Heather Grates, Nicolette Hayes, Alan McConchie, Michael Neuman, Dan Rademacher, Eric Rodenbeck, and Eric Socolofsky.</p>
+
+          <p><a href='https://mellon.org'>The Andrew W. Mellon Foundation</a> generously provided grant finding to develop <cite>American Panorama</cite>.</p>
 
         </Modal>
 

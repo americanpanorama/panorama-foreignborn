@@ -4,6 +4,8 @@
 *
 **/
 
+var d3 = require('d3');
+
 // Density (people per sq/mi)
 var opacity = d3.scale.threshold()
   .domain([0.1, 1, 5, 10, 20, 50])
