@@ -53,7 +53,7 @@ var PanoramaNavigation = React.createClass({
 										</h4>
 									</div>
 								)
-							})
+							}.bind(this));
 						}
 					</div>
 				</Modal>
