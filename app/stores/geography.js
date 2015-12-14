@@ -490,8 +490,9 @@ var GeographyStore = assign({}, EventEmitter.prototype, {
     return a;
   },
 
-  decadeLoaded: function(_) {
-    return !!data['countyByYear'][_] && !!countyGeometriesLoaded[_];
+  decadeLoaded: function(decade, country) {
+    if (country) return this.countryLoaded(country, decade);
+    return !!data['countyByYear'][decade] && !!countyGeometriesLoaded[decade];
   },
 
   countyLoaded: function(county) {

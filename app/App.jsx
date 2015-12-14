@@ -216,7 +216,9 @@ var App = React.createClass({
       hashManager.mergeHash({decade: val});
       hashManager.updateHash(true);
 
-      if (GeographyStore.decadeLoaded(val)) {
+      var decadedLoaded = GeographyStore.decadeLoaded(val, this.state.country || null);
+
+      if (decadedLoaded) {
         GeographyStore.decade(val);
         GeographyStore.emitChange(Constants.GET_DECADE_DATA, 'GeographyStore');
       } else {
@@ -343,7 +345,7 @@ var App = React.createClass({
       if (item.url.indexOf('foreignborn') > -1) {
           PanoramaNavData.splice(i, 1);
       }
-    }); 
+    });
 
     return PanoramaNavData;
   },
