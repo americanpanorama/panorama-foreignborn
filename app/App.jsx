@@ -339,7 +339,7 @@ var App = React.createClass({
 
   getNavData: function() {
     // remove the current map from the list
-    PanoramaNavData.map((item, i) => {
+    PanoramaNavData.map(function(item, i) {
       if (item.url.indexOf('foreignborn') > -1) {
           PanoramaNavData.splice(i, 1);
       }
