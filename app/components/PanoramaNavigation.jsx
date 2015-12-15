@@ -14,7 +14,7 @@ var PanoramaNavigation = React.createClass({
 	},
 
 	componentWillMount: function() {
-	
+
 	},
 
 	componentDidUpdate: function() {
@@ -35,14 +35,15 @@ var PanoramaNavigation = React.createClass({
 			<div>
 
 				<div id='hamburger'><img src='http://dsl.richmond.edu/panorama/static/images/hamburger.png' onClick={ this.props.on_hamburger_click } /></div>
-	
+
 				<Modal
 				  isOpen={ this.props.show_panorama_menu }
 				  onRequestClose={ this.props.on_hamburger_click }
+				  overlayClassName={'panorama-modal'}
 				  className="nav_header"
 				>
 					<div id='navburger'><img src='http://dsl.richmond.edu/panorama/static/images/hamburger.png' onClick={ this.props.on_hamburger_click } /></div>
-	
+
 					<div id='nav_header'>
 						<h1><a href='/panorama/'>American Panorama</a></h1>
 						{
@@ -50,6 +51,7 @@ var PanoramaNavigation = React.createClass({
 								return (
 									<div className='pan_nav_item' style={{width: that.computeDimensions() + 'px'}}>
 										<a href={ item.url }><img src={ item.screenshot } style={{width: that.computeDimensions() + 'px'}} /></a><br/> 
+										<a href={ item.url }><img src={ item.screenshot } style={{width: that.computeDimensions() + 'px'}} /></a><br/>
 										<h4>
 											<a href={ item.url }>{ item.title }</a>
 										</h4>
