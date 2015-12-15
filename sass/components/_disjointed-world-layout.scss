@@ -1,0 +1,178 @@
+$medium-grey: white !default;
+
+.disjointed-world-layout {
+  svg {
+    border: 1px solid #333;
+  }
+
+  .layout-assist-box {
+    stroke: red;
+    stroke-width: 1;
+    stroke-opacity: 0.3;
+    fill: none;
+  }
+
+  .graticule {
+    fill: none;
+    stroke: #777;
+    stroke-width: .5px;
+    stroke-opacity: .5;
+    display: none;
+  }
+
+  .land {
+    stroke: none;
+    stroke-width: 1;
+    stroke-opacity: 1;
+    fill: $continent-grey;
+  }
+
+  .land.usa {
+    fill: none;
+    stroke: $continent-grey;
+    stroke-opacity: 1;
+    stroke-width: 1;
+  }
+
+  .error {
+    stroke: darkred;
+    fill: red;
+    display: none;
+  }
+
+  .county {
+    stroke: none;
+    stroke-width: 0.1;
+    stroke-opacity: 1;
+    fill: none;
+  }
+
+  .county:hover {
+    opacity: 1;
+  }
+
+  .country {
+    fill: $green;
+    fill-opacity: 0.8;
+    stroke: none;
+    cursor:pointer;
+  }
+
+  /*
+  .mix-blend-mode & .country {
+    @include vp-mbm(screen);
+  }
+  */
+
+  .country.selected {
+    stroke: $white;
+    stroke-width: 2 !important;
+    stroke-opacity: 0.7 !important;
+    cursor: default;
+    pointer-events: none;
+  }
+
+  .country:hover {
+    stroke: $white;
+    stroke-width: 2;
+    stroke-opacity: 0.4;
+  }
+
+  &.layout-assist-on .country {
+    display: none !important;
+  }
+
+  .link {
+    fill: none;
+    stroke: #444;
+    pointer-events: none;
+    display: none;
+  }
+
+  .wl-bk {
+    position: absolute;
+    background: transparent;
+    border: 1px solid yellow;
+  }
+
+  .arc-line {
+    stroke: #fff;
+    stroke-width: 1.5;
+    stroke-opacity: 0.3;
+    fill: none;
+  }
+
+}
+
+#loupe {
+  margin: 0 20px 20px;
+}
+
+.loupe {
+  position: relative;
+
+  .loupe-loading {
+    position: absolute;
+    display: none;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: $dark-grey;
+    background: rgba(47, 51, 54, .4);
+    z-index: 2;
+    text-align: center;
+    color: $white;
+    font-family: $font-family-sans;
+    font-size: 14px;
+
+    &.active {
+      display: block;
+    }
+
+    .table {
+      width: 100%;
+      height: 100%;
+    }
+
+    .td {
+      vertical-align: middle;
+    }
+  }
+
+}
+
+.loupe > svg {
+  &.zooming {
+    cursor: move !important;
+  }
+
+  .county {
+    stroke: #000;
+    stroke-width: 2;
+    stroke-opacity: 1;
+  }
+
+  .crosshair {
+
+    circle {
+      fill: none;
+      stroke: #000;
+      stroke-width: 1;
+    }
+
+    line {
+      fill: none;
+      stroke: #000;
+      stroke-width: 1;
+    }
+  }
+
+  .arrows {
+    .arrow {
+      fill: none;
+      stroke: #000;
+      stroke-width: 2;
+    }
+  }
+}

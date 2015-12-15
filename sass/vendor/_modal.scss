@@ -1,0 +1,98 @@
+$font-family: 'PT Serif', serif;
+$background-color: white;
+$modal-overlay-color: rgba(0, 0, 0, 0.8);
+$text-color: #272b34;
+$link-color: #207a9e;
+$content-padding: 3.375rem;
+$max-width: 624px;
+$min-width: 350px;
+$copy-size: 0.875rem;
+$copy-leading: 1.125rem;
+$headline-size: 1.5rem;
+
+.ReactModal__Overlay {
+  box-sizing: content-box;
+  background-color: $modal-overlay-color;
+  overflow: auto;
+  color: $text-color;
+  font-size: $copy-size;
+  z-index: 2;
+
+  .ReactModal__Overlay.hidden {
+    display: none;
+  }
+
+  .ReactModal__Content {
+    position: absolute;
+    top: 2.5rem;
+    bottom: 2.5rem;
+    left: 50%;
+    width: 80%;
+    max-width: $max-width;
+    min-width: $min-width;
+    padding: $content-padding;
+    background-color: $background-color;
+    font-family: $font-family;
+    outline: 0;
+    overflow: auto;
+    box-sizing: border-box;
+    -webkit-transform: translateX(-50%);
+    -ms-transform: translateX(-50%);
+    transform: translateX(-50%);
+
+    a {
+      color: $link-color;
+      text-decoration: none;
+    }
+
+    h2, p, ul, li {
+      margin: 0 0 1.125rem;
+      padding: 0;
+      font-weight: 400;
+    }
+
+    p, ul {
+      line-height: $copy-leading;
+    }
+
+    h2 {
+      font-size: $headline-size;
+      line-height: 1;
+    }
+
+    ul {
+      list-style: none;
+    }
+
+
+    li:last-child {
+      margin-bottom: 0;
+    }
+
+    button.close {
+      position: absolute;
+      top: 0.3125rem;
+      right: 0.875rem;
+      width: auto;
+      height: auto;
+      padding: 0;
+      background: $background-color;
+      color: $text-color;
+      line-height: 1;
+      outline: none;
+      border: none;
+      cursor: pointer;
+      -webkit-user-select: none;
+         -moz-user-select: none;
+          -ms-user-select: none;
+              user-select: none;
+
+      span {
+        font-size: 2.25rem;
+        font-weight: 100;
+        font-family: sans-serif;
+        line-height: 1;
+      }
+    }
+  }
+}

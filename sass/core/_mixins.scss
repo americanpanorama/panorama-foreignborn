@@ -1,0 +1,8 @@
+// vendor prefixes for mix-blend-mode
+@mixin vp-mbm($var){
+  -webkit-mix-blend-mode: $var;
+  -moz-mix-blend-mode: $var;
+  -o-mix-blend-mode: $var;
+  -ms-mix-blend-mode: $var;
+  mix-blend-mode: $var;
+}

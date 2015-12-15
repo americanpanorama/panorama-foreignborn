@@ -1,0 +1,83 @@
+#search-bar {
+  position: relative;
+  margin-bottom: 20px;
+  font-family: $font-family-sans;
+  z-index: 2;
+}
+
+#search-bar button {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 35px;
+  width: 35px;
+  padding: 0;
+  background-color: $medium-dark-grey-lightest;
+  border: 0;
+  outline: 0;
+}
+
+#typeahead-container {
+
+}
+
+.typeahead, .typeahead input {
+  display: block;
+  width: 100%;
+  font-size: $font-size-small;
+}
+
+.typeahead input {
+  border: 0;
+  padding: 10px;
+  background: $medium-dark-grey-lighter;
+  font-size: $font-size-small;
+}
+
+.typeahead-selector {
+  position: absolute;
+  margin: 2px 0 0;
+  padding: 4px 0px 4px 0px;
+  width: 100%;
+  border: none;
+  background-color: $medium-dark-grey;
+  list-style: none;
+}
+
+.typeahead-option {
+  display: block;
+  padding: 4px;
+  margin-bottom: 2px;
+  color: $white;
+  text-decoration: none;
+}
+.typeahead-option:last-child {
+  margin-bottom: 0;
+}
+.typeahead-option:hover {
+  background: $medium-dark-grey-lighter;
+}
+
+::-webkit-input-placeholder {
+  color: $white;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+:-moz-placeholder { /* Firefox 18- */
+  color: $white;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+::-moz-placeholder {  /* Firefox 19+ */
+  color: $white;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+:-ms-input-placeholder {
+  color: $white;
+  text-align: center;
+  text-transform: uppercase;
+}

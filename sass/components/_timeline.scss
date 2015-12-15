@@ -1,0 +1,129 @@
+#timeline-container {
+  padding: 0;
+
+  .outer-wrap {
+    background: $medium-dark-grey;
+    margin-right: 15px;
+  }
+}
+
+#timeline-container .wrapper {
+  display: table;
+  table-layout: fixed;
+  padding-right: 20px;
+
+
+  & > div {
+    display: table-cell;
+    position: relative;
+    vertical-align:top;
+  }
+
+  & > div:last-child {
+    width: 100%;
+  }
+
+  & .title {
+    padding: 0 10px;
+    background: $medium-dark-grey-lighter;
+  }
+  & .title h3 {
+    margin: 0;
+    font-family: $font-family-sans;
+    font-size: $font-size-regular;
+    white-space: nowrap;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+
+  & .title h3:first-child {
+    margin-top: 20px;
+    margin-bottom: 5px;
+    font-size: $font-size-small;
+  }
+
+  .timeline-legend {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    padding: 1px 15px;
+    font-family: $font-family-sans-alt;
+    font-size: $font-size-small;
+  }
+  .timeline-legend.left {
+    background: $green;
+    left: 50px;
+  }
+
+  .timeline-legend.right {
+    display: none;
+    background: $blue;
+    left: auto;
+    right: 30px;
+  }
+
+
+  .timeline-legend.right.active,
+  .has-county & .timeline-legend.right,
+  .has-country & .timeline-legend.right {
+    display: block;
+  }
+
+
+}
+
+.timeline {
+  height: 100px;
+  margin-left: 10px;
+
+  .x.axis text {
+    fill: $white;
+    font-family: $font-family-sans;
+    font-size: $font-size-small;
+  }
+
+  .y.axis text {
+    fill: $blue-light;
+    font-family: $font-family-sans-alt;
+    font-size: $font-size-small;
+  }
+
+  .x.axis path,
+  .y.axis path {
+    fill: none;
+  }
+
+  .x.axis line,
+  .y.axis line {
+    fill: none;
+    stroke: $white;
+  }
+
+  .handle rect,
+  .slider .extent {
+    fill: $white;
+    opacity: 1.0;
+  }
+  .handle text {
+    fill: $white;
+    font-size: $font-size-small;
+    font-family: $font-family-serif-alt;
+    font-weight: $font-weight-normal;
+    text-anchor: middle;
+  }
+
+  .overlay path {
+    fill: $green;
+    stroke: none;
+  }
+
+  .has-county & .overlay path,
+  .has-country & .overlay path {
+    opacity: 0.4;
+  }
+
+  .overlay-secondary path {
+    fill: $blue;
+    stroke: none;
+  }
+}

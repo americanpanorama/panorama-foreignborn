@@ -1,0 +1,146 @@
+$bar-height: 16px;
+$default-height: 300px;
+$chart-background-color: $medium-dark-grey;
+$button-background-color: $medium-dark-grey-lighter;
+
+.bar-chart-container {
+  width: 100%;
+  max-width: 100%;
+  margin-bottom: 20px;
+  background: $chart-background-color;
+  overflow: hidden;
+
+  .error {
+    font-family: $font-family-sans-alt;
+    font-size: $font-size-regular;
+    text-align: center;
+    padding: 5px 20px;
+  }
+
+  button {
+    display: block;
+    width: 100%;
+    height: $bar-height;
+    margin: 0;
+    padding: 0;
+    background: $button-background-color;
+    border: 0;
+    font-size: 21px;
+    text-decoration: none;
+    line-height: 1;
+    outline: 0;
+
+      span {
+        position: relative;
+      }
+
+      &.up span {
+        top: -8px;
+      }
+
+      &.down span {
+        top: 2px;
+      }
+
+      &[disabled] {
+        opacity: 0.2;
+      }
+  }
+}
+.bar-chart-scrollable-area {
+  position: relative;
+  width: 100%;
+  margin: 10px;
+  overflow: hidden;
+  height: $default-height;
+}
+
+.bar-chart-rows-wrapper {
+  position : absolute;
+  overflow : scroll;
+  overflow-x : hidden;
+  top : 0;
+  right : 0;
+  bottom : 0;
+  left : 0;
+}
+
+.bar-chart-rows {
+  display: table;
+  table-layout: fixed;
+  width: 100%;
+  padding-right: 25px;
+  overflow: hidden;
+}
+
+.chartRow {
+  display: table-row;
+  cursor: pointer;
+
+
+  .label,
+  .bar {
+    display: table-cell;
+    padding-bottom: 1px;
+    vertical-align: middle;
+    line-height: 1;
+  }
+
+  .label {
+    text-align: right;
+
+    span {
+      display: block;
+      padding-right: 15px;
+      font-size: $font-size-regular;
+      font-family: $font-family-sans-alt;
+      color: $white;
+      max-width: 100%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  .bar {
+    position: relative;
+    width: 50%;
+
+    span {
+      display: block;
+      height: $bar-height;
+      background: $blue-light;
+      line-height: 1;
+    }
+
+    .value {
+      position: absolute;
+      left: 15px;
+      top: 2px;
+      background: transparent;
+      color: $blue;
+      font-family: $font-family-sans;
+      font-size: $font-size-regular;
+    }
+  }
+
+  .spotlight & {
+    opacity: 0.5;
+  }
+
+  .spotlight &.selected {
+    opacity: 1;
+  }
+
+  &:hover {
+    .label span {
+      color: #aaa;
+    }
+  }
+
+  &.selected:hover {
+    .label span {
+      color: $white;
+    }
+  }
+}

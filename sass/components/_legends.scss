@@ -1,0 +1,44 @@
+.legend.nested-circle {
+  height: 100%;
+
+  text {
+    fill: $white;
+    font-family: $font-family-sans-alt;
+    font-size: $font-size-small;
+  }
+
+  circle {
+    fill: $green;
+    fill-opacity: 0.25;
+  }
+
+  .mix-blend-mode & circle {
+    fill-opacity: 0.8;
+    @include vp-mbm(screen);
+  }
+}
+
+
+.legend.grid {
+  position: relative;
+  width: 124px;
+  height: 124px;
+
+  svg {
+    overflow: hidden;
+  }
+
+  .grid-item {
+    stroke: #fff;
+    stroke-width: 1;
+    stroke-opacity: 1;
+  }
+
+  .label-item {
+    font-family: $font-family-sans-alt;
+    font-size: $font-size-smallest;
+    fill: $white;
+    line-height: 1;
+  }
+
+}
