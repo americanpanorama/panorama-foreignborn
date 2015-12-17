@@ -18,7 +18,7 @@ var colors = d3.scale.threshold()
 
 var radius = d3.scale.sqrt()
   .domain([500000, 1000000, 1500000, 2000000])
-  .range([12, 26.91, 38.35, 48]);
+  .range([24, 33.9 , 41.6, 48]);
 
 function round(n) {
   if (n < 10) {
