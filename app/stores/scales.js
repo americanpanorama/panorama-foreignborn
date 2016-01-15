@@ -17,8 +17,8 @@ var colors = d3.scale.threshold()
   .range(["#318cb4","#3190a8","#2e949b","#28988f","#1f9b83","#0d9f76"]);
 
 var radius = d3.scale.sqrt()
-  .domain([500000, 1000000, 1500000, 2000000])
-  .range([24, 33.9 , 41.6, 48]);
+  .domain([100000, 500000, 1000000, 2000000])
+  .range([10.7, 24, 33.9 , 48]);
 
 function round(n) {
   if (n < 10) {
@@ -88,7 +88,7 @@ Scales.getValuesForGridKey = function(xMin, xMax, yMin, yMax, xLabel, yLabel) {
 
 Scales.getRadiusForLegend = function() {
   var domain = radius.domain().slice(0);
-  var labels = ['500 thousand people', '1 million people', '1.5 million people', '2 million people'];
+  var labels = ['100 thousand people', '500 thousand people', '1 million people', '2 million people'];
   var out = [];
   domain.forEach(function(d,i){
     var v = radius(d);
@@ -139,7 +139,7 @@ Scales.makeCountyRadiusScale = function(data) {
 
   var len = round(max / 5);
 
-  rad.domain([len * 1, len * 2, len * 3, len * 4]);
+  rad.domain([len / 5, len, len * 2, len * 4]);
 
   return rad;
 }
