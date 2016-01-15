@@ -1,8 +1,9 @@
-# richmondatlas-foreignborn
-Visualizing the number of people born outside the US and their country or region of origin.
+# panorama-foreignborn
+Foreign-Born Population 1850-2010
 
-Latest build can be viewed at [http://studio.stamen.com/richmond/show/foreignborn](http://studio.stamen.com/richmond/show/foreignborn)
+Latest build can be viewed at [http://dsl.richmond.edu/panorama/foreignborn](http://dsl.richmond.edu/panorama/foreignborn)
 
+**NOTE: the code in this repository was developed _before_ the Panorama toolkit was complete. Therefore, it doesn't use all of the current Panorama libraries and design patterns. To see an example of a map that is built on the finalized Panorama toolkit, see [panorama-canals](https://github.com/americanpanorama/panorama-canals)**
 
 ##Data Sets
 A list of all base datasets for this project in CartoDB can be found in [data/README.md](data/README.md)
@@ -44,9 +45,3 @@ npm run dist
 This will create a `dist` directory. Move this directory to your server.
 
 Both directories are all **static files**, so no special server requirements needed.
-
-##Deploy(Stamen Only)
-```bash
-scp -prq ./build/. studio.stamen.com:www/richmond/show/foreignborn/
-scp -prq ./build/. studio.stamen.com:www/richmond/show/yyyy-mm-dd/
-```

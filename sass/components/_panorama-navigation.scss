@@ -5,19 +5,16 @@
 
 #hamburger, #navburger {
   position: absolute;
-  left: 34px;
-  top: 17px;
-  z-index: 1000000000;
+  left: 20px;
+  top: 7px;
+  z-index: 10000;
   cursor: pointer;
 }
 
-#navburger {
-  left: 30px;
-  top: 17px;
-}
 
 .ReactModal__Overlay.panorama-modal {
 
+  z-index: 10000;
 
   .ReactModal__Content {
     position: absolute;
@@ -36,62 +33,71 @@
     max-width: 15000px;
     min-width: 100%;
     transform: none;
+    overflow: visible;
+  }
 
-    #nav_header {
-
-      @import url(https://fonts.googleapis.com/css?family=Abel|Oswald);
-
-      position: relative;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background-color: #fff;
-      overflow: hidden;
-      z-index: 100000000;
-
-      h1 a {
-        text-decoration: none;
+  #nav_header {
+  
+    @import url(https://fonts.googleapis.com/css?family=Abel|Oswald);
+  
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    background-color: white;
+    overflow: visible;
+    z-index: 10000;
+    /* bottom padding matches offset of #maps set with top below */
+    padding-bottom: 75px;
+  
+    a {
+      text-decoration: none;
+      color: #888;
+      font-weight: normal;
+      text-transform: none;
+    }
+  
+    h1 {
+      position: absolute;
+      left: 80px;
+      top: 10px;
+      margin: 0;
+      font-family: 'Oswald';
+      color: #28668a;
+      font-size: 30px;
+      
+  
+      a {
         color: #28668a;
-      }
-
-      h1 {
-        margin-left: 120px;
-        font-family: 'Oswald';
-        color: #28668a;
-        opacity: 0.5;
-        clear: left;
-      }
-
-      h4 {
-
-        text-align: center;
-      }
-
-      h4 a {
-        text-decoration: none;
-        color: #888;
-        font-family: 'Abel', sans-serif;
-        font-size: 1.5em;
-      }
-
-      ul {
-        list-style-type: none;
-        margin: 0;
-        padding: 0;
-        display: inline;
-      }
-
-      li {
-        display: inline;
-      }
-
-      .pan_nav_item {
-        float: left;
-        margin-right: 20px;
-        margin-left: 20px;
       }
     }
-
+  
+    h2 {
+      position: absolute;
+      right: 20px;
+      top: 20px;
+      font-family: 'Oswald';
+      width: auto;
+      border: none;
+      font-size: 20px;
+      margin: 0;
+    }
+  
+    #maps {
+      position: relative;
+      top: 75px;
+    }
+  
+    .pan_nav_item {
+      float: left;
+      margin-right: 20px;
+      margin-left: 20px;
+  
+      h4 {
+        text-align: center;
+        font-family: 'Abel', sans-serif;
+        font-size: 18px;
+      }
+    }
   }
 }
