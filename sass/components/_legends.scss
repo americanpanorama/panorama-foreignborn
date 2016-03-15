@@ -8,13 +8,15 @@
   }
 
   circle {
-    fill: $green;
-    fill-opacity: 0.25;
-  }
+    fill-opacity: 0;
+    stroke: $white;
+    stroke-opacity: 0.5;
 
-  .mix-blend-mode & circle {
-    fill-opacity: 0.8;
-    @include vp-mbm(screen);
+    &:first-of-type {
+      fill: $green;
+      fill-opacity: 0.8;
+      stroke-opacity: 0;
+    }
   }
 }
 
