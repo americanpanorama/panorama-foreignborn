@@ -1,0 +1,292 @@
+$intro-text-color-light: #ffffff;
+$intro-text-color-body: #deebf8;
+$intro-text-color-dark: #b3b3b3;
+$intro-border: 2px solid white;
+$intro-background-color: #3a3d40;
+
+// Google Fonts imported in index.html
+%pt-serif {
+	font-family: 'PT Serif', TimesNewRoman, 'Times New Roman', Times, Baskerville, Georgia, serif;
+	font-weight: 400;
+	color: $intro-text-color-body;
+}
+%pt-serif-bold {
+	font-family: 'PT Serif', TimesNewRoman, 'Times New Roman', Times, Baskerville, Georgia, serif;
+	font-weight: 700;
+	color: $intro-text-color-light;
+}
+%pt-serif-bold-italic {
+	font-family: 'PT Serif', TimesNewRoman, 'Times New Roman', Times, Baskerville, Georgia, serif;
+	font-weight: 700;
+	font-style: italic;
+	color: $intro-text-color-light;
+}
+%pt-sans {
+	font-family: 'PT Sans', 'Helvetica Neue', Helvetica, arial, sans-serif;
+	font-weight: 400;
+	color: $intro-text-color-dark;
+}
+
+
+.intro-modal {
+	position: fixed;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+
+	z-index: 1000000001;	// lift above hamburger menu, map controls, introjs toggle buttons
+	overflow: auto;
+
+	background-color: $intro-background-color;
+	text-align: center;
+
+	.page {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		height: 100%;
+		position: relative;
+		margin: 0 auto;
+	}
+
+	.p0 {
+		$title-offset: 79px;
+
+		width: 600px;
+		margin-top: -$title-offset / 2;
+
+		.title-block {
+			transform: translateY($title-offset);
+		}
+
+		h1 {
+			@extend %pt-serif-bold;
+			font-size: 48px;
+			line-height: 48px;
+			letter-spacing: 3.5px;
+			margin: 0;
+		}
+
+		h3 {
+			@extend %pt-serif-bold;
+			font-size: 24px;
+			color: $intro-text-color-dark;
+			margin: 0;
+		}
+
+		img {
+			width: 100%;
+			border: $intro-border;
+
+			&.loading {
+				height: 391px;	// avoid collapsing while loading image
+			}
+		}
+	}
+
+	.p1 {
+		$title-offset: 31px;
+
+		width: 900px;
+		margin-top: -$title-offset / 2;
+
+		.title-block {
+			transform: translateY($title-offset);
+		}
+
+		h2 {
+			@extend %pt-serif-bold;
+			font-size: 24px;
+			margin: 0;
+		}
+
+		h3 {
+			@extend %pt-serif-bold-italic;
+			font-size: 18px;
+			margin: 0;
+		}
+
+		.content {
+			width: 100%;
+			height: 480px;
+			box-sizing: border-box;
+			padding: 84px 44px 28px 44px;
+			border: 2px solid white;
+		}
+
+		ol {
+			display: flex;
+			flex-flow: row wrap;
+			justify-content: space-between;
+			width: 100%;
+			height: 100%;
+
+			padding: 0;
+			text-align: left;
+		}
+
+		$intro-item-height: 90px;
+		$descender-height: 10px;
+		li {
+			position: relative;
+			display: inline-block;
+			flex: 0 0 365px;
+			height: $intro-item-height;
+
+			.ordinal {
+				position: absolute;
+				left: 0;
+				top: 0;
+				line-height: $intro-item-height;
+
+				@extend %pt-sans;
+				font-size: 150px;
+
+				&.descender {
+					line-height: $intro-item-height - $descender-height;
+
+					+ .item > p {
+						margin-bottom: 2px;
+					}
+				}
+			}
+
+			&.wider {
+				flex: 0 0 370px;
+			}
+
+			.item {
+				width: 250px;
+				position: absolute;
+				bottom: -12px;
+				right: 0;
+
+				p {
+					width: 100%;
+					margin: 0 0 10px 0;
+
+					@extend %pt-serif;
+					font-size: 14px;
+				}
+
+				img {
+					width: 100%;
+				}
+
+				&.text-overlay {
+					top: 0;
+					bottom: auto;
+					p {
+						position: absolute;
+						top: -15px;
+					}
+					img {
+						position: absolute;
+						top: -63px;
+					}
+				}
+			}
+
+			// specificity win
+			&:last-of-type .ordinal.descender + .item {
+				> p {
+					margin-bottom: 20px;
+				}
+
+				img {
+					position: relative;
+					top: -4px;
+				}
+
+			}
+
+		}
+
+	}
+
+	p {
+		width: 400px;
+		margin: 24px 0;
+		line-height: 18px;
+
+		@extend %pt-serif;
+		font-size: 14px;
+	}
+
+	.intro-modal-button {
+		width: 100px;
+		border: $intro-border;
+		border-color: $intro-text-color-body;
+		padding: 6px 0;
+
+		@extend %pt-serif;
+		font-size: 18px;
+		text-transform: uppercase;
+		cursor: pointer;
+	}
+
+	.footer {
+		$intro-footer-font-size: 14px;
+		margin-top: 16px;
+		line-height: 18px;
+
+		> div {
+			display: inline-block;
+			margin-right: 24px;
+			vertical-align: baseline;
+
+			@extend %pt-serif;
+			font-size: $intro-footer-font-size;
+			cursor: pointer;
+		}
+
+		label {
+			$checkbox-size: 16px;
+			$checkbox-inner-padding: 2px;
+			$checkbox-margin-right: 12px;
+			$checkbox-offset-vert: -2px;
+
+			display: inline-block;
+			position: relative;
+			margin-left: $checkbox-size;
+
+			@extend %pt-serif;
+			font-size: $intro-footer-font-size;
+			cursor: pointer;
+
+			&::before,
+			&.checked::after {
+				display: block;
+				position: absolute;
+				box-sizing: content-box;
+				content: '';
+			}
+			&::before {
+				left: -$checkbox-size - $checkbox-margin-right;
+				top: $checkbox-offset-vert;
+				width: $intro-footer-font-size;
+				height: $intro-footer-font-size;
+				border: $intro-border;
+				border-color: $intro-text-color-light;
+				padding: $checkbox-inner-padding;
+			}
+			&.checked::after {
+				left: -($checkbox-size - 2*$checkbox-inner-padding) - $checkbox-margin-right;
+				top: $checkbox-offset-vert + 2*$checkbox-inner-padding;
+				width: $intro-footer-font-size;
+				height: $intro-footer-font-size;
+				padding: 0;
+				background-color: $intro-text-color-light;
+				opacity: 0.8;
+			}
+
+		}
+
+		input {
+			display: none;
+		}
+	}
+	
+}
