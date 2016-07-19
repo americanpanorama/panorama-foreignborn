@@ -9,13 +9,17 @@ Latest build can be viewed at [http://dsl.richmond.edu/panorama/foreignborn](htt
 A list of all base datasets for this project in CartoDB can be found in [data/README.md](data/README.md)
 
 ##Dependencies
-* [NPM](https://www.npmjs.com/)
+* [npm](https://www.npmjs.com/)
 * [CartoDB](https://cartodb.com/) account
 
 ##Setup
-Make sure you have [NPM](https://www.npmjs.com/) installed. If it's been a while since you last installed or updated, you may want to reinstall. This install is tested successfully against `0.12.7`
+Clone the project and `cd` into the project folder.
 
-Load required **NPM** modules.
+`nvm use` to fire up the right Node version.
+
+Make sure you have [npm](https://www.npmjs.com/) installed. If it's been a while since you last installed or updated, you may want to reinstall. This install is tested successfully against `0.12.7`
+
+Load required **npm** modules.
 ```bash
 npm install
 ```
