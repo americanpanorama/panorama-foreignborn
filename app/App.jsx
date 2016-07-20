@@ -128,7 +128,7 @@ var App = React.createClass({
       about: false,
       width: window.innerWidth,
       show_menu: false,
-      showIntroModal: window.localStorage.getItem('hasViewedIntroModal') !== 'true'
+      showIntroModal: window.localStorage.getItem('hasViewedIntroModal-foreignborn') !== 'true'
     };
   },
 
@@ -345,7 +345,7 @@ var App = React.createClass({
 
   onDismissIntroModal: function(persist) {
     if (persist) {
-      window.localStorage.setItem('hasViewedIntroModal', 'true');
+      window.localStorage.setItem('hasViewedIntroModal-foreignborn', 'true');
     }
     this.setState({
       showIntroModal: false
