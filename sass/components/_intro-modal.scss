@@ -46,7 +46,7 @@ $intro-background-color: #3a3d40;
 		flex-direction: column;
 		justify-content: center;
 		align-items: center;
-		height: 100%;
+		min-height: 100%;
 		position: relative;
 		margin: 0 auto;
 	}
