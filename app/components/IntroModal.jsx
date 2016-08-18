@@ -76,7 +76,7 @@ var IntroModal = React.createClass({
 							<h3>1850 – 2010</h3>
 						</div>
 						<img src={ coverImgPath } className={ this.state.coverImgLoaded ? '' : 'loading' } />
-						<p>Lorem dim sum Lo mai gai baked barbecue pork bao Egg custard tarts. Popular shumai cha siu bao A creamy mango pudding Chiu-chao fan guo Siu mai Haam sui gau Jiu cai bau Zhaliang Pei guen Lo baak gou. Taro cake Deep fried pumpkin and egg-yolk ball vegetarian crisp spring rolls dried scallop and leek puff deep fried seaweed roll BBQ pork puff. Pan friend pork dumpling Pot sticker water chestnut cake bitter melon beef dumplings turnip cake.</p>
+						<p>At all points in its history, a significant proportion of the population of the United States had been born in other countries and regions. This being the case, American history can never be understood by just looking within its borders. The culture and politics of the US have always been profoundly shaped by the material and emotional ties many of its residents have had to the places where they were born. This map will allow you to begin to explore those connections at the basic level of demographic statistics.</p>
 						<div className='intro-modal-button' onClick={ function (e) { this.setPage(1); }.bind(this) }>Next</div>
 					</div>
 				</div>
@@ -96,34 +96,34 @@ var IntroModal = React.createClass({
 								<li>
 									<div className='ordinal'>1</div>
 									<div className='item'>
-										<p>See how the foreign-born density of counties in the US changes over time.</p>
+										<p>Use the map to see where the foreign-born as a whole or for a selected country were concentrated. Select a county by clicking on it.</p>
 										<img src='./static/images/introModalStep01.png' />
 									</div>
 								</li>
 								<li className='wider'>
 									<div className='ordinal'>2</div>
 									<div className='item text-overlay'>
-										<p>The green circles indicate how many people in the US were born in that country in a given year.</p>
+										<p>The green circles show the number of immigrants from that country or region. Click on them to select the country.</p>
 										<img src='./static/images/introModalStep02.png' />
 									</div>
 								</li>
 								<li>
 									<div className='ordinal descender'>3</div>
 									<div className='item'>
-										<p>The timeline shows totals for the US as well as whatever country or county is selected.</p>
+										<p>The charts shows how the foreign-born population of a selected county compared to the US as a whole or how it changed for a selected country.</p>
 										<img src='./static/images/introModalStep03.png' />
 									</div>
 								</li>
 								<li className='wider'>
 									<div className='ordinal descender'>4</div>
 									<div className='item'>
-										<p>See which country had the largest migrant population for the given year.</p>
+										<p>See which country had the largest foreign-born population during a given decade.</p>
 										<img src='./static/images/introModalStep04.png' />
 									</div>
 								</li>
 							</ol>
 						</div>
-						<p className='map-desc'>Lorem dim sum turnip cake leek dumplings deep fried taro turnover. Cha siu sou Cheong fan pan fried bitter melon beef dumpling mango pudding coconut milk pudding.</p>
+						<p className='map-desc'>This map uses census data to visualize the evolving places immigrants came from and where they came to from the mid-nineteenth century to today.</p>
 						<div className='intro-modal-button' onClick={ this.dismissIntro }>Enter</div>
 						<div className='footer'>
 							<div onClick={ function (e) { this.setPage(0); }.bind(this) }>&lt; back</div>
