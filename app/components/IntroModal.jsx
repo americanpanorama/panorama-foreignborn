@@ -96,28 +96,28 @@ var IntroModal = React.createClass({
 								<li>
 									<div className='ordinal'>1</div>
 									<div className='item'>
-										<p>Use the map to see where the foreign-born as a whole or for a selected country were concentrated. Select a county by clicking on it.</p>
+										<p>See how the foreign-born density of counties in the US changes over time.</p>
 										<img src='./static/images/introModalStep01.png' />
 									</div>
 								</li>
 								<li className='wider'>
 									<div className='ordinal'>2</div>
 									<div className='item text-overlay'>
-										<p>The green circles show the number of immigrants from that country or region. Click on them to select the country.</p>
+										<p>The green circles indicate how many people in the US were born in that country in a given year.</p>
 										<img src='./static/images/introModalStep02.png' />
 									</div>
 								</li>
 								<li>
 									<div className='ordinal descender'>3</div>
 									<div className='item'>
-										<p>The charts shows how the foreign-born population of a selected county compared to the US as a whole or how it changed for a selected country.</p>
+										<p>The timeline shows totals for the US as well as whatever country or county is selected.</p>
 										<img src='./static/images/introModalStep03.png' />
 									</div>
 								</li>
 								<li className='wider'>
 									<div className='ordinal descender'>4</div>
 									<div className='item'>
-										<p>See which country had the largest foreign-born population during a given decade.</p>
+										<p>See which country had the largest migrant population for the given year.</p>
 										<img src='./static/images/introModalStep04.png' />
 									</div>
 								</li>
