@@ -27,7 +27,9 @@ function update(data) {
   svg.selectAll('text').remove();
 
   var circle = svg.selectAll('circle')
-    .data(data);
+    .data(data.sort(function (a, b) {
+      return b.r - a.r; 
+    }));
 
   circle.enter().append('circle')
     .attr('r', function(d){

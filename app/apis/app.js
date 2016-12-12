@@ -10,7 +10,7 @@ var COUNTRY_QUERY = 'SELECT ST_X(the_geom) as lng,ST_Y(the_geom) as lat,category
 var COUNTRY_POP_BREAKDOWN = "select category,count,RTRIM(nhgis_join) as nhgis_join, place_total from site_foreignborn_country_to_county_counts_materialized where country='{country}' and year={year}";
 var COUNTY_QUERY = 'SELECT SUM(count) as count, SUM(cty_pop) as cty_pop, AVG(area_sqmi) as area_sqmi, nhgis_join FROM site_foreignborn_counties_prod_materialized WHERE start_n < {startN} and end_n >= {startN} and year = {year} group by nhgis_join';
 var TOTAL_US_POP = 'SELECT year, pop FROM site_foreignborn_us_pop_totals_materialized';
-var COUNTY_BREAKDOWN = "SELECT year, country, count, place_total FROM site_foreignborn_county_breakdowns_materialized WHERE RTRIM(nhgis_join) = '{nhgis_join}'";
+var COUNTY_BREAKDOWN = "SELECT year, country, count, place_total FROM site_foreignborn_county_breakdowns_materialized WHERE nhgis_join = '{nhgis_join}'";
 var COUNTY_POP_BREAKDOWN = "SELECT year, count, cty_pop, name, state_terr FROM site_foreignborn_counties_prod_materialized WHERE RTRIM(nhgis_join) = '{nhgis_join}'"
 var WORLD = {
   key: 'world',

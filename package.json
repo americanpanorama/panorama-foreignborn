@@ -23,7 +23,7 @@
     "cartodb-client": "stamen/cartodb-client.git",
     "classnames": "^1.2.0",
     "d3": "^3.5.5",
-    "d3-geo-projection": "",
+    "d3-geo-projection": "0.2.16",
     "deepcopy": "^0.5.0",
     "es6-promise": "",
     "escape-string-regexp": "~1.0.2",

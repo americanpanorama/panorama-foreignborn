@@ -30,6 +30,7 @@ var LegendNestedCircles = require('./components/legends/nested-circles.jsx');
 var LegendGrid = require('./components/legends/grid.jsx');
 var Loupe = require('./components/Loupe.jsx');
 var Navigation = require('./components/PanoramaNavigation.jsx');
+var IntroModal = require('./components/IntroModal.jsx');
 
 // config
 var PanoramaNavData = require("../data/panorama_nav.json");
@@ -126,11 +127,14 @@ var App = React.createClass({
       geographyData: GeographyStore.getDataByDecade(merged.decade.value),
       about: false,
       width: window.innerWidth,
-      show_menu: false
+      show_menu: false,
+      showIntroModal: window.localStorage.getItem('hasViewedIntroModal-foreignborn') !== 'true'
     };
   },
 
   componentWillMount: function() {
+    this.onDismissIntroModal = this.onDismissIntroModal.bind(this);
+
     // Initialize Geography store
     GeographyStore.decade(this.state.decade);
     GeographyStore.county(this.state.county);
@@ -337,6 +341,15 @@ var App = React.createClass({
 
   onPanoramaMenuClick: function() {
     this.setState({show_menu: !this.state.show_menu});
+  },
+
+  onDismissIntroModal: function(persist) {
+    if (persist) {
+      window.localStorage.setItem('hasViewedIntroModal-foreignborn', 'true');
+    }
+    this.setState({
+      showIntroModal: false
+    });
   },
 
   getNavData: function() {
@@ -669,6 +682,8 @@ var App = React.createClass({
           <p><a href='https://mellon.org'>The Andrew W. Mellon Foundation</a> generously provided grant finding to develop <cite>American Panorama</cite>.</p>
 
         </Modal>
+
+        { this.state.showIntroModal ? <IntroModal onDismiss={ this.onDismissIntroModal } /> : '' }
 
       </div>
     );
