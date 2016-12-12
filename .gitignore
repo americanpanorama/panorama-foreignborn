@@ -37,9 +37,9 @@ bower_components
 
 npm-debug.log
 
-.sublime-project
+*.sublime-project
 
-.submlime-workspace
+*.sublime-workspace
 
 build
 dist
