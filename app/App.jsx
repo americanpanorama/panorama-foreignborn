@@ -60,8 +60,8 @@ var viewportDirty = false;
 hashManager.set({
   decade: {
     required: true,
-    default: 1850,
-    value: 1850,
+    default: 2010,
+    value: 2010,
     type: "Number"
   },
   county: {

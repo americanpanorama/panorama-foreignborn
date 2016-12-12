@@ -14,7 +14,7 @@ ForeignBornCopy.errors['NO_COUNTRY_DATA'] = "This country had no foreign-born po
 
 //copy for lower right decade descriptions
 ForeignBornCopy.years = {};
-ForeignBornCopy.years['1850'] = "In 1850, more than 2 of every 5 immigrants had been born in Ireland. Many had left fleeing growing poverty and later the Potato Famine. They mainly settled in urban areas of the northeast.";
+ForeignBornCopy.years['1850'] = "In 1850, more than 2 of every 5 immigrants had been born in Ireland. Many had left fleeing growing poverty and the Potato Famine of the 1840s. They mainly settled in urban areas of the northeast.";
 ForeignBornCopy.years['1860'] = "In 1860 nearly a third of the foreign-born had emigrated from Germany. In contrast to the Irish, Germans migrated as families, tended to be skilled workers or farmers, and settled more in the agricultural interior rather than the urban northeast.";
 ForeignBornCopy.years['1870'] = "In 1870, the Swedish and Norwegian-born population of the US was over 200,000. Mostly land-hungry farmers who left countries with limited tillable land where the population was growing quickly, they largely settled in the agricultural upper midwest.";
 ForeignBornCopy.years['1880'] = "In 1880, the Chinese-born population was concentrated in northern California. Almost exclusively male, many Chinese migrants came to labor on railroad construction. With the Chinese Exclusion Act of 1882, the US targeted this immigrant community with racist immigration restrictions.";

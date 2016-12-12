@@ -17,7 +17,7 @@
 	},
 	{
 		"title"         : "Foreign-Born Population",
-		"url"           : "http://dsl.richmond.edu/panorama/foreignborn/",
+		"url"           : "http://dsl.richmond.edu/panorama/foreignborn/#decade=2010",
 		"screenshot"    : "http://dsl.richmond.edu/panorama/static/images/foreign-born-img.png",
 		"start_year"    : 1850,
 		"end_year"      : 2010,
@@ -30,5 +30,13 @@
 		"start_year"    : 1800,
 		"end_year"      : 1860,
 		"tags"          : []
-	}
+	},
+	{
+		"title"         : "Mapping Inequality: Redlining in New Deal America",
+		"url"           : "http://dsl.richmond.edu/panorama/redlining/",
+		"screenshot"    : "http://dsl.richmond.edu/panorama/static/images/holc-img.png",
+		"start_year"    : 1930,
+		"end_year"      : 1940,
+		"tags"          : []
+	},
 ]
