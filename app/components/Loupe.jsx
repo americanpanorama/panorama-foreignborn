@@ -4,7 +4,7 @@ var d3      = require('d3');
 var config        = require("../../.env.json");
 var CartoDBClient = require("cartodb-client");
 
-var client = new CartoDBClient(config.cartodbAccountName);
+var client = new CartoDBClient(config.cartodbAccountName, { apiroot: 'https://' + config.cartodbAccountName + '.cartodb.com/api/v2/' });
 
 /* Privates */
 var QUERY = 'SELECT the_geom, gisjoin as nhgis_join FROM us_county_mapshaper_materialized WHERE year = {year} and ({bbox})';
