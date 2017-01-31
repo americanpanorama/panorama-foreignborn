@@ -7,7 +7,7 @@ var PanoramaNavigation = React.createClass({
 	getDefaultProps: function() {
 		return {
 			title: 'American Panorama',
-    		home_url: 'http://dsl.richmond.edu/panorama',
+    		home_url: '//dsl.richmond.edu/panorama',
     		links: [],
     		link_separator: ' ',
     		nav_data: {},
@@ -67,7 +67,7 @@ var PanoramaNavigation = React.createClass({
 		return (
 			<div>
 
-				<div id='hamburger'><img src='http://dsl.richmond.edu/panorama/static/images/hamburger.png' onClick={ this.props.on_hamburger_click } /></div>
+				<div id='hamburger'><img src='//dsl.richmond.edu/panorama/static/images/hamburger.png' onClick={ this.props.on_hamburger_click } /></div>
 
 				<Modal
 				  isOpen={ this.props.show_panorama_menu }
@@ -77,7 +77,7 @@ var PanoramaNavigation = React.createClass({
 				  style={ this.props.style }
 				>
 					<div id='nav_header'>
-						<div id='navburger'><img src='http://dsl.richmond.edu/panorama/static/images/hamburger.png' onClick={ this.props.on_hamburger_click } /></div>
+						<div id='navburger'><img src='//dsl.richmond.edu/panorama/static/images/hamburger.png' onClick={ this.props.on_hamburger_click } /></div>
 					
 						{ (this.props.title && this.props.home_url) ? <h1><a href={ this.props.home_url }>{ this.props.title }</a></h1> : '' }
 

@@ -530,7 +530,7 @@ var App = React.createClass({
           show_panorama_menu={ this.state.show_menu } 
           on_hamburger_click={ this.onPanoramaMenuClick } 
           nav_data={ this.getNavData() }  
-          links={ [ {name: 'Digital Scholarship Lab', url: 'http://dsl.richmond.edu'}, { name: 'University of Richmond', url: 'http://www.richmond.edu' } ] }
+          links={ [ {name: 'Digital Scholarship Lab', url: '//dsl.richmond.edu'}, { name: 'University of Richmond', url: '//www.richmond.edu' } ] }
           link_separator=', '
         />
 
@@ -588,7 +588,7 @@ var App = React.createClass({
                 />
               </div>
               <button>
-                <svg xmlns="http://www.w3.org/2000/svg" width="14.6px" height="14.6px" viewBox="0 0 14.6 14.6" >
+                <svg xmlns="//www.w3.org/2000/svg" width="14.6px" height="14.6px" viewBox="0 0 14.6 14.6" >
                   <path fill="#FFFFFF" d="M12.9,1.7c-2.2-2.2-5.8-2.2-8,0c-1.8,1.8-2.1,4.6-1,6.7l-3.4,3.4c-0.6,0.6-0.6,1.6,0,2.2l0.1,0.1
                   c0.6,0.6,1.6,0.6,2.2,0l3.4-3.4c2.2,1.2,4.9,0.8,6.7-1C15.1,7.5,15.1,3.9,12.9,1.7z M11.3,8C10,9.4,7.8,9.4,6.5,8
                   c-1.3-1.3-1.3-3.4,0-4.7s3.4-1.3,4.7,0C12.6,4.6,12.6,6.7,11.3,8z"/>
@@ -661,7 +661,7 @@ var App = React.createClass({
 
           <h2>Sources</h2>
 
-          <p>All of the data comes from <a href='https://www.nhgis.org/'>Minnesota Population Center, National Historical Geographic Information System: Version 2.0 (Minneapolis, MN: University of Minnesota, 2011)</a>. County boundaries are from the Newberry Library's <a href='http://publications.newberry.org/ahcbp/'>Atlas of Historical County Boundaries</a>.</p>
+          <p>All of the data comes from <a href='//www.nhgis.org/'>Minnesota Population Center, National Historical Geographic Information System: Version 2.0 (Minneapolis, MN: University of Minnesota, 2011)</a>. County boundaries are from the Newberry Library's <a href='//publications.newberry.org/ahcbp/'>Atlas of Historical County Boundaries</a>.</p>
 
           <h2>Suggested Reading</h2>
 
@@ -677,9 +677,9 @@ var App = React.createClass({
 
         <p>This map is authored by the staff of the Digital Scholarship Lab: Robert K. Nelson, Scott Nesbit, Edward L. Ayers, Justin Madron, and Nathaniel Ayers. Kim D'agostini and Erica Havens geolocated country locations.</p>
 
-          <p>The developers, designers, and staff at <a href='http://stamen.com'>Stamen Design</a> have been exceptional partners on this project. Our thanks to Kai Chang, Jon Christensen, Sean Connelley, Seth Fitzsimmons, Eric Gelinas, Heather Grates, Nicolette Hayes, Alan McConchie, Michael Neuman, Dan Rademacher, Eric Rodenbeck, and Eric Socolofsky.</p>
+          <p>The developers, designers, and staff at <a href='//stamen.com'>Stamen Design</a> have been exceptional partners on this project. Our thanks to Kai Chang, Jon Christensen, Sean Connelley, Seth Fitzsimmons, Eric Gelinas, Heather Grates, Nicolette Hayes, Alan McConchie, Michael Neuman, Dan Rademacher, Eric Rodenbeck, and Eric Socolofsky.</p>
 
-          <p><a href='https://mellon.org'>The Andrew W. Mellon Foundation</a> generously provided grant finding to develop <cite>American Panorama</cite>.</p>
+          <p><a href='//mellon.org'>The Andrew W. Mellon Foundation</a> generously provided grant finding to develop <cite>American Panorama</cite>.</p>
 
         </Modal>
 
